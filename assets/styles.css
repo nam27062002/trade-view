@@ -341,7 +341,8 @@ body::before {
     color: #79c0ff;
     text-align: center;
     margin: 15px 0;
-    word-break: break-all;
+    white-space: nowrap;
+    overflow: visible;
     text-shadow: 0 2px 8px rgba(121, 192, 255, 0.4);
     position: relative;
     z-index: 10;
@@ -352,6 +353,21 @@ body::before {
     -webkit-backdrop-filter: none;
     will-change: transform;
     transform: translateZ(0);
+    min-width: 0;
+    word-spacing: 0.1em;
+    letter-spacing: 0;
+}
+
+@media (max-width: 480px) {
+    .balance-display {
+        font-size: 1.4rem;
+    }
+}
+
+@media (min-width: 481px) and (max-width: 767px) {
+    .balance-display {
+        font-size: 1.6rem;
+    }
 }
 
 @media (min-width: 768px) {
