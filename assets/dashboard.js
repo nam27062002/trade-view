@@ -12,6 +12,12 @@ class TradingDashboard {
         this.tradesData = [];
         this.currentStats = {};
 
+        // Previous data for smart updates
+        this.previousBalance = null;
+        this.previousStats = {};
+        this.lastDataTimestamp = 0;
+        this.isUpdating = false;
+
         // Chart colors
         this.colors = {
             primary: 'rgba(255, 255, 255, 0.8)',
@@ -193,15 +199,30 @@ class TradingDashboard {
     }
 
     async loadAllData() {
+        if (this.isUpdating) return; // Prevent concurrent updates
+
         try {
+            this.isUpdating = true;
+            const previousBalanceLength = this.balanceData.length;
+            const previousTradesLength = this.tradesData.length;
+
             await Promise.all([
                 this.loadBalanceData(),
                 this.loadTradesData()
             ]);
-            this.updateDashboard();
+
+            // Smart update logic
+            const hasNewBalance = this.balanceData.length > previousBalanceLength;
+            const hasNewTrades = this.tradesData.length > previousTradesLength;
+
+            if (hasNewBalance || hasNewTrades) {
+                this.smartUpdateDashboard(hasNewBalance, hasNewTrades);
+            }
         } catch (error) {
             console.error('Error loading data:', error);
             this.updateStatus('error', 'Failed to load data');
+        } finally {
+            this.isUpdating = false;
         }
     }
 
@@ -300,6 +321,21 @@ class TradingDashboard {
         this.updateTradesDisplay();
     }
 
+    smartUpdateDashboard(hasNewBalance, hasNewTrades) {
+        // Always update balance and stats if there's new balance data
+        if (hasNewBalance) {
+            this.smartUpdateBalanceDisplay();
+            this.smartUpdateStatsDisplay();
+            this.smartUpdateBalanceChart();
+        }
+
+        // Update trades and results chart if there's new trade data
+        if (hasNewTrades) {
+            this.smartUpdateResultsChart();
+            this.smartUpdateTradesDisplay();
+        }
+    }
+
     updateBalanceDisplay() {
         const balanceEl = document.getElementById('currentBalance');
         const changeEl = document.getElementById('balanceChange');
@@ -330,6 +366,32 @@ class TradingDashboard {
         }
     }
 
+    smartUpdateBalanceDisplay() {
+        const balanceEl = document.getElementById('currentBalance');
+        const changeEl = document.getElementById('balanceChange');
+
+        if (this.balanceData.length === 0) return;
+
+        const latest = this.balanceData[this.balanceData.length - 1];
+        const balance = latest.balance || 0;
+
+        // Only update if balance actually changed
+        if (this.previousBalance !== balance) {
+            // Add smooth transition
+            balanceEl.style.transition = 'all 0.3s ease';
+            changeEl.style.transition = 'all 0.3s ease';
+
+            // Flash effect for new data
+            balanceEl.style.background = 'rgba(88, 166, 255, 0.2)';
+            setTimeout(() => {
+                balanceEl.style.background = 'transparent';
+            }, 500);
+
+            this.updateBalanceDisplay();
+            this.previousBalance = balance;
+        }
+    }
+
     updateStatsDisplay() {
         const latest = this.balanceData[this.balanceData.length - 1];
         const performance = latest?.performance || {};
@@ -351,6 +413,39 @@ class TradingDashboard {
 
         // Store for other uses
         this.currentStats = { wins, losses, refunds, totalTrades, winRate };
+    }
+
+    smartUpdateStatsDisplay() {
+        const latest = this.balanceData[this.balanceData.length - 1];
+        const performance = latest?.performance || {};
+
+        const newStats = {
+            wins: performance.wins || 0,
+            losses: performance.losses || 0,
+            refunds: performance.refunds || 0,
+            lastResult: performance.last_result || '--'
+        };
+
+        // Check if any stats changed
+        const statsChanged = JSON.stringify(this.previousStats) !== JSON.stringify(newStats);
+
+        if (statsChanged) {
+            // Add pulse animation to changed stats
+            const statElements = ['winRate', 'totalTrades', 'wins', 'losses', 'refunds', 'lastResult'];
+            statElements.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) {
+                    el.style.transition = 'all 0.3s ease';
+                    el.style.transform = 'scale(1.05)';
+                    setTimeout(() => {
+                        el.style.transform = 'scale(1)';
+                    }, 300);
+                }
+            });
+
+            this.updateStatsDisplay();
+            this.previousStats = { ...newStats };
+        }
     }
 
     updateBalanceChart() {
@@ -383,31 +478,113 @@ class TradingDashboard {
         gradient.addColorStop(0, this.colors.gradient.primary[0]);
         gradient.addColorStop(1, this.colors.gradient.primary[1]);
 
+        // Find max and min values with their indices
+        const balanceValues = filteredData.map(item => item.balance || 0);
+        const maxBalance = Math.max(...balanceValues);
+        const minBalance = Math.min(...balanceValues);
+        const maxIndex = balanceValues.indexOf(maxBalance);
+        const minIndex = balanceValues.indexOf(minBalance);
+
+        // Create datasets with markers for max/min points
+        const datasets = [{
+            label: 'Balance (VND)',
+            data: filteredData.map(item => item.balance || 0),
+            borderColor: this.colors.primary,
+            backgroundColor: gradient,
+            borderWidth: 3,
+            tension: 0.4,
+            fill: true,
+            pointBackgroundColor: this.colors.primary,
+            pointBorderColor: 'rgba(255, 255, 255, 1)',
+            pointBorderWidth: 2,
+            pointRadius: 2,
+            pointHoverRadius: 4
+        }];
+
+        // Add max balance marker (green dot)
+        if (maxIndex !== -1) {
+            datasets.push({
+                label: `Max: ${this.formatNumber(maxBalance)} VND`,
+                data: filteredData.map((_, index) => index === maxIndex ? maxBalance : null),
+                borderColor: '#4caf50',
+                backgroundColor: '#4caf50',
+                borderWidth: 3,
+                pointRadius: 8,
+                pointHoverRadius: 10,
+                pointBorderWidth: 3,
+                pointBorderColor: 'rgba(255, 255, 255, 1)',
+                showLine: false,
+                fill: false
+            });
+        }
+
+        // Add min balance marker (red dot)
+        if (minIndex !== -1) {
+            datasets.push({
+                label: `Min: ${this.formatNumber(minBalance)} VND`,
+                data: filteredData.map((_, index) => index === minIndex ? minBalance : null),
+                borderColor: '#f44336',
+                backgroundColor: '#f44336',
+                borderWidth: 3,
+                pointRadius: 8,
+                pointHoverRadius: 10,
+                pointBorderWidth: 3,
+                pointBorderColor: 'rgba(255, 255, 255, 1)',
+                showLine: false,
+                fill: false
+            });
+        }
+
         this.charts.balance = new Chart(ctx, {
             type: 'line',
             data: {
                 labels: filteredData.map(item => this.formatTime(item.timestamp)),
-                datasets: [{
-                    label: 'Balance (VND)',
-                    data: filteredData.map(item => item.balance || 0),
-                    borderColor: this.colors.primary,
-                    backgroundColor: gradient,
-                    borderWidth: 3,
-                    tension: 0.4,
-                    fill: true,
-                    pointBackgroundColor: this.colors.primary,
-                    pointBorderColor: 'rgba(255, 255, 255, 1)',
-                    pointBorderWidth: 2,
-                    pointRadius: 2,
-                    pointHoverRadius: 4
-                }]
+                datasets: datasets
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
+                animation: {
+                    duration: 750,
+                    easing: 'easeInOutQuart'
+                },
                 plugins: {
                     legend: {
-                        display: false
+                        display: true,
+                        position: 'top',
+                        labels: {
+                            color: 'rgba(255, 255, 255, 0.8)',
+                            padding: 15,
+                            usePointStyle: true,
+                            pointStyle: 'circle',
+                            filter: function(legendItem) {
+                                // Only show max/min markers in legend
+                                return legendItem.text.includes('Max:') || legendItem.text.includes('Min:');
+                            },
+                            font: {
+                                size: 12,
+                                weight: '600'
+                            }
+                        }
+                    },
+                    tooltip: {
+                        mode: 'index',
+                        intersect: false,
+                        backgroundColor: 'rgba(33, 38, 45, 0.95)',
+                        titleColor: '#e6edf3',
+                        bodyColor: '#e6edf3',
+                        borderColor: 'rgba(88, 166, 255, 0.3)',
+                        borderWidth: 1,
+                        cornerRadius: 8,
+                        displayColors: true,
+                        callbacks: {
+                            label: function(context) {
+                                if (context.dataset.label.includes('Max:') || context.dataset.label.includes('Min:')) {
+                                    return context.dataset.label;
+                                }
+                                return `Balance: ${context.parsed.y.toLocaleString('vi-VN')} VND`;
+                            }
+                        }
                     }
                 },
                 scales: {
@@ -438,6 +615,56 @@ class TradingDashboard {
                 }
             }
         });
+    }
+
+    smartUpdateBalanceChart() {
+        if (!this.charts.balance || this.balanceData.length === 0) {
+            this.updateBalanceChart();
+            return;
+        }
+
+        const timeRange = document.getElementById('timeRange').value;
+        const now = new Date();
+        const cutoff = new Date(now);
+
+        switch (timeRange) {
+            case '1h': cutoff.setHours(now.getHours() - 1); break;
+            case '6h': cutoff.setHours(now.getHours() - 6); break;
+            case '24h': cutoff.setDate(now.getDate() - 1); break;
+            case '7d': cutoff.setDate(now.getDate() - 7); break;
+            case '30d': cutoff.setDate(now.getDate() - 30); break;
+        }
+
+        let filteredData = this.balanceData.filter(item => item.timestamp >= cutoff);
+        filteredData = this.sampleChartData(filteredData, timeRange);
+
+        // Find max and min values with their indices
+        const balanceValues = filteredData.map(item => item.balance || 0);
+        const maxBalance = Math.max(...balanceValues);
+        const minBalance = Math.min(...balanceValues);
+        const maxIndex = balanceValues.indexOf(maxBalance);
+        const minIndex = balanceValues.indexOf(minBalance);
+
+        // Update labels
+        this.charts.balance.data.labels = filteredData.map(item => this.formatTime(item.timestamp));
+
+        // Update main balance line
+        this.charts.balance.data.datasets[0].data = balanceValues;
+
+        // Update or add max marker dataset
+        if (this.charts.balance.data.datasets.length > 1) {
+            this.charts.balance.data.datasets[1].data = filteredData.map((_, index) => index === maxIndex ? maxBalance : null);
+            this.charts.balance.data.datasets[1].label = `Max: ${this.formatNumber(maxBalance)} VND`;
+        }
+
+        // Update or add min marker dataset
+        if (this.charts.balance.data.datasets.length > 2) {
+            this.charts.balance.data.datasets[2].data = filteredData.map((_, index) => index === minIndex ? minBalance : null);
+            this.charts.balance.data.datasets[2].label = `Min: ${this.formatNumber(minBalance)} VND`;
+        }
+
+        // Smooth update with animation
+        this.charts.balance.update('none'); // No animation for smooth experience
     }
 
     updateResultsChart() {
@@ -488,6 +715,19 @@ class TradingDashboard {
                 }
             }
         });
+    }
+
+    smartUpdateResultsChart() {
+        if (!this.charts.results) {
+            this.updateResultsChart();
+            return;
+        }
+
+        const { wins, losses, refunds } = this.currentStats;
+
+        // Update data smoothly
+        this.charts.results.data.datasets[0].data = [wins, losses, refunds];
+        this.charts.results.update('none'); // No animation for smooth experience
     }
 
     updateTradesDisplay() {
@@ -555,16 +795,43 @@ class TradingDashboard {
         }
     }
 
+    smartUpdateTradesDisplay() {
+        const container = document.getElementById('tradesContainer');
+
+        // Only update if we have new trades
+        if (this.tradesData.length === 0) return;
+
+        // Add fade-in animation for new trades
+        const currentChildren = container.children.length;
+
+        // Update the display
+        this.updateTradesDisplay();
+
+        // Animate new trades if any
+        if (container.children.length > currentChildren) {
+            const newTrades = Array.from(container.children).slice(0, container.children.length - currentChildren);
+            newTrades.forEach((trade, index) => {
+                trade.style.opacity = '0';
+                trade.style.transform = 'translateY(-10px)';
+                setTimeout(() => {
+                    trade.style.transition = 'all 0.3s ease';
+                    trade.style.opacity = '1';
+                    trade.style.transform = 'translateY(0)';
+                }, index * 100);
+            });
+        }
+    }
+
 
     startAutoRefresh() {
         if (this.refreshInterval) {
             clearInterval(this.refreshInterval);
         }
 
-        // Refresh every 30 seconds
+        // Refresh every 10 seconds for more responsive updates
         this.refreshInterval = setInterval(() => {
             this.loadAllData();
-        }, 30000);
+        }, 10000);
     }
 
     // Utility functions
