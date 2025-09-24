@@ -298,7 +298,6 @@ class TradingDashboard {
         this.updateBalanceChart();
         this.updateResultsChart();
         this.updateTradesDisplay();
-        this.updateStrategyInfo();
     }
 
     updateBalanceDisplay() {
@@ -370,7 +369,10 @@ class TradingDashboard {
             case '30d': cutoff.setDate(now.getDate() - 30); break;
         }
 
-        const filteredData = this.balanceData.filter(item => item.timestamp >= cutoff);
+        let filteredData = this.balanceData.filter(item => item.timestamp >= cutoff);
+
+        // Sample data to reduce chart density
+        filteredData = this.sampleChartData(filteredData, timeRange);
 
         if (this.charts.balance) {
             this.charts.balance.destroy();
@@ -396,8 +398,8 @@ class TradingDashboard {
                     pointBackgroundColor: this.colors.primary,
                     pointBorderColor: 'rgba(255, 255, 255, 1)',
                     pointBorderWidth: 2,
-                    pointRadius: 4,
-                    pointHoverRadius: 6
+                    pointRadius: 2,
+                    pointHoverRadius: 4
                 }]
             },
             options: {
@@ -553,24 +555,6 @@ class TradingDashboard {
         }
     }
 
-    updateStrategyInfo() {
-        // Extract strategy info from latest trades
-        const latestTrade = this.tradesData[0];
-        if (latestTrade) {
-            const mlDebug = latestTrade.ml_debug || '';
-            const strategy = this.extractStrategy(mlDebug) || 'Unknown';
-
-            document.getElementById('currentStrategy').textContent = strategy;
-            document.getElementById('currentTimepoint').textContent = latestTrade.bet_cd || '--';
-            document.getElementById('betSize').textContent = this.formatNumber(10000) + ' VND'; // Default from code
-            document.getElementById('mlEnabled').textContent = mlDebug ? 'Yes' : 'No';
-        } else {
-            document.getElementById('currentStrategy').textContent = '--';
-            document.getElementById('currentTimepoint').textContent = '--';
-            document.getElementById('betSize').textContent = '--';
-            document.getElementById('mlEnabled').textContent = '--';
-        }
-    }
 
     startAutoRefresh() {
         if (this.refreshInterval) {
@@ -618,10 +602,32 @@ class TradingDashboard {
         }).format(date);
     }
 
-    extractStrategy(mlDebug) {
-        if (!mlDebug) return null;
-        // Try to extract strategy from debug info if available
-        return 'contrary_money'; // Default from code
+
+    sampleChartData(data, timeRange) {
+        if (data.length <= 50) return data;
+
+        // Determine sampling interval based on time range and data density
+        let sampleInterval;
+        switch (timeRange) {
+            case '1h': sampleInterval = Math.max(1, Math.floor(data.length / 30)); break;
+            case '6h': sampleInterval = Math.max(1, Math.floor(data.length / 50)); break;
+            case '24h': sampleInterval = Math.max(1, Math.floor(data.length / 60)); break;
+            case '7d': sampleInterval = Math.max(1, Math.floor(data.length / 70)); break;
+            case '30d': sampleInterval = Math.max(1, Math.floor(data.length / 80)); break;
+            default: sampleInterval = Math.max(1, Math.floor(data.length / 50));
+        }
+
+        const sampledData = [];
+        for (let i = 0; i < data.length; i += sampleInterval) {
+            sampledData.push(data[i]);
+        }
+
+        // Always include the last data point
+        if (data.length > 0 && sampledData[sampledData.length - 1] !== data[data.length - 1]) {
+            sampledData.push(data[data.length - 1]);
+        }
+
+        return sampledData;
     }
 
     convertSide(side) {
