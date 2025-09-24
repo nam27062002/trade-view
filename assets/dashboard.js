@@ -14,12 +14,18 @@ class TradingDashboard {
 
         // Chart colors
         this.colors = {
-            primary: '#1e3c72',
+            primary: 'rgba(255, 255, 255, 0.8)',
             success: '#4caf50',
             danger: '#f44336',
             warning: '#ff9800',
             info: '#2196f3',
-            background: 'rgba(30, 60, 114, 0.1)'
+            background: 'rgba(255, 255, 255, 0.1)',
+            gradient: {
+                primary: ['rgba(255, 255, 255, 0.3)', 'rgba(255, 255, 255, 0.1)'],
+                success: ['rgba(76, 175, 80, 0.3)', 'rgba(76, 175, 80, 0.1)'],
+                danger: ['rgba(244, 67, 54, 0.3)', 'rgba(244, 67, 54, 0.1)'],
+                warning: ['rgba(255, 152, 0, 0.3)', 'rgba(255, 152, 0, 0.1)']
+            }
         };
 
         this.init();
@@ -370,6 +376,11 @@ class TradingDashboard {
             this.charts.balance.destroy();
         }
 
+        // Create gradient
+        const gradient = ctx.createLinearGradient(0, 0, 0, 300);
+        gradient.addColorStop(0, this.colors.gradient.primary[0]);
+        gradient.addColorStop(1, this.colors.gradient.primary[1]);
+
         this.charts.balance = new Chart(ctx, {
             type: 'line',
             data: {
@@ -378,9 +389,15 @@ class TradingDashboard {
                     label: 'Balance (VND)',
                     data: filteredData.map(item => item.balance || 0),
                     borderColor: this.colors.primary,
-                    backgroundColor: this.colors.background,
+                    backgroundColor: gradient,
+                    borderWidth: 3,
                     tension: 0.4,
-                    fill: true
+                    fill: true,
+                    pointBackgroundColor: this.colors.primary,
+                    pointBorderColor: 'rgba(255, 255, 255, 1)',
+                    pointBorderWidth: 2,
+                    pointRadius: 4,
+                    pointHoverRadius: 6
                 }]
             },
             options: {
@@ -394,12 +411,22 @@ class TradingDashboard {
                 scales: {
                     y: {
                         beginAtZero: false,
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)',
+                            drawBorder: false
+                        },
                         ticks: {
+                            color: 'rgba(255, 255, 255, 0.7)',
                             callback: value => this.formatNumber(value)
                         }
                     },
                     x: {
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)',
+                            drawBorder: false
+                        },
                         ticks: {
+                            color: 'rgba(255, 255, 255, 0.7)',
                             maxTicksLimit: 10
                         }
                     }
@@ -430,17 +457,32 @@ class TradingDashboard {
                         this.colors.danger,
                         this.colors.warning
                     ],
-                    borderWidth: 2,
-                    borderColor: '#fff'
+                    borderWidth: 3,
+                    borderColor: 'rgba(255, 255, 255, 0.2)',
+                    hoverBorderWidth: 5,
+                    hoverBorderColor: 'rgba(255, 255, 255, 0.8)'
                 }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
+                cutout: '60%',
                 plugins: {
                     legend: {
-                        position: 'bottom'
+                        position: 'bottom',
+                        labels: {
+                            color: 'rgba(255, 255, 255, 0.8)',
+                            padding: 20,
+                            usePointStyle: true,
+                            pointStyle: 'circle'
+                        }
                     }
+                },
+                animation: {
+                    animateRotate: true,
+                    animateScale: true,
+                    duration: 1000,
+                    easing: 'easeInOutQuart'
                 }
             }
         });

@@ -1,6 +1,6 @@
 # 📊 Trading Dashboard
 
-A standalone web dashboard for monitoring live trading performance with professional analytics. This dashboard connects directly to Firebase to display real-time balance, trade history, and performance metrics with mobile-optimized design.
+A stunning glassmorphism web dashboard for monitoring live trading performance. Features modern UI with animated gradients, backdrop blur effects, and seamless Firebase integration. Automatically reads configuration from `firebase-config.json` for instant deployment.
 
 ## ✨ Features
 
@@ -12,6 +12,9 @@ A standalone web dashboard for monitoring live trading performance with professi
 - 🔧 **Easy Configuration** - Web-based Firebase configuration setup
 - 📱 **Mobile-First Design** - Optimized touch interface with responsive layouts
 - 🔄 **Buy/Sell Terminology** - Professional trading interface with clear Buy/Sell indicators
+- ✨ **Glassmorphism UI** - Modern frosted glass effects with backdrop blur
+- 🌈 **Animated Gradients** - Dynamic color-shifting backgrounds and hover effects
+- 📄 **Auto Config Loading** - Reads `firebase-config.json` automatically on startup
 
 ## 🚀 Quick Start
 
@@ -23,10 +26,8 @@ A standalone web dashboard for monitoring live trading performance with professi
 
 ### 2. Configure Firebase
 
-1. **Open the deployed website** (`https://yourusername.github.io/repository-name/`)
-2. **Configuration modal will appear automatically** on first visit
-3. **Fill in your Firebase configuration:**
-
+#### Option A: Automatic Configuration (Recommended)
+1. **Edit `firebase-config.json`** in your repository with your Firebase settings:
    ```json
    {
      "apiKey": "your-api-key-here",
@@ -35,15 +36,17 @@ A standalone web dashboard for monitoring live trading performance with professi
      "projectId": "your-project-id",
      "storageBucket": "your-project-id.appspot.com",
      "messagingSenderId": "123456789012",
-     "appId": "1:123456789012:web:abcdef1234567890"
+     "appId": "1:123456789012:web:abcdef1234567890",
+     "dataSource": "rtdb"
    }
    ```
 
-4. **Select data source:**
-   - **Firebase Realtime Database** (default) - for RTDB data structure
-   - **Firebase Firestore** - for Firestore collections
+2. **Deploy and visit** - Dashboard will automatically connect using the config file!
 
-5. **Save and connect** - Dashboard will initialize and start loading data
+#### Option B: Manual Configuration
+- If `firebase-config.json` is not found, a configuration modal will appear
+- Fill in your Firebase settings manually
+- Settings are saved in browser localStorage
 
 ### 3. Firebase Security Rules
 
