@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>PWA Icon Generator</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; background: #f5f5f5; }
+        .icon-preview { margin: 20px 0; }
+        canvas { border: 1px solid #ccc; margin: 10px; background: white; }
+        .controls { margin: 20px 0; }
+        button { padding: 10px 20px; margin: 5px; background: #007cba; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        button:hover { background: #005a87; }
+        .size-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 20px 0; }
+    </style>
+</head>
+<body>
+    <h1>Trading Dashboard PWA Icon Generator</h1>
+
+    <div class="controls">
+        <label>Icon Text: <input type="text" id="iconText" value="📊" style="font-size: 20px; padding: 5px;"></label>
+        <br><br>
+        <label>Background Color: <input type="color" id="bgColor" value="#0d1117"></label>
+        <label>Text Color: <input type="color" id="textColor" value="#58a6ff"></label>
+        <br><br>
+        <button onclick="generateIcons()">Generate All Icons</button>
+        <button onclick="downloadAll()">Download All</button>
+    </div>
+
+    <div class="size-grid" id="iconsGrid"></div>
+
+    <script>
+        const iconSizes = [16, 32, 72, 96, 128, 144, 152, 180, 192, 384, 512];
+        const specialSizes = [
+            {width: 310, height: 150, name: 'icon-310x150.png'},
+            {width: 310, height: 310, name: 'icon-310x310.png'}
+        ];
+
+        function createIcon(size, text, bgColor, textColor) {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+
+            canvas.width = size;
+            canvas.height = size;
+
+            // Background
+            ctx.fillStyle = bgColor;
+            ctx.fillRect(0, 0, size, size);
+
+            // Text
+            ctx.fillStyle = textColor;
+            ctx.font = `bold ${size * 0.6}px Arial`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+
+            // Handle emoji vs text
+            if (text.match(/[\u{1F600}-\u{1F64F}]|[\u{1F300}-\u{1F5FF}]|[\u{1F680}-\u{1F6FF}]|[\u{1F1E0}-\u{1F1FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/gu)) {
+                ctx.font = `${size * 0.7}px Arial`;
+            } else {
+                ctx.font = `bold ${size * 0.4}px Arial`;
+            }
+
+            ctx.fillText(text, size / 2, size / 2);
+
+            return canvas;
+        }
+
+        function createRectIcon(width, height, text, bgColor, textColor) {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+
+            canvas.width = width;
+            canvas.height = height;
+
+            // Background
+            ctx.fillStyle = bgColor;
+            ctx.fillRect(0, 0, width, height);
+
+            // Text
+            ctx.fillStyle = textColor;
+            const fontSize = Math.min(width, height) * 0.4;
+            ctx.font = `bold ${fontSize}px Arial`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+
+            ctx.fillText(text, width / 2, height / 2);
+
+            return canvas;
+        }
+
+        function generateIcons() {
+            const text = document.getElementById('iconText').value || '📊';
+            const bgColor = document.getElementById('bgColor').value;
+            const textColor = document.getElementById('textColor').value;
+
+            const grid = document.getElementById('iconsGrid');
+            grid.innerHTML = '';
+
+            // Generate square icons
+            iconSizes.forEach(size => {
+                const canvas = createIcon(size, text, bgColor, textColor);
+                canvas.title = `${size}x${size}`;
+                canvas.style.width = '64px';
+                canvas.style.height = '64px';
+                canvas.style.imageRendering = 'pixelated';
+
+                const div = document.createElement('div');
+                div.innerHTML = `<strong>${size}x${size}</strong><br>`;
+                div.appendChild(canvas);
+
+                const downloadBtn = document.createElement('button');
+                downloadBtn.textContent = 'Download';
+                downloadBtn.onclick = () => downloadCanvas(canvas, `icon-${size}x${size}.png`);
+                div.appendChild(downloadBtn);
+
+                grid.appendChild(div);
+            });
+
+            // Generate special rectangular icons
+            specialSizes.forEach(spec => {
+                const canvas = createRectIcon(spec.width, spec.height, text, bgColor, textColor);
+                canvas.title = `${spec.width}x${spec.height}`;
+                canvas.style.width = '64px';
+                canvas.style.height = `${64 * spec.height / spec.width}px`;
+                canvas.style.imageRendering = 'pixelated';
+
+                const div = document.createElement('div');
+                div.innerHTML = `<strong>${spec.width}x${spec.height}</strong><br>`;
+                div.appendChild(canvas);
+
+                const downloadBtn = document.createElement('button');
+                downloadBtn.textContent = 'Download';
+                downloadBtn.onclick = () => downloadCanvas(canvas, spec.name);
+                div.appendChild(downloadBtn);
+
+                grid.appendChild(div);
+            });
+        }
+
+        function downloadCanvas(canvas, filename) {
+            const link = document.createElement('a');
+            link.download = filename;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        }
+
+        function downloadAll() {
+            const text = document.getElementById('iconText').value || '📊';
+            const bgColor = document.getElementById('bgColor').value;
+            const textColor = document.getElementById('textColor').value;
+
+            // Download all square icons
+            iconSizes.forEach(size => {
+                setTimeout(() => {
+                    const canvas = createIcon(size, text, bgColor, textColor);
+                    downloadCanvas(canvas, `icon-${size}x${size}.png`);
+                }, size); // Small delay between downloads
+            });
+
+            // Download special rectangular icons
+            specialSizes.forEach((spec, index) => {
+                setTimeout(() => {
+                    const canvas = createRectIcon(spec.width, spec.height, text, bgColor, textColor);
+                    downloadCanvas(canvas, spec.name);
+                }, 1000 + (index * 100));
+            });
+        }
+
+        // Auto-generate on page load
+        window.onload = () => generateIcons();
+    </script>
+</body>
+</html>

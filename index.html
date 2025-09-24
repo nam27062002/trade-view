@@ -2,8 +2,49 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Trading Dashboard</title>
+
+    <!-- SEO and Description -->
+    <meta name="description" content="Real-time trading performance dashboard with dark theme and mobile-first design">
+    <meta name="keywords" content="trading, dashboard, analytics, mobile, dark theme, real-time">
+    <meta name="author" content="Trading Dashboard">
+
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+
+    <!-- Theme Colors -->
+    <meta name="theme-color" content="#58a6ff">
+    <meta name="msapplication-TileColor" content="#0d1117">
+    <meta name="msapplication-navbutton-color" content="#58a6ff">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+    <!-- Mobile App Capable -->
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="Trading Dashboard">
+
+    <!-- iOS Splash Screen Prevention (we'll handle this with CSS) -->
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+
+    <!-- Icons for different platforms -->
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/images/icon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="assets/images/icon-16x16.png">
+    <link rel="apple-touch-icon" href="assets/images/icon-192x192.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="assets/images/icon-152x152.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="assets/images/icon-180x180.png">
+
+    <!-- Microsoft Tiles -->
+    <meta name="msapplication-TileImage" content="assets/images/icon-144x144.png">
+    <meta name="msapplication-square70x70logo" content="assets/images/icon-72x72.png">
+    <meta name="msapplication-square150x150logo" content="assets/images/icon-152x152.png">
+    <meta name="msapplication-wide310x150logo" content="assets/images/icon-310x150.png">
+    <meta name="msapplication-square310x310logo" content="assets/images/icon-310x310.png">
+
+    <!-- Preload critical resources -->
+    <link rel="preload" href="assets/styles.css" as="style">
+    <link rel="preload" href="assets/dashboard.js" as="script">
+
     <link rel="stylesheet" href="assets/styles.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
@@ -166,5 +207,149 @@
     </div>
 
     <script src="assets/dashboard.js"></script>
+
+    <!-- PWA Service Worker Registration -->
+    <script>
+        // Register Service Worker for PWA functionality
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then((registration) => {
+                        console.log('SW registered: ', registration);
+
+                        // Check for updates
+                        registration.addEventListener('updatefound', () => {
+                            console.log('SW update found');
+                            // Optionally show update notification
+                        });
+                    })
+                    .catch((registrationError) => {
+                        console.log('SW registration failed: ', registrationError);
+                    });
+
+                // Listen for messages from service worker
+                navigator.serviceWorker.addEventListener('message', (event) => {
+                    if (event.data && event.data.type === 'CONNECTION_RESTORED') {
+                        console.log('Connection restored - refreshing data');
+                        // Trigger data refresh here if needed
+                        if (typeof window.dashboard !== 'undefined' && window.dashboard.loadAllData) {
+                            window.dashboard.loadAllData();
+                        }
+                    }
+                });
+            });
+        }
+
+        // PWA Install Prompt Handler
+        let deferredPrompt;
+        let installButton;
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            console.log('PWA install prompt triggered');
+            // Prevent Chrome 67 and earlier from automatically showing the prompt
+            e.preventDefault();
+            // Stash the event so it can be triggered later
+            deferredPrompt = e;
+
+            // Create install button if it doesn't exist
+            if (!installButton) {
+                createInstallButton();
+            }
+        });
+
+        window.addEventListener('appinstalled', (evt) => {
+            console.log('PWA was installed');
+            // Hide install button
+            if (installButton) {
+                installButton.style.display = 'none';
+            }
+
+            // Optional: Show success message
+            setTimeout(() => {
+                console.log('App successfully installed!');
+            }, 1000);
+        });
+
+        function createInstallButton() {
+            // Create floating install button
+            installButton = document.createElement('button');
+            installButton.innerHTML = '📱 Install App';
+            installButton.id = 'installButton';
+            installButton.style.cssText = `
+                position: fixed;
+                bottom: 20px;
+                right: 20px;
+                z-index: 1000;
+                background: linear-gradient(45deg, #58a6ff, #79c0ff);
+                color: white;
+                border: none;
+                padding: 12px 20px;
+                border-radius: 25px;
+                font-weight: 600;
+                font-size: 0.9rem;
+                box-shadow: 0 4px 20px rgba(88, 166, 255, 0.3);
+                cursor: pointer;
+                transition: all 0.3s ease;
+                animation: bounce 2s infinite;
+            `;
+
+            // Add hover effects
+            installButton.addEventListener('mouseenter', () => {
+                installButton.style.transform = 'scale(1.05)';
+                installButton.style.boxShadow = '0 6px 25px rgba(88, 166, 255, 0.4)';
+            });
+
+            installButton.addEventListener('mouseleave', () => {
+                installButton.style.transform = 'scale(1)';
+                installButton.style.boxShadow = '0 4px 20px rgba(88, 166, 255, 0.3)';
+            });
+
+            installButton.addEventListener('click', async () => {
+                if (deferredPrompt) {
+                    // Show the install prompt
+                    deferredPrompt.prompt();
+                    // Wait for the user to respond to the prompt
+                    const { outcome } = await deferredPrompt.userChoice;
+                    console.log(`User response to the install prompt: ${outcome}`);
+                    // Clear the deferredPrompt
+                    deferredPrompt = null;
+                    // Hide the install button
+                    installButton.style.display = 'none';
+                }
+            });
+
+            // Add bounce animation
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes bounce {
+                    0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+                    40% { transform: translateY(-10px); }
+                    60% { transform: translateY(-5px); }
+                }
+            `;
+            document.head.appendChild(style);
+
+            document.body.appendChild(installButton);
+        }
+
+        // Handle iOS Safari install instructions
+        function isIOS() {
+            return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+        }
+
+        function isInStandaloneMode() {
+            return (window.matchMedia('(display-mode: standalone)').matches) ||
+                   (window.navigator.standalone) ||
+                   document.referrer.includes('android-app://');
+        }
+
+        if (isIOS() && !isInStandaloneMode()) {
+            // Show iOS install instructions after page load
+            setTimeout(() => {
+                console.log('iOS detected - PWA can be installed via Share button');
+                // Optionally show iOS-specific install instructions
+            }, 3000);
+        }
+    </script>
 </body>
 </html>
