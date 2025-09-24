@@ -1,0 +1,11 @@
+{
+  "apiKey": "AIzaSyCFOukXS3CPUrs3zRuRDEN80-PfuQcMJXg",
+  "authDomain": "predict-b52.firebaseapp.com",
+  "databaseURL": "https://predict-b52-default-rtdb.firebaseio.com",
+  "projectId": "predict-b52",
+  "storageBucket": "predict-b52.firebasestorage.app",
+  "messagingSenderId": "477768483116",
+  "appId": "1:477768483116:web:99266da5a7783fecacac89",
+  "measurementId": "G-XP03QND07Z",
+  "dataSource": "rtdb"
+}

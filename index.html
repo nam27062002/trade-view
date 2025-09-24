@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trading Dashboard - Live Analytics</title>
+    <link rel="stylesheet" href="assets/styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
+</head>
+<body>
+    <div class="dashboard">
+        <header class="dashboard-header">
+            <h1>📊 Trading Dashboard</h1>
+            <div class="status-indicator" id="statusIndicator">
+                <span class="status-dot" id="statusDot"></span>
+                <span id="statusText">Connecting...</span>
+            </div>
+        </header>
+
+        <div class="dashboard-grid">
+            <!-- Balance Overview -->
+            <div class="card balance-card">
+                <div class="card-header">
+                    <h3>💰 Current Balance</h3>
+                    <div class="balance-display" id="currentBalance">--</div>
+                </div>
+                <div class="balance-change" id="balanceChange">--</div>
+            </div>
+
+            <!-- Performance Stats -->
+            <div class="card stats-card">
+                <div class="card-header">
+                    <h3>📊 Performance Stats</h3>
+                </div>
+                <div class="stats-grid">
+                    <div class="stat">
+                        <div class="stat-label">Win Rate</div>
+                        <div class="stat-value win-rate" id="winRate">--%</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-label">Total Trades</div>
+                        <div class="stat-value" id="totalTrades">--</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-label">Wins</div>
+                        <div class="stat-value win" id="wins">--</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-label">Losses</div>
+                        <div class="stat-value loss" id="losses">--</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-label">Refunds</div>
+                        <div class="stat-value refund" id="refunds">--</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-label">Last Result</div>
+                        <div class="stat-value" id="lastResult">--</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Balance Chart -->
+            <div class="card chart-card">
+                <div class="card-header">
+                    <h3>📈 Balance History</h3>
+                    <div class="chart-controls">
+                        <select id="timeRange">
+                            <option value="1h">Last 1 Hour</option>
+                            <option value="6h">Last 6 Hours</option>
+                            <option value="24h" selected>Last 24 Hours</option>
+                            <option value="7d">Last 7 Days</option>
+                            <option value="30d">Last 30 Days</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="balanceChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Trade Results Pie Chart -->
+            <div class="card chart-card">
+                <div class="card-header">
+                    <h3>🥧 Trade Results Distribution</h3>
+                </div>
+                <div class="chart-container">
+                    <canvas id="resultsChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Recent Trades -->
+            <div class="card trades-card">
+                <div class="card-header">
+                    <h3>🔄 Recent Trades</h3>
+                    <div class="trade-controls">
+                        <button id="refreshTrades">Refresh</button>
+                        <select id="tradeLimit">
+                            <option value="10">Last 10</option>
+                            <option value="25" selected>Last 25</option>
+                            <option value="50">Last 50</option>
+                            <option value="100">Last 100</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="trades-container" id="tradesContainer">
+                    <div class="loading">Loading trades...</div>
+                </div>
+            </div>
+
+            <!-- Strategy Info -->
+            <div class="card info-card">
+                <div class="card-header">
+                    <h3>⚙️ Strategy Info</h3>
+                </div>
+                <div class="info-content" id="strategyInfo">
+                    <div class="info-item">
+                        <span class="info-label">Strategy:</span>
+                        <span class="info-value" id="currentStrategy">--</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Timepoint:</span>
+                        <span class="info-value" id="currentTimepoint">--</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Bet Size:</span>
+                        <span class="info-value" id="betSize">--</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">ML Enabled:</span>
+                        <span class="info-value" id="mlEnabled">--</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Configuration Modal -->
+    <div id="configModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>🔧 Firebase Configuration</h3>
+                <span class="close">&times;</span>
+            </div>
+            <div class="modal-body">
+                <p>Please configure your Firebase settings:</p>
+                <form id="configForm">
+                    <div class="form-group">
+                        <label>Firebase Config (JSON):</label>
+                        <textarea id="firebaseConfig" rows="10" placeholder='{"apiKey": "...", "authDomain": "...", "databaseURL": "...", "projectId": "..."}' required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Data Source:</label>
+                        <select id="dataSource">
+                            <option value="rtdb">Firebase Realtime Database</option>
+                            <option value="firestore">Firebase Firestore</option>
+                        </select>
+                    </div>
+                    <button type="submit">Save & Connect</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="assets/dashboard.js"></script>
+</body>
+</html>
