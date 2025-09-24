@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Create Simple PWA Icon</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        canvas { border: 1px solid #ccc; margin: 10px; }
+        .download-section { margin: 20px 0; }
+        button { padding: 10px 20px; margin: 5px; background: #58a6ff; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        button:hover { background: #79c0ff; }
+    </style>
+</head>
+<body>
+    <h1>Simple Trading Dashboard Icon Creator</h1>
+    <p>This will create a basic icon for your PWA. Right-click → Save As → rename to the sizes you need.</p>
+
+    <canvas id="iconCanvas" width="512" height="512"></canvas>
+
+    <div class="download-section">
+        <button onclick="downloadIcon('icon-192x192.png', 192)">Download 192x192</button>
+        <button onclick="downloadIcon('icon-512x512.png', 512)">Download 512x512</button>
+        <button onclick="downloadIcon('icon-144x144.png', 144)">Download 144x144</button>
+        <button onclick="downloadIcon('icon-152x152.png', 152)">Download 152x152</button>
+        <button onclick="downloadIcon('icon-96x96.png', 96)">Download 96x96</button>
+        <button onclick="downloadIcon('icon-72x72.png', 72)">Download 72x72</button>
+    </div>
+
+    <script>
+        function createIcon(size = 512) {
+            const canvas = document.getElementById('iconCanvas');
+            const ctx = canvas.getContext('2d');
+
+            // Set canvas size
+            canvas.width = size;
+            canvas.height = size;
+
+            // Dark background
+            ctx.fillStyle = '#0d1117';
+            ctx.fillRect(0, 0, size, size);
+
+            // Blue border
+            ctx.strokeStyle = '#58a6ff';
+            ctx.lineWidth = size * 0.02;
+            ctx.strokeRect(size * 0.1, size * 0.1, size * 0.8, size * 0.8);
+
+            // Chart symbol (bars)
+            ctx.fillStyle = '#58a6ff';
+
+            const barWidth = size * 0.08;
+            const spacing = size * 0.03;
+            const startX = size * 0.25;
+            const baseY = size * 0.75;
+
+            // Three bars of different heights
+            const heights = [size * 0.3, size * 0.45, size * 0.25];
+
+            for (let i = 0; i < 3; i++) {
+                const x = startX + i * (barWidth + spacing);
+                const height = heights[i];
+                ctx.fillRect(x, baseY - height, barWidth, height);
+            }
+
+            // Add "T" text for Trading
+            ctx.fillStyle = '#79c0ff';
+            ctx.font = `bold ${size * 0.15}px Arial`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('T', size * 0.75, size * 0.35);
+
+            return canvas;
+        }
+
+        function downloadIcon(filename, size) {
+            const canvas = createIcon(size);
+            const link = document.createElement('a');
+            link.download = filename;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        }
+
+        // Create initial icon
+        window.onload = () => createIcon();
+    </script>
+</body>
+</html>

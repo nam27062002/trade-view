@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head><title>Quick Icon Fix</title></head>
+<body>
+<script>
+// Create a simple 192x192 icon
+const canvas = document.createElement('canvas');
+canvas.width = 192;
+canvas.height = 192;
+const ctx = canvas.getContext('2d');
+
+// Dark background
+ctx.fillStyle = '#0d1117';
+ctx.fillRect(0, 0, 192, 192);
+
+// Blue chart symbol
+ctx.fillStyle = '#58a6ff';
+ctx.fillRect(40, 120, 20, 40);  // Bar 1
+ctx.fillRect(80, 100, 20, 60);  // Bar 2
+ctx.fillRect(120, 130, 20, 30); // Bar 3
+
+// "T" text
+ctx.fillStyle = '#79c0ff';
+ctx.font = 'bold 48px Arial';
+ctx.textAlign = 'center';
+ctx.fillText('T', 160, 80);
+
+// Download the icon
+const link = document.createElement('a');
+link.download = 'icon-192x192.png';
+link.href = canvas.toDataURL('image/png');
+document.body.appendChild(link);
+
+// Auto download
+setTimeout(() => {
+    link.click();
+    document.body.innerHTML = '<h2>Icon downloaded! Upload to assets/images/ folder on GitHub</h2>';
+}, 1000);
+</script>
+</body>
+</html>

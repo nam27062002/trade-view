@@ -5,11 +5,11 @@ const DATA_CACHE_NAME = 'trading-dashboard-data-v1.2';
 
 // Files to cache for offline functionality
 const STATIC_FILES = [
-  '/',
-  '/index.html',
-  '/assets/styles.css',
-  '/assets/dashboard.js',
-  '/manifest.json',
+  './',
+  './index.html',
+  './assets/styles.css',
+  './assets/dashboard.js',
+  './manifest.json',
   'https://cdn.jsdelivr.net/npm/chart.js',
   'https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js',
   'https://www.gstatic.com/firebasejs/10.7.0/firebase-database-compat.js',
@@ -162,7 +162,7 @@ function updateCacheInBackground(cache, request) {
 // Offline fallback
 function getOfflineFallback(request) {
   if (request.destination === 'document') {
-    return caches.match('/index.html');
+    return caches.match('./index.html');
   }
 
   // Return a simple offline response for other requests
@@ -232,7 +232,7 @@ self.addEventListener('notificationclick', (event) => {
           }
         }
         // Open new window if app is not open
-        return self.clients.openWindow('/');
+        return self.clients.openWindow('./');
       })
     );
   }
