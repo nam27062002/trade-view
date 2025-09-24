@@ -7,5 +7,5 @@
   "messagingSenderId": "477768483116",
   "appId": "1:477768483116:web:99266da5a7783fecacac89",
   "measurementId": "G-XP03QND07Z",
-  "dataSource": "rtdb"
+  "dataSource": "firestore"
 }
