@@ -226,7 +226,7 @@ body::before {
     cursor: pointer;
     -webkit-tap-highlight-color: rgba(88, 166, 255, 0.1);
     position: relative;
-    overflow: hidden;
+    overflow: visible;
     animation: slideInUp 0.6s ease-out;
     margin-bottom: 16px;
 }
@@ -288,6 +288,7 @@ body::before {
     padding-bottom: 12px;
     position: relative;
     z-index: 1;
+    overflow: visible;
 }
 
 @media (min-width: 768px) {
@@ -318,15 +319,18 @@ body::before {
 /* Balance Card */
 .balance-card {
     grid-column: span 1;
+    min-width: 280px;
 }
 
 .balance-card .card-header {
     backdrop-filter: none;
+    overflow: visible;
 }
 
 .balance-card {
     backdrop-filter: blur(15px);
     -webkit-backdrop-filter: blur(15px);
+    overflow: visible;
 }
 
 @media (min-width: 768px) {
@@ -353,20 +357,26 @@ body::before {
     -webkit-backdrop-filter: none;
     will-change: transform;
     transform: translateZ(0);
-    min-width: 0;
+    min-width: 200px;
+    max-width: none;
+    width: auto;
     word-spacing: 0.1em;
     letter-spacing: 0;
+    padding: 8px 16px;
 }
 
 @media (max-width: 480px) {
     .balance-display {
-        font-size: 1.4rem;
+        font-size: 1.5rem;
+        padding: 8px 12px;
+        min-width: 250px;
     }
 }
 
 @media (min-width: 481px) and (max-width: 767px) {
     .balance-display {
-        font-size: 1.6rem;
+        font-size: 1.7rem;
+        min-width: 260px;
     }
 }
 
