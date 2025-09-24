@@ -7,15 +7,17 @@
 
 body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+    background: linear-gradient(135deg, #0d1117 0%, #161b22 25%, #21262d 50%, #1a1d23 75%, #0d1117 100%);
     background-size: 400% 400%;
-    animation: gradientShift 15s ease infinite;
+    animation: gradientShift 20s ease infinite;
     min-height: 100vh;
-    color: #333;
+    color: #e6edf3;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     touch-action: manipulation;
     overflow-x: hidden;
+    padding: 0;
+    margin: 0;
 }
 
 @keyframes gradientShift {
@@ -33,43 +35,63 @@ body::before {
     width: 100%;
     height: 100%;
     background-image:
-        radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
-        radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
-        radial-gradient(circle at 40% 40%, rgba(120, 219, 226, 0.3) 0%, transparent 50%);
+        radial-gradient(circle at 20% 80%, rgba(58, 123, 213, 0.2) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(138, 43, 226, 0.2) 0%, transparent 50%),
+        radial-gradient(circle at 40% 40%, rgba(32, 178, 170, 0.2) 0%, transparent 50%);
     pointer-events: none;
     z-index: -1;
 }
 
-/* Dashboard Layout */
+/* Dashboard Layout - Mobile First */
 .dashboard {
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: 15px;
+    max-width: 100%;
+    margin: 0;
+    padding: 12px;
+    min-height: 100vh;
 }
 
 @media (min-width: 768px) {
     .dashboard {
+        max-width: 1400px;
+        margin: 0 auto;
         padding: 20px;
+    }
+}
+
+@media (min-width: 1200px) {
+    .dashboard {
+        padding: 30px;
     }
 }
 
 .dashboard-header {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background: rgba(255, 255, 255, 0.1);
+    flex-direction: column;
+    gap: 15px;
+    background: rgba(33, 38, 45, 0.8);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    padding: 20px 30px;
-    border-radius: 20px;
-    margin-bottom: 30px;
+    border: 1px solid rgba(88, 166, 255, 0.2);
+    padding: 20px 16px;
+    border-radius: 16px;
+    margin-bottom: 20px;
     box-shadow:
-        0 8px 32px rgba(0, 0, 0, 0.1),
-        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        0 8px 32px rgba(0, 0, 0, 0.3),
+        inset 0 1px 0 rgba(88, 166, 255, 0.1);
     position: relative;
     overflow: hidden;
     animation: slideInDown 0.8s ease-out;
+}
+
+@media (min-width: 768px) {
+    .dashboard-header {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        padding: 25px 30px;
+        border-radius: 20px;
+        margin-bottom: 30px;
+    }
 }
 
 .dashboard-header::before {
@@ -79,8 +101,8 @@ body::before {
     left: -100%;
     width: 100%;
     height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
-    animation: shimmer 3s infinite;
+    background: linear-gradient(90deg, transparent, rgba(88, 166, 255, 0.1), transparent);
+    animation: shimmer 4s infinite;
 }
 
 @keyframes slideInDown {
@@ -100,18 +122,26 @@ body::before {
 }
 
 .dashboard-header h1 {
-    font-size: 1.8rem;
+    font-size: 1.5rem;
     font-weight: 700;
-    background: linear-gradient(45deg, #fff, #f0f0f0);
+    background: linear-gradient(45deg, #58a6ff, #79c0ff, #a5f3fc);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
-    text-shadow: 0 0 30px rgba(255, 255, 255, 0.5);
+    text-shadow: 0 0 30px rgba(88, 166, 255, 0.3);
     position: relative;
     z-index: 1;
+    text-align: center;
 }
 
 @media (min-width: 768px) {
+    .dashboard-header h1 {
+        font-size: 2.2rem;
+        text-align: left;
+    }
+}
+
+@media (min-width: 1200px) {
     .dashboard-header h1 {
         font-size: 2.5rem;
     }
@@ -120,16 +150,27 @@ body::before {
 .status-indicator {
     display: flex;
     align-items: center;
-    gap: 10px;
+    justify-content: center;
+    gap: 8px;
     font-weight: 600;
-    color: rgba(255, 255, 255, 0.9);
-    padding: 8px 16px;
-    border-radius: 25px;
-    background: rgba(255, 255, 255, 0.1);
+    font-size: 0.85rem;
+    color: rgba(230, 237, 243, 0.9);
+    padding: 10px 16px;
+    border-radius: 20px;
+    background: rgba(33, 38, 45, 0.7);
     backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(88, 166, 255, 0.3);
     position: relative;
     z-index: 1;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+}
+
+@media (min-width: 768px) {
+    .status-indicator {
+        font-size: 0.9rem;
+        padding: 8px 16px;
+        justify-content: flex-start;
+    }
 }
 
 .status-dot {
@@ -170,23 +211,24 @@ body::before {
     }
 }
 
-/* Cards */
+/* Cards - Dark Theme Mobile First */
 .card {
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(33, 38, 45, 0.8);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
-    border-radius: 16px;
+    border-radius: 12px;
     padding: 16px;
     box-shadow:
-        0 8px 32px rgba(0, 0, 0, 0.1),
-        inset 0 1px 0 rgba(255, 255, 255, 0.2);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+        0 8px 32px rgba(0, 0, 0, 0.4),
+        inset 0 1px 0 rgba(88, 166, 255, 0.1);
+    border: 1px solid rgba(88, 166, 255, 0.2);
     transition: all 0.3s ease;
     cursor: pointer;
-    -webkit-tap-highlight-color: transparent;
+    -webkit-tap-highlight-color: rgba(88, 166, 255, 0.1);
     position: relative;
     overflow: hidden;
     animation: slideInUp 0.6s ease-out;
+    margin-bottom: 16px;
 }
 
 .card::before {
@@ -196,7 +238,7 @@ body::before {
     left: -100%;
     width: 100%;
     height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+    background: linear-gradient(90deg, transparent, rgba(88, 166, 255, 0.1), transparent);
     transition: left 0.5s ease;
 }
 
@@ -222,30 +264,55 @@ body::before {
     }
 }
 
-.card:hover {
-    transform: translateY(-8px) scale(1.02);
+.card:hover,
+.card:active {
+    transform: translateY(-4px) scale(1.01);
     box-shadow:
-        0 20px 60px rgba(0, 0, 0, 0.2),
-        inset 0 1px 0 rgba(255, 255, 255, 0.3);
-    border-color: rgba(255, 255, 255, 0.4);
+        0 16px 40px rgba(0, 0, 0, 0.5),
+        inset 0 1px 0 rgba(88, 166, 255, 0.3);
+    border-color: rgba(88, 166, 255, 0.4);
+}
+
+@media (min-width: 768px) {
+    .card:hover {
+        transform: translateY(-8px) scale(1.02);
+    }
 }
 
 .card-header {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-    padding-bottom: 15px;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 16px;
+    border-bottom: 1px solid rgba(88, 166, 255, 0.2);
+    padding-bottom: 12px;
     position: relative;
     z-index: 1;
 }
 
+@media (min-width: 768px) {
+    .card-header {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        padding-bottom: 15px;
+    }
+}
+
 .card-header h3 {
-    font-size: 1.2rem;
+    font-size: 1.1rem;
     font-weight: 600;
-    color: rgba(255, 255, 255, 0.9);
+    color: rgba(230, 237, 243, 0.95);
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    text-align: center;
+}
+
+@media (min-width: 768px) {
+    .card-header h3 {
+        font-size: 1.2rem;
+        text-align: left;
+    }
 }
 
 /* Balance Card */
@@ -260,14 +327,17 @@ body::before {
 }
 
 .balance-display {
-    font-size: 2rem;
+    font-size: 1.8rem;
     font-weight: 700;
-    color: #4caf50;
+    background: linear-gradient(45deg, #58a6ff, #79c0ff, #a5f3fc);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
     text-align: center;
     margin: 15px 0;
     word-break: break-all;
     text-shadow:
-        0 0 20px rgba(76, 175, 80, 0.6),
+        0 0 20px rgba(88, 166, 255, 0.6),
         0 4px 8px rgba(0, 0, 0, 0.3);
     position: relative;
     z-index: 1;
@@ -275,8 +345,14 @@ body::before {
 
 @media (min-width: 768px) {
     .balance-display {
-        font-size: 2.5rem;
+        font-size: 2.2rem;
         margin: 20px 0;
+    }
+}
+
+@media (min-width: 1200px) {
+    .balance-display {
+        font-size: 2.5rem;
     }
 }
 
@@ -285,26 +361,26 @@ body::before {
     font-weight: 600;
     padding: 12px;
     border-radius: 12px;
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(33, 38, 45, 0.6);
     backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    color: rgba(255, 255, 255, 0.8);
+    border: 1px solid rgba(88, 166, 255, 0.2);
+    color: rgba(230, 237, 243, 0.8);
     position: relative;
     z-index: 1;
 }
 
 .balance-change.positive {
-    color: #4caf50;
-    background: rgba(76, 175, 80, 0.1);
-    border-color: rgba(76, 175, 80, 0.3);
-    text-shadow: 0 0 10px rgba(76, 175, 80, 0.4);
+    color: #56d364;
+    background: rgba(86, 211, 100, 0.1);
+    border-color: rgba(86, 211, 100, 0.3);
+    text-shadow: 0 0 10px rgba(86, 211, 100, 0.4);
 }
 
 .balance-change.negative {
-    color: #f44336;
-    background: rgba(244, 67, 54, 0.1);
-    border-color: rgba(244, 67, 54, 0.3);
-    text-shadow: 0 0 10px rgba(244, 67, 54, 0.4);
+    color: #f85149;
+    background: rgba(248, 81, 73, 0.1);
+    border-color: rgba(248, 81, 73, 0.3);
+    text-shadow: 0 0 10px rgba(248, 81, 73, 0.4);
 }
 
 /* Stats Card */
@@ -327,10 +403,10 @@ body::before {
 .stat {
     text-align: center;
     padding: 12px 8px;
-    border-radius: 12px;
-    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    background: rgba(33, 38, 45, 0.6);
     backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(88, 166, 255, 0.2);
     min-height: 70px;
     display: flex;
     flex-direction: column;
@@ -340,10 +416,17 @@ body::before {
     overflow: hidden;
 }
 
-.stat:hover {
-    transform: scale(1.05);
-    background: rgba(255, 255, 255, 0.15);
-    border-color: rgba(255, 255, 255, 0.3);
+.stat:hover,
+.stat:active {
+    transform: scale(1.03);
+    background: rgba(33, 38, 45, 0.8);
+    border-color: rgba(88, 166, 255, 0.3);
+}
+
+@media (min-width: 768px) {
+    .stat:hover {
+        transform: scale(1.05);
+    }
 }
 
 .stat::before {
@@ -427,19 +510,28 @@ body::before {
 
 .chart-controls {
     display: flex;
-    gap: 10px;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+@media (min-width: 768px) {
+    .chart-controls {
+        gap: 10px;
+        flex-wrap: nowrap;
+    }
 }
 
 .chart-controls select,
 .trade-controls select,
 .trade-controls button {
-    padding: 10px 16px;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 12px;
-    background: rgba(255, 255, 255, 0.1);
+    padding: 12px 16px;
+    border: 1px solid rgba(88, 166, 255, 0.3);
+    border-radius: 10px;
+    background: rgba(33, 38, 45, 0.8);
     backdrop-filter: blur(10px);
-    color: rgba(255, 255, 255, 0.9);
-    font-size: 0.9rem;
+    color: rgba(230, 237, 243, 0.95);
+    font-size: 0.85rem;
+    font-weight: 500;
     -webkit-appearance: none;
     -moz-appearance: none;
     appearance: none;
@@ -449,24 +541,49 @@ body::before {
     transition: all 0.3s ease;
     position: relative;
     z-index: 1;
+    flex: 1;
+    min-width: 120px;
+}
+
+@media (min-width: 768px) {
+    .chart-controls select,
+    .trade-controls select,
+    .trade-controls button {
+        font-size: 0.9rem;
+        padding: 10px 16px;
+        flex: none;
+        min-width: auto;
+    }
 }
 
 .chart-controls select:hover,
 .trade-controls select:hover,
-.trade-controls button:hover {
-    background: rgba(255, 255, 255, 0.15);
-    border-color: rgba(255, 255, 255, 0.4);
-    transform: translateY(-2px);
+.trade-controls button:hover,
+.chart-controls select:active,
+.trade-controls select:active,
+.trade-controls button:active {
+    background: rgba(33, 38, 45, 0.95);
+    border-color: rgba(88, 166, 255, 0.5);
+    transform: translateY(-1px) scale(1.02);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+@media (min-width: 768px) {
+    .chart-controls select:hover,
+    .trade-controls select:hover,
+    .trade-controls button:hover {
+        transform: translateY(-2px) scale(1.02);
+    }
 }
 
 .chart-controls select:focus,
 .trade-controls select:focus,
 .trade-controls button:focus {
     outline: none;
-    border-color: rgba(255, 255, 255, 0.6);
+    border-color: rgba(88, 166, 255, 0.6);
     box-shadow:
-        0 0 0 3px rgba(255, 255, 255, 0.2),
-        0 8px 16px rgba(0, 0, 0, 0.2);
+        0 0 0 2px rgba(88, 166, 255, 0.3),
+        0 8px 16px rgba(0, 0, 0, 0.3);
 }
 
 .chart-container {
@@ -516,8 +633,12 @@ body::before {
 .trade-item {
     display: block;
     padding: 12px;
-    border-bottom: 1px solid #eee;
+    border-bottom: 1px solid rgba(88, 166, 255, 0.1);
     font-size: 0.85rem;
+    background: rgba(33, 38, 45, 0.3);
+    margin-bottom: 8px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
 }
 
 @media (min-width: 768px) {
@@ -531,53 +652,98 @@ body::before {
     }
 }
 
-.trade-item:hover {
-    background: #f8f9fa;
+.trade-item:hover,
+.trade-item:active {
+    background: rgba(33, 38, 45, 0.6);
+    border-color: rgba(88, 166, 255, 0.3);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+@media (min-width: 768px) {
+    .trade-item:hover {
+        transform: translateY(-2px);
+    }
 }
 
 .trade-time {
-    color: #666;
-    font-size: 0.8rem;
+    color: rgba(230, 237, 243, 0.6);
+    font-size: 0.75rem;
+    margin-bottom: 4px;
+}
+
+@media (min-width: 768px) {
+    .trade-time {
+        font-size: 0.8rem;
+        margin-bottom: 0;
+    }
 }
 
 .trade-side {
     font-weight: 600;
-    padding: 4px 8px;
-    border-radius: 4px;
+    padding: 6px 12px;
+    border-radius: 6px;
     text-align: center;
+    font-size: 0.8rem;
+    display: inline-block;
+    margin: 2px 0;
+}
+
+@media (min-width: 768px) {
+    .trade-side {
+        padding: 4px 8px;
+        font-size: 0.85rem;
+        margin: 0;
+    }
 }
 
 .trade-side.buy {
-    background: #e8f5e8;
-    color: #4caf50;
+    background: rgba(86, 211, 100, 0.2);
+    color: #56d364;
+    border: 1px solid rgba(86, 211, 100, 0.3);
 }
 
 .trade-side.sell {
-    background: #fdeaea;
-    color: #f44336;
+    background: rgba(248, 81, 73, 0.2);
+    color: #f85149;
+    border: 1px solid rgba(248, 81, 73, 0.3);
 }
 
 .trade-result {
     font-weight: 600;
-    padding: 4px 8px;
-    border-radius: 4px;
+    padding: 6px 12px;
+    border-radius: 6px;
     text-align: center;
     text-transform: uppercase;
+    font-size: 0.75rem;
+    display: inline-block;
+    margin: 2px 0;
+}
+
+@media (min-width: 768px) {
+    .trade-result {
+        padding: 4px 8px;
+        font-size: 0.8rem;
+        margin: 0;
+    }
 }
 
 .trade-result.win {
-    background: #e8f5e8;
-    color: #4caf50;
+    background: rgba(86, 211, 100, 0.2);
+    color: #56d364;
+    border: 1px solid rgba(86, 211, 100, 0.3);
 }
 
 .trade-result.lose {
-    background: #fdeaea;
-    color: #f44336;
+    background: rgba(248, 81, 73, 0.2);
+    color: #f85149;
+    border: 1px solid rgba(248, 81, 73, 0.3);
 }
 
 .trade-result.refund {
-    background: #fff3e0;
-    color: #ff9800;
+    background: rgba(255, 152, 0, 0.2);
+    color: #ffa726;
+    border: 1px solid rgba(255, 152, 0, 0.3);
 }
 
 .trade-delta {
@@ -585,23 +751,24 @@ body::before {
 }
 
 .trade-delta.positive {
-    color: #4caf50;
+    color: #56d364;
 }
 
 .trade-delta.negative {
-    color: #f44336;
+    color: #f85149;
 }
 
 .trade-delta.neutral {
-    color: #ff9800;
+    color: #ffa726;
 }
 
-/* Mobile Trade Styles */
+/* Mobile Trade Styles - Dark Theme */
 .mobile-trade {
-    background: #f8f9fa;
-    border-radius: 8px;
-    margin-bottom: 10px;
+    background: rgba(33, 38, 45, 0.5);
+    border-radius: 10px;
+    margin-bottom: 12px;
     border-bottom: none !important;
+    border: 1px solid rgba(88, 166, 255, 0.1);
 }
 
 .trade-header {
@@ -609,7 +776,7 @@ body::before {
     justify-content: space-between;
     align-items: center;
     padding-bottom: 8px;
-    border-bottom: 1px solid #ddd;
+    border-bottom: 1px solid rgba(88, 166, 255, 0.2);
     margin-bottom: 8px;
 }
 
@@ -625,10 +792,11 @@ body::before {
     align-items: center;
     gap: 6px;
     font-size: 0.8rem;
+    color: rgba(230, 237, 243, 0.9);
 }
 
 .detail-label {
-    color: #666;
+    color: rgba(230, 237, 243, 0.6);
     font-weight: 600;
     min-width: 35px;
 }
@@ -731,40 +899,86 @@ body::before {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 24px 30px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-    background: rgba(255, 255, 255, 0.05);
+    padding: 20px 24px;
+    border-bottom: 1px solid rgba(88, 166, 255, 0.2);
+    background: rgba(33, 38, 45, 0.8);
+}
+
+@media (min-width: 768px) {
+    .modal-header {
+        padding: 24px 30px;
+    }
 }
 
 .modal-header h3 {
-    color: rgba(255, 255, 255, 0.9);
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    color: rgba(230, 237, 243, 0.95);
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+    font-size: 1.1rem;
+}
+
+@media (min-width: 768px) {
+    .modal-header h3 {
+        font-size: 1.25rem;
+    }
 }
 
 .modal-body {
-    padding: 30px;
+    padding: 20px 24px;
+}
+
+@media (min-width: 768px) {
+    .modal-body {
+        padding: 30px;
+    }
 }
 
 .modal-body p {
-    color: rgba(255, 255, 255, 0.8);
-    margin-bottom: 20px;
+    color: rgba(230, 237, 243, 0.8);
+    margin-bottom: 16px;
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
+
+@media (min-width: 768px) {
+    .modal-body p {
+        margin-bottom: 20px;
+        font-size: 1rem;
+    }
 }
 
 .close {
-    font-size: 28px;
+    font-size: 24px;
     font-weight: bold;
     cursor: pointer;
-    color: rgba(255, 255, 255, 0.6);
+    color: rgba(230, 237, 243, 0.6);
     transition: all 0.3s ease;
     padding: 8px;
     border-radius: 50%;
     line-height: 1;
+    min-width: 40px;
+    min-height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-.close:hover {
-    color: rgba(255, 255, 255, 0.9);
-    background: rgba(255, 255, 255, 0.1);
-    transform: scale(1.1);
+@media (min-width: 768px) {
+    .close {
+        font-size: 28px;
+    }
+}
+
+.close:hover,
+.close:active {
+    color: rgba(230, 237, 243, 0.95);
+    background: rgba(88, 166, 255, 0.2);
+    transform: scale(1.05);
+}
+
+@media (min-width: 768px) {
+    .close:hover {
+        transform: scale(1.1);
+    }
 }
 
 .form-group {
@@ -775,7 +989,8 @@ body::before {
     display: block;
     margin-bottom: 8px;
     font-weight: 600;
-    color: rgba(255, 255, 255, 0.9);
+    font-size: 0.9rem;
+    color: rgba(230, 237, 243, 0.9);
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
@@ -784,35 +999,35 @@ body::before {
 .form-group select {
     width: 100%;
     padding: 14px 16px;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 12px;
-    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(88, 166, 255, 0.3);
+    border-radius: 10px;
+    background: rgba(33, 38, 45, 0.8);
     backdrop-filter: blur(10px);
-    color: rgba(255, 255, 255, 0.9);
-    font-size: 1rem;
+    color: rgba(230, 237, 243, 0.95);
+    font-size: 0.9rem;
     transition: all 0.3s ease;
 }
 
 .form-group input::placeholder,
 .form-group textarea::placeholder {
-    color: rgba(255, 255, 255, 0.5);
+    color: rgba(230, 237, 243, 0.5);
 }
 
 .form-group input:focus,
 .form-group textarea:focus,
 .form-group select:focus {
     outline: none;
-    border-color: rgba(255, 255, 255, 0.4);
-    background: rgba(255, 255, 255, 0.15);
-    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1);
+    border-color: rgba(88, 166, 255, 0.6);
+    background: rgba(33, 38, 45, 0.95);
+    box-shadow: 0 0 0 2px rgba(88, 166, 255, 0.2);
 }
 
 .form-group button {
-    background: linear-gradient(45deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.1));
-    color: rgba(255, 255, 255, 0.9);
-    border: 1px solid rgba(255, 255, 255, 0.3);
+    background: linear-gradient(45deg, rgba(88, 166, 255, 0.3), rgba(58, 123, 213, 0.2));
+    color: rgba(230, 237, 243, 0.95);
+    border: 1px solid rgba(88, 166, 255, 0.4);
     backdrop-filter: blur(10px);
-    padding: 16px 30px;
+    padding: 14px 24px;
     border-radius: 12px;
     font-size: 1rem;
     font-weight: 600;
@@ -830,15 +1045,23 @@ body::before {
     left: -100%;
     width: 100%;
     height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    background: linear-gradient(90deg, transparent, rgba(88, 166, 255, 0.3), transparent);
     transition: left 0.6s ease;
 }
 
-.form-group button:hover {
-    transform: translateY(-2px);
-    background: linear-gradient(45deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.2));
-    border-color: rgba(255, 255, 255, 0.5);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+.form-group button:hover,
+.form-group button:active {
+    transform: translateY(-1px) scale(1.02);
+    background: linear-gradient(45deg, rgba(88, 166, 255, 0.4), rgba(58, 123, 213, 0.3));
+    border-color: rgba(88, 166, 255, 0.6);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+}
+
+@media (min-width: 768px) {
+    .form-group button:hover {
+        transform: translateY(-2px) scale(1.02);
+        padding: 16px 30px;
+    }
 }
 
 .form-group button:hover::before {
@@ -848,21 +1071,38 @@ body::before {
 /* Loading */
 .loading {
     text-align: center;
-    padding: 40px;
-    color: rgba(255, 255, 255, 0.7);
+    padding: 30px 20px;
+    color: rgba(230, 237, 243, 0.7);
     font-style: italic;
     position: relative;
+    font-size: 0.9rem;
+}
+
+@media (min-width: 768px) {
+    .loading {
+        padding: 40px;
+        font-size: 1rem;
+    }
 }
 
 .loading::after {
     content: '';
     display: inline-block;
-    width: 20px;
-    height: 20px;
-    border: 2px solid rgba(255, 255, 255, 0.3);
+    width: 18px;
+    height: 18px;
+    border: 2px solid rgba(88, 166, 255, 0.3);
     border-radius: 50%;
-    border-top-color: rgba(255, 255, 255, 0.8);
+    border-top-color: rgba(88, 166, 255, 0.8);
     animation: spin 1s ease-in-out infinite;
+    margin-left: 8px;
+}
+
+@media (min-width: 768px) {
+    .loading::after {
+        width: 20px;
+        height: 20px;
+    }
+}
     margin-left: 10px;
 }
 
