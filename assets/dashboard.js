@@ -62,11 +62,8 @@ class TradingDashboard {
         // Controls
         // Time range filtering removed - using all data
         document.getElementById('refreshTrades').onclick = () => this.loadTradesData();
-        document.getElementById('tradeLimit').onchange = () => this.loadTradesData();
-        const viewModeEl = document.getElementById('viewMode');
-        if (viewModeEl) {
-            viewModeEl.onchange = () => this.loadTradesData();
-        }
+        // Trade limit filtering removed - using all data
+        // Mode filtering removed - using all data
         // Date filtering removed - using all data
 
         // Handle window resize for responsive layout
@@ -235,7 +232,7 @@ class TradingDashboard {
 
     async testFirestoreConnection() {
         // Test connection by reading collections
-        await this.firestore.collection('live_demo_balance_logs').limit(1).get();
+        await this.firestore.collection('live_demo_balance_logs').get();
     }
 
     updateStatus(status, text) {
@@ -358,9 +355,9 @@ class TradingDashboard {
                 .map(([key, value]) => ({
                     id: key,
                     ...value,
-                    timestamp: new Date(value.ts || value.timestamp || Date.now())
+                    timestamp: new Date()
                 }))
-                .sort((a, b) => a.timestamp - b.timestamp);
+                // No sorting - use all data as-is
             console.log('Processed balance data:', this.balanceData);
         } catch (e) {
             console.log('Error loading balance data:', e);
@@ -379,9 +376,9 @@ class TradingDashboard {
             .map(doc => ({
                 id: doc.id,
                 ...doc.data(),
-                timestamp: new Date(doc.data().ts || doc.data().timestamp || Date.now())
+                timestamp: new Date()
             }))
-            .sort((a, b) => a.timestamp - b.timestamp);
+            // No sorting - use all data as-is
     }
 
     async loadTradesData() {
@@ -412,7 +409,7 @@ class TradingDashboard {
             if (altData) {
                 console.log('Found data in alternative path:', altPath, altData);
                 // Process alternative data structure
-                this.tradesData = this._processAlternativeTradesData(altData, modeFilter, limit);
+                this.tradesData = this._processAlternativeTradesData(altData);
                 return;
             }
         }
@@ -421,8 +418,8 @@ class TradingDashboard {
         return;
     }
 
-    _processAlternativeTradesData(data, modeFilter, limit) {
-        console.log('Processing alternative trades data structure:', data);
+    _processAlternativeTradesData(data) {
+        console.log('Processing alternative trades data structure without filtering:', data);
         
         const flattened = [];
         
@@ -433,10 +430,7 @@ class TradingDashboard {
                 if (trade && typeof trade === 'object') {
                     // No mode filtering - include all trades
                     
-                    const tsDate = trade.timestamp ? new Date(trade.timestamp) : 
-                                  trade.ts ? new Date(trade.ts) : 
-                                  trade.decision_time ? new Date(trade.decision_time) :
-                                  trade.settlement_time ? new Date(trade.settlement_time) : new Date();
+                    const tsDate = new Date();
                     
                     flattened.push({
                         id: trade.id || `trade_${index}`,
@@ -454,7 +448,7 @@ class TradingDashboard {
                         refunded_amount: trade.refunded_amount,
                         effective_bet_amount: trade.effective_bet_amount,
                         strategy: trade.strategy,
-                        timepoint: trade.timepoint,
+                        // timepoint removed
                         mode: trade.mode,
                         timestamp: tsDate
                     });
@@ -470,10 +464,7 @@ class TradingDashboard {
                             if (trade && typeof trade === 'object') {
                                 // No mode filtering - include all trades
                                 
-                                const tsDate = trade.timestamp ? new Date(trade.timestamp) : 
-                                              trade.ts ? new Date(trade.ts) : 
-                                              trade.decision_time ? new Date(trade.decision_time) :
-                                              trade.settlement_time ? new Date(trade.settlement_time) : new Date();
+                                const tsDate = new Date();
                                 
                                 flattened.push({
                                     id: trade.id || `${key}_${index}`,
@@ -491,7 +482,7 @@ class TradingDashboard {
                                     refunded_amount: trade.refunded_amount,
                                     effective_bet_amount: trade.effective_bet_amount,
                                     strategy: trade.strategy,
-                                    timepoint: trade.timepoint,
+                                    // timepoint removed
                                     mode: trade.mode,
                                     timestamp: tsDate
                                 });
@@ -501,10 +492,7 @@ class TradingDashboard {
                         // Single trade object
                         // No mode filtering - include all trades
                         
-                        const tsDate = value.timestamp ? new Date(value.timestamp) : 
-                                      value.ts ? new Date(value.ts) : 
-                                      value.decision_time ? new Date(value.decision_time) :
-                                      value.settlement_time ? new Date(value.settlement_time) : new Date();
+                        const tsDate = new Date();
                         
                         flattened.push({
                             id: value.id || key,
@@ -522,7 +510,7 @@ class TradingDashboard {
                             refunded_amount: value.refunded_amount,
                             effective_bet_amount: value.effective_bet_amount,
                             strategy: value.strategy,
-                            timepoint: value.timepoint,
+                            // timepoint removed
                             mode: value.mode,
                             timestamp: tsDate
                         });
@@ -531,14 +519,12 @@ class TradingDashboard {
             });
         }
         
-        // Sort newest first without limit
-        const sorted = flattened.sort((a, b) => b.timestamp - a.timestamp);
-        
-        console.log('Processed alternative trades data:', sorted.length, 'trades');
-        return sorted;
+        // No sorting - use all data as-is
+        console.log('Processed alternative trades data:', flattened.length, 'trades');
+        return flattened;
     }
 
-    async loadTradesDataFirestore(limit) {
+    async loadTradesDataFirestore() {
         console.log('Loading all trades data from Firestore without filtering');
         
         // Load all data without any filtering
@@ -551,7 +537,7 @@ class TradingDashboard {
         this.tradesData = snapshot.docs.map(doc => ({
             id: doc.id,
             ...doc.data(),
-            timestamp: new Date(doc.data().ts || doc.data().timestamp || Date.now())
+            timestamp: new Date()
         }));
         
         console.log('Processed Firestore trades data:', this.tradesData.length, 'trades');
@@ -600,16 +586,8 @@ class TradingDashboard {
     _hasTradesChanged(previousData) {
         if (previousData.length !== this.tradesData.length) return true;
         
-        // Check if latest trade changed
-        if (previousData.length > 0 && this.tradesData.length > 0) {
-            const prevLatest = previousData[0]; // trades are sorted newest first
-            const currentLatest = this.tradesData[0];
-            return prevLatest.id !== currentLatest.id || 
-                   prevLatest.result_status !== currentLatest.result_status ||
-                   prevLatest.pnl !== currentLatest.pnl;
-        }
-        
-        return false;
+        // No time-based comparison - always consider as changed
+        return true;
     }
 
     _hasStatsChanged(previousStats) {
@@ -686,8 +664,8 @@ class TradingDashboard {
             
             // Check if data is recent (within last 5 minutes)
             const now = new Date();
-            const dataAge = now - latest.timestamp;
-            const isRecent = dataAge < 5 * 60 * 1000; // 5 minutes
+            // No time filtering - always show as recent
+            const isRecent = true;
             
             if (isRecent) {
                 statusDot.style.background = '#4caf50';
@@ -813,7 +791,7 @@ class TradingDashboard {
             const syntheticPoint = {
                 ...singlePoint,
                 id: singlePoint.id + '_synthetic',
-                timestamp: new Date(singlePoint.timestamp.getTime() - 60 * 60 * 1000), // 1 hour earlier
+                timestamp: new Date(), // No time filtering
                 balance: singlePoint.balance * 0.95 // Slightly lower balance
             };
             filteredData = [syntheticPoint, singlePoint];
@@ -1002,7 +980,7 @@ class TradingDashboard {
             const syntheticPoint = {
                 ...singlePoint,
                 id: singlePoint.id + '_synthetic',
-                timestamp: new Date(singlePoint.timestamp.getTime() - 60 * 60 * 1000), // 1 hour earlier
+                timestamp: new Date(), // No time filtering
                 balance: singlePoint.balance * 0.95 // Slightly lower balance
             };
             filteredData = [syntheticPoint, singlePoint];
@@ -1334,8 +1312,8 @@ class TradingDashboard {
         if (this.tradesData.length === 0) return;
         console.log('Building balance from trades, trades count:', this.tradesData.length);
         
-        // Sort ascending by time to build series
-        const asc = [...this.tradesData].sort((a, b) => a.timestamp - b.timestamp);
+        // No sorting - use all data as-is
+        const asc = [...this.tradesData];
         const series = [];
         
         // Try to find a starting balance from the most recent trade
@@ -1367,19 +1345,19 @@ class TradingDashboard {
         
         console.log('Starting balance:', lastBalance, 'synthetic:', synthetic);
         
-        // Build balance series by going backwards from the starting point
+        // Build balance series from the starting point
         let currentBalance = lastBalance;
         
-        // Go through trades in reverse chronological order to build balance history
-        for (let i = asc.length - 1; i >= 0; i--) {
+        // Go through trades in order to build balance history
+        for (let i = 0; i < asc.length; i++) {
             const tr = asc[i];
             
             if (synthetic && typeof tr.pnl === 'number') {
-                // For synthetic, subtract pnl to go backwards in time
-                currentBalance -= tr.pnl;
+        // For synthetic, add pnl to go forward in time
+        currentBalance += tr.pnl;
             } else if (!synthetic && typeof tr.pnl === 'number') {
-                // For real balance, subtract pnl to go backwards
-                currentBalance -= tr.pnl;
+        // For real balance, add pnl to go forward
+        currentBalance += tr.pnl;
             }
             
             series.unshift({
@@ -1428,7 +1406,7 @@ class TradingDashboard {
             else if (rs.includes('refund')) stats.refunds += 1;
         });
         
-        const latest = this.tradesData[0]; // tradesData sorted desc
+        const latest = this.tradesData[0]; // No sorting
         const rsLatest = (latest?.result_status || '').toLowerCase();
         if (rsLatest.includes('win')) stats.last_result = 'win';
         else if (rsLatest.includes('lose')) stats.last_result = 'lose';
@@ -1440,7 +1418,7 @@ class TradingDashboard {
         // Propagate stats progressively into balanceData performance for chart tooltips if desired
         if (this.balanceData.length > 0) {
             const cumulative = { wins: 0, losses: 0, refunds: 0 };
-            const byTime = [...this.tradesData].sort((a, b) => a.timestamp - b.timestamp);
+            const byTime = [...this.tradesData];
             let i = 0;
             this.balanceData.forEach(point => {
                 while (i < byTime.length && byTime[i].timestamp <= point.timestamp) {
