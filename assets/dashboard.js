@@ -62,6 +62,22 @@ class TradingDashboard {
         document.getElementById('timeRange').onchange = () => this.updateBalanceChart();
         document.getElementById('refreshTrades').onclick = () => this.loadTradesData();
         document.getElementById('tradeLimit').onchange = () => this.loadTradesData();
+        const viewModeEl = document.getElementById('viewMode');
+        if (viewModeEl) {
+            viewModeEl.onchange = () => this.loadTradesData();
+        }
+        const historyDateEl = document.getElementById('historyDate');
+        if (historyDateEl) {
+            // Default to today
+            if (!historyDateEl.value) {
+                const today = new Date();
+                const yyyy = today.getFullYear();
+                const mm = String(today.getMonth() + 1).padStart(2, '0');
+                const dd = String(today.getDate()).padStart(2, '0');
+                historyDateEl.value = `${yyyy}-${mm}-${dd}`;
+            }
+            historyDateEl.onchange = () => this.loadTradesData();
+        }
 
         // Handle window resize for responsive layout
         window.addEventListener('resize', () => {
@@ -280,23 +296,61 @@ class TradingDashboard {
     }
 
     async loadTradesDataRTDB(limit) {
-        const snapshot = await this.database.ref('/live_demo/trades').once('value');
-        const data = snapshot.val();
+        // New schema: /live_demo_bet_history/YYYYMMDD/{session_id}/{push_key}: record
+        const historyDateEl = document.getElementById('historyDate');
+        const viewModeEl = document.getElementById('viewMode');
+        const dateStr = historyDateEl && historyDateEl.value ? historyDateEl.value.replace(/-/g, '') : this._todayYMD();
+        const modeFilter = viewModeEl ? viewModeEl.value : 'simulation';
 
-        if (!data) {
+        const path = `/live_demo_bet_history/${dateStr}`;
+        const snapshot = await this.database.ref(path).once('value');
+        const dateBucketData = snapshot.val();
+
+        if (!dateBucketData) {
             this.tradesData = [];
             return;
         }
 
-        // Convert to array and sort by timestamp
-        this.tradesData = Object.entries(data)
-            .map(([sid, trade]) => ({
-                sid,
-                ...trade,
-                timestamp: new Date(trade.ts || trade.timestamp || Date.now())
-            }))
-            .sort((a, b) => b.timestamp - a.timestamp)
-            .slice(0, limit);
+        // Flatten: for each session id => for each push key => record
+        const flattened = [];
+        Object.entries(dateBucketData).forEach(([sessionId, sessionRecords]) => {
+            if (sessionRecords && typeof sessionRecords === 'object') {
+                Object.entries(sessionRecords).forEach(([pushKey, rec]) => {
+                    if (rec && typeof rec === 'object') {
+                        // Mode filtering
+                        if (modeFilter !== 'all' && rec.mode && rec.mode !== modeFilter) return;
+                        const decisionTime = rec.decision_time || rec.decisionTime;
+                        const settlementTime = rec.settlement_time || rec.settlementTime;
+                        const tsStr = settlementTime || decisionTime;
+                        let tsDate;
+                        try { tsDate = tsStr ? new Date(tsStr) : new Date(); } catch { tsDate = new Date(); }
+                        flattened.push({
+                            id: pushKey,
+                            sid: rec.session_id || sessionId,
+                            bet_side: rec.bet_side,
+                            result_status: rec.result_status,
+                            pnl: rec.pnl,
+                            balance_after: rec.balance_after_settlement,
+                            outcome: rec.outcome,
+                            stake: rec.stake,
+                            bet_idx: rec.bet_idx,
+                            bet_countdown: rec.bet_countdown,
+                            final_tai_total: rec.final_tai_total,
+                            final_xiu_total: rec.final_xiu_total,
+                            refunded_amount: rec.refunded_amount,
+                            effective_bet_amount: rec.effective_bet_amount,
+                            strategy: rec.strategy,
+                            timepoint: rec.timepoint,
+                            mode: rec.mode,
+                            timestamp: tsDate
+                        });
+                    }
+                });
+            }
+        });
+
+        // Sort newest first and apply limit
+        this.tradesData = flattened.sort((a, b) => b.timestamp - a.timestamp).slice(0, limit);
     }
 
     async loadTradesDataFirestore(limit) {
@@ -747,12 +801,12 @@ class TradingDashboard {
                     <div class="trade-header">
                         <span class="trade-time">${this.formatDateTime(trade.timestamp)}</span>
                         <span class="trade-side ${this.convertSide(trade.bet_side)?.toLowerCase() || ''}">${this.convertSide(trade.bet_side) || '--'}</span>
-                        <span class="trade-result ${trade.result || ''}">${trade.result?.toUpperCase() || '--'}</span>
+                        <span class="trade-result ${this._mapResultClass(trade.result_status) || ''}">${(trade.result_status || '--').toUpperCase()}</span>
                     </div>
                     <div class="trade-details">
                         <div class="trade-detail">
                             <span class="detail-label">P&L:</span>
-                            <span class="trade-delta ${this.getDeltaClass(trade.delta)}">${this.formatDelta(trade.delta)}</span>
+                            <span class="trade-delta ${this.getDeltaClass(trade.pnl)}">${this.formatDelta(trade.pnl)}</span>
                         </div>
                         <div class="trade-detail">
                             <span class="detail-label">Balance:</span>
@@ -761,6 +815,10 @@ class TradingDashboard {
                         <div class="trade-detail">
                             <span class="detail-label">Outcome:</span>
                             <span>${this.convertSide(trade.outcome) || '--'}</span>
+                        </div>
+                        <div class="trade-detail">
+                            <span class="detail-label">Mode:</span>
+                            <span>${trade.mode || '-'}</span>
                         </div>
                     </div>
                 </div>
@@ -772,9 +830,9 @@ class TradingDashboard {
                 <div class="trade-item">
                     <div class="trade-time">${this.formatDateTime(trade.timestamp)}</div>
                     <div class="trade-side ${this.convertSide(trade.bet_side)?.toLowerCase() || ''}">${this.convertSide(trade.bet_side) || '--'}</div>
-                    <div class="trade-result ${trade.result || ''}">${trade.result?.toUpperCase() || '--'}</div>
+                    <div class="trade-result ${this._mapResultClass(trade.result_status) || ''}">${(trade.result_status || '--').toUpperCase()}</div>
                     <div class="trade-balance">${this.formatNumber(trade.balance_after || 0)}</div>
-                    <div class="trade-delta ${this.getDeltaClass(trade.delta)}">${this.formatDelta(trade.delta)}</div>
+                    <div class="trade-delta ${this.getDeltaClass(trade.pnl)}">${this.formatDelta(trade.pnl)}</div>
                     <div class="trade-session">${trade.sid || '--'}</div>
                     <div class="trade-outcome">${this.convertSide(trade.outcome) || '--'}</div>
                 </div>
@@ -903,6 +961,20 @@ class TradingDashboard {
         if (sideStr === 'tai' || sideStr === 'tài') return 'Buy';
         if (sideStr === 'xiu' || sideStr === 'xỉu') return 'Sell';
         return side; // Return as-is if already converted or unknown
+    }
+
+    _mapResultClass(resultStatus) {
+        if (!resultStatus) return '';
+        const rs = String(resultStatus).toLowerCase();
+        if (rs.includes('win')) return 'win';
+        if (rs.includes('lose')) return 'lose';
+        if (rs.includes('refund')) return 'refund';
+        return rs;
+    }
+
+    _todayYMD() {
+        const d = new Date();
+        return `${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}`;
     }
 }
 
