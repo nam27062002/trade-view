@@ -1072,6 +1072,67 @@ select option:checked:hover:not(:disabled) {
     font-weight: 600 !important;
 }
 
+/* SPECIFIC FIX for timeRange and tradeLimit - Maximum specificity */
+.chart-controls select#timeRange option[selected]:not(:disabled),
+.chart-controls select#timeRange option:checked:not(:disabled),
+.trade-controls select#tradeLimit option[selected]:not(:disabled),
+.trade-controls select#tradeLimit option:checked:not(:disabled),
+select#timeRange option[selected]:not(:disabled),
+select#timeRange option:checked:not(:disabled),
+select#tradeLimit option[selected]:not(:disabled),
+select#tradeLimit option:checked:not(:disabled) {
+    background: rgba(88, 166, 255, 0.5) !important;
+    background-color: rgba(88, 166, 255, 0.5) !important;
+    background-image: linear-gradient(135deg, rgba(88, 166, 255, 0.5), rgba(79, 172, 254, 0.4)) !important;
+    color: #ffffff !important;
+    font-weight: 600 !important;
+}
+
+/* Force selected state even on hover - timeRange and tradeLimit specific */
+.chart-controls select#timeRange option[selected]:hover:not(:disabled),
+.chart-controls select#timeRange option:checked:hover:not(:disabled),
+.trade-controls select#tradeLimit option[selected]:hover:not(:disabled),
+.trade-controls select#tradeLimit option:checked:hover:not(:disabled),
+select#timeRange option[selected]:hover:not(:disabled),
+select#timeRange option:checked:hover:not(:disabled),
+select#tradeLimit option[selected]:hover:not(:disabled),
+select#tradeLimit option:checked:hover:not(:disabled) {
+    background: rgba(88, 166, 255, 0.6) !important;
+    background-color: rgba(88, 166, 255, 0.6) !important;
+    background-image: linear-gradient(135deg, rgba(88, 166, 255, 0.6), rgba(79, 172, 254, 0.5)) !important;
+    color: #ffffff !important;
+    font-weight: 600 !important;
+}
+
+/* NUCLEAR OPTION: Override any possible browser default or other CSS */
+html body div .chart-controls select#timeRange option[selected],
+html body div .chart-controls select#timeRange option:checked,
+html body div .trade-controls select#tradeLimit option[selected],
+html body div .trade-controls select#tradeLimit option:checked,
+html body select#timeRange option[selected],
+html body select#timeRange option:checked,
+html body select#tradeLimit option[selected],
+html body select#tradeLimit option:checked {
+    background: rgba(88, 166, 255, 0.5) !important;
+    background-color: rgba(88, 166, 255, 0.5) !important;
+    color: #ffffff !important;
+    font-weight: 600 !important;
+}
+
+html body div .chart-controls select#timeRange option[selected]:hover,
+html body div .chart-controls select#timeRange option:checked:hover,
+html body div .trade-controls select#tradeLimit option[selected]:hover,
+html body div .trade-controls select#tradeLimit option:checked:hover,
+html body select#timeRange option[selected]:hover,
+html body select#timeRange option:checked:hover,
+html body select#tradeLimit option[selected]:hover,
+html body select#tradeLimit option:checked:hover {
+    background: rgba(88, 166, 255, 0.6) !important;
+    background-color: rgba(88, 166, 255, 0.6) !important;
+    color: #ffffff !important;
+    font-weight: 600 !important;
+}
+
 .results-chart-container {
     position: relative;
     height: 350px;
