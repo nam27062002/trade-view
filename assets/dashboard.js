@@ -39,6 +39,7 @@ class TradingDashboard {
 
     init() {
         this.setupEventListeners();
+        this.setupThemeToggle();
         this.checkConfig();
     }
 
@@ -88,6 +89,48 @@ class TradingDashboard {
                 if (this.charts.results) this.charts.results.resize();
             }, 150);
         });
+    }
+
+    setupThemeToggle() {
+        const themeToggle = document.getElementById('themeToggle');
+        const themeIcon = document.getElementById('themeIcon');
+        
+        // Load saved theme or default to dark
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        this.setTheme(savedTheme);
+        
+        themeToggle.addEventListener('click', () => {
+            const currentTheme = document.body.classList.contains('light-mode') ? 'light' : 'dark';
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            this.setTheme(newTheme);
+            localStorage.setItem('theme', newTheme);
+        });
+    }
+
+    setTheme(theme) {
+        const themeIcon = document.getElementById('themeIcon');
+        
+        if (theme === 'light') {
+            document.body.classList.add('light-mode');
+            // Change icon to moon
+            themeIcon.innerHTML = `
+                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+            `;
+        } else {
+            document.body.classList.remove('light-mode');
+            // Change icon to sun
+            themeIcon.innerHTML = `
+                <circle cx="12" cy="12" r="5"/>
+                <line x1="12" y1="1" x2="12" y2="3"/>
+                <line x1="12" y1="21" x2="12" y2="23"/>
+                <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+                <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+                <line x1="1" y1="12" x2="3" y2="12"/>
+                <line x1="21" y1="12" x2="23" y2="12"/>
+                <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+                <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+            `;
+        }
     }
 
     checkConfig() {
@@ -219,8 +262,14 @@ class TradingDashboard {
 
         try {
             this.isUpdating = true;
-            const previousBalanceLength = this.balanceData.length;
-            const previousTradesLength = this.tradesData.length;
+            
+            // Show subtle loading indicator
+            this.showLoadingIndicator();
+            
+            // Store previous data for comparison
+            const previousBalanceData = [...this.balanceData];
+            const previousTradesData = [...this.tradesData];
+            const previousStats = { ...this.currentStats };
 
             await Promise.all([
                 this.loadBalanceData(),
@@ -235,18 +284,38 @@ class TradingDashboard {
             // Always recompute aggregate stats from current balanceData + trades (bet history)
             this._recomputeStatsFromTrades();
 
-            // Smart update logic
-            const hasNewBalance = this.balanceData.length > previousBalanceLength;
-            const hasNewTrades = this.tradesData.length > previousTradesLength;
+            // Smart update logic - only update what actually changed
+            const balanceChanged = this._hasBalanceChanged(previousBalanceData);
+            const tradesChanged = this._hasTradesChanged(previousTradesData);
+            const statsChanged = this._hasStatsChanged(previousStats);
 
-            if (hasNewBalance || hasNewTrades) {
-                this.smartUpdateDashboard(hasNewBalance, hasNewTrades);
+            // Force update stats display and charts
+            this.updateStatsDisplay();
+            this.updateResultsChart();
+
+            if (balanceChanged || tradesChanged || statsChanged) {
+                this.smartUpdateDashboard(balanceChanged, tradesChanged, statsChanged);
             }
         } catch (error) {
             console.error('Error loading data:', error);
             this.updateStatus('error', 'Failed to load data');
         } finally {
             this.isUpdating = false;
+            this.hideLoadingIndicator();
+        }
+    }
+
+    showLoadingIndicator() {
+        const statusText = document.getElementById('statusText');
+        if (statusText) {
+            statusText.textContent = 'Updating...';
+        }
+    }
+
+    hideLoadingIndicator() {
+        const statusText = document.getElementById('statusText');
+        if (statusText && this.firebase) {
+            statusText.textContent = `Connected to ${this.dataSource.toUpperCase()}`;
         }
     }
 
@@ -385,19 +454,55 @@ class TradingDashboard {
         this.updateTradesDisplay();
     }
 
-    smartUpdateDashboard(hasNewBalance, hasNewTrades) {
-        // Always update balance and stats if there's new balance data
-        if (hasNewBalance) {
+    smartUpdateDashboard(balanceChanged, tradesChanged, statsChanged) {
+        // Only update balance display if balance actually changed
+        if (balanceChanged) {
             this.smartUpdateBalanceDisplay();
-            this.smartUpdateStatsDisplay();
             this.smartUpdateBalanceChart();
         }
 
-        // Update trades and results chart if there's new trade data
-        if (hasNewTrades) {
+        // Only update stats if they actually changed
+        if (statsChanged) {
+            this.smartUpdateStatsDisplay();
+        }
+
+        // Only update trades and results chart if trade data changed
+        if (tradesChanged) {
             this.smartUpdateResultsChart();
             this.smartUpdateTradesDisplay();
         }
+    }
+
+    _hasBalanceChanged(previousData) {
+        if (previousData.length !== this.balanceData.length) return true;
+        
+        // Check if latest balance value changed
+        if (previousData.length > 0 && this.balanceData.length > 0) {
+            const prevLatest = previousData[previousData.length - 1];
+            const currentLatest = this.balanceData[this.balanceData.length - 1];
+            return prevLatest.balance !== currentLatest.balance;
+        }
+        
+        return false;
+    }
+
+    _hasTradesChanged(previousData) {
+        if (previousData.length !== this.tradesData.length) return true;
+        
+        // Check if latest trade changed
+        if (previousData.length > 0 && this.tradesData.length > 0) {
+            const prevLatest = previousData[0]; // trades are sorted newest first
+            const currentLatest = this.tradesData[0];
+            return prevLatest.id !== currentLatest.id || 
+                   prevLatest.result_status !== currentLatest.result_status ||
+                   prevLatest.pnl !== currentLatest.pnl;
+        }
+        
+        return false;
+    }
+
+    _hasStatsChanged(previousStats) {
+        return JSON.stringify(previousStats) !== JSON.stringify(this.currentStats);
     }
 
     updateBalanceDisplay() {
@@ -441,17 +546,19 @@ class TradingDashboard {
 
         // Only update if balance actually changed
         if (this.previousBalance !== balance) {
-            // Add smooth transition
-            balanceEl.style.transition = 'all 0.3s ease';
-            changeEl.style.transition = 'all 0.3s ease';
+            // Add smooth transition with CSS classes
+            balanceEl.classList.add('balance-flash');
+            changeEl.classList.add('balance-flash');
 
-            // Flash effect for new data
-            balanceEl.style.background = 'rgba(88, 166, 255, 0.2)';
-            setTimeout(() => {
-                balanceEl.style.background = 'transparent';
-            }, 500);
-
+            // Update the display
             this.updateBalanceDisplay();
+
+            // Remove flash class after animation
+            setTimeout(() => {
+                balanceEl.classList.remove('balance-flash');
+                changeEl.classList.remove('balance-flash');
+            }, 600);
+
             this.previousBalance = balance;
         }
     }
@@ -467,12 +574,25 @@ class TradingDashboard {
         const totalTrades = wins + losses + refunds;
         const winRate = totalTrades > 0 ? ((wins / totalTrades) * 100).toFixed(1) : 0;
 
-        document.getElementById('winRate').textContent = winRate + '%';
-        document.getElementById('totalTrades').textContent = totalTrades;
-        document.getElementById('wins').textContent = wins;
-        document.getElementById('losses').textContent = losses;
-        document.getElementById('refunds').textContent = refunds;
-        document.getElementById('lastResult').textContent = performance.last_result || '--';
+        // Debug logging
+        console.log('Stats Update:', {
+            derivedStats: this.derivedStats,
+            performance,
+            wins,
+            losses,
+            refunds,
+            totalTrades,
+            winRate,
+            tradesDataLength: this.tradesData.length
+        });
+
+        // Update display with fallback values
+        document.getElementById('winRate').textContent = totalTrades > 0 ? winRate + '%' : '0%';
+        document.getElementById('totalTrades').textContent = totalTrades || 0;
+        document.getElementById('wins').textContent = wins || 0;
+        document.getElementById('losses').textContent = losses || 0;
+        document.getElementById('refunds').textContent = refunds || 0;
+        document.getElementById('lastResult').textContent = performance.last_result || 'N/A';
 
         this.currentStats = { wins, losses, refunds, totalTrades, winRate };
     }
@@ -492,16 +612,15 @@ class TradingDashboard {
         const statsChanged = JSON.stringify(this.previousStats) !== JSON.stringify(newStats);
 
         if (statsChanged) {
-            // Add pulse animation to changed stats
+            // Add smooth animation to changed stats
             const statElements = ['winRate', 'totalTrades', 'wins', 'losses', 'refunds', 'lastResult'];
             statElements.forEach(id => {
                 const el = document.getElementById(id);
                 if (el) {
-                    el.style.transition = 'all 0.3s ease';
-                    el.style.transform = 'scale(1.05)';
+                    el.classList.add('stat-updating');
                     setTimeout(() => {
-                        el.style.transform = 'scale(1)';
-                    }, 300);
+                        el.classList.remove('stat-updating');
+                    }, 400);
                 }
             });
 
@@ -685,6 +804,10 @@ class TradingDashboard {
             return;
         }
 
+        // Add subtle loading indicator
+        const chartContainer = document.querySelector('.chart-container');
+        chartContainer.classList.add('chart-updating');
+
         const timeRange = document.getElementById('timeRange').value;
         const now = new Date();
         const cutoff = new Date(now);
@@ -725,13 +848,25 @@ class TradingDashboard {
             this.charts.balance.data.datasets[2].label = `Min: ${this.formatNumber(minBalance)} VND`;
         }
 
-        // Smooth update with animation
-        this.charts.balance.update('none'); // No animation for smooth experience
+        // Smooth update with subtle animation
+        this.charts.balance.update('active'); // Subtle animation for smooth experience
+
+        // Remove loading indicator
+        setTimeout(() => {
+            chartContainer.classList.remove('chart-updating');
+        }, 300);
     }
 
     updateResultsChart() {
         const ctx = document.getElementById('resultsChart').getContext('2d');
-        const { wins, losses, refunds } = this.currentStats;
+        
+        // Get stats from derivedStats or currentStats
+        const performance = this.derivedStats || this.currentStats || {};
+        const wins = performance.wins || 0;
+        const losses = performance.losses || 0;
+        const refunds = performance.refunds || 0;
+
+        console.log('Updating Results Chart:', { wins, losses, refunds, performance });
 
         if (this.charts.results) {
             this.charts.results.destroy();
@@ -785,11 +920,26 @@ class TradingDashboard {
             return;
         }
 
-        const { wins, losses, refunds } = this.currentStats;
+        // Get stats from derivedStats or currentStats
+        const performance = this.derivedStats || this.currentStats || {};
+        const wins = performance.wins || 0;
+        const losses = performance.losses || 0;
+        const refunds = performance.refunds || 0;
+
+        console.log('Smart updating Results Chart:', { wins, losses, refunds, performance });
+
+        // Add subtle loading indicator
+        const resultsChartContainer = document.querySelector('#resultsChart').closest('.chart-container');
+        resultsChartContainer.classList.add('chart-updating');
 
         // Update data smoothly
         this.charts.results.data.datasets[0].data = [wins, losses, refunds];
-        this.charts.results.update('none'); // No animation for smooth experience
+        this.charts.results.update('active'); // Subtle animation for smooth experience
+
+        // Remove loading indicator
+        setTimeout(() => {
+            resultsChartContainer.classList.remove('chart-updating');
+        }, 300);
     }
 
     updateTradesDisplay() {
@@ -805,7 +955,7 @@ class TradingDashboard {
         if (isMobile) {
             // Mobile layout: stacked format
             const tradesHtml = this.tradesData.map(trade => `
-                <div class="trade-item mobile-trade">
+                <div class="trade-item mobile-trade" data-trade-id="${trade.id}">
                     <div class="trade-header">
                         <span class="trade-time">${this.formatDateTime(trade.timestamp)}</span>
                         <span class="trade-side ${this.convertSide(trade.bet_side)?.toLowerCase() || ''}">${this.convertSide(trade.bet_side) || '--'}</span>
@@ -835,7 +985,7 @@ class TradingDashboard {
         } else {
             // Desktop layout: table format
             const tradesHtml = this.tradesData.map(trade => `
-                <div class="trade-item">
+                <div class="trade-item" data-trade-id="${trade.id}">
                     <div class="trade-time">${this.formatDateTime(trade.timestamp)}</div>
                     <div class="trade-side ${this.convertSide(trade.bet_side)?.toLowerCase() || ''}">${this.convertSide(trade.bet_side) || '--'}</div>
                     <div class="trade-result ${this._mapResultClass(trade.result_status) || ''}">${(trade.result_status || '--').toUpperCase()}</div>
@@ -847,7 +997,7 @@ class TradingDashboard {
             `).join('');
 
             const headerHtml = `
-                <div class="trade-item" style="font-weight: 600; background: #f8f9fa;">
+                <div class="trade-item trade-header" style="font-weight: 600; background: var(--glass-bg); border: 1px solid var(--glass-border); color: var(--text-primary);">
                     <div>Time</div>
                     <div>Side</div>
                     <div>Result</div>
@@ -867,25 +1017,39 @@ class TradingDashboard {
         // Only update if we have new trades
         if (this.tradesData.length === 0) return;
 
-        // Add fade-in animation for new trades
-        const currentChildren = container.children.length;
+        // Store current trade IDs to detect new ones
+        const currentTradeIds = Array.from(container.children)
+            .filter(child => child.classList.contains('trade-item'))
+            .map(child => child.dataset.tradeId)
+            .filter(id => id);
 
         // Update the display
         this.updateTradesDisplay();
 
-        // Animate new trades if any
-        if (container.children.length > currentChildren) {
-            const newTrades = Array.from(container.children).slice(0, container.children.length - currentChildren);
-            newTrades.forEach((trade, index) => {
-                trade.style.opacity = '0';
-                trade.style.transform = 'translateY(-10px)';
-                setTimeout(() => {
-                    trade.style.transition = 'all 0.3s ease';
-                    trade.style.opacity = '1';
-                    trade.style.transform = 'translateY(0)';
-                }, index * 100);
-            });
-        }
+        // Add smooth animation for new trades
+        const newTradeElements = Array.from(container.children)
+            .filter(child => child.classList.contains('trade-item'))
+            .filter(child => !currentTradeIds.includes(child.dataset.tradeId));
+
+        newTradeElements.forEach((trade, index) => {
+            trade.classList.add('new-trade');
+            // Remove animation class after animation completes
+            setTimeout(() => {
+                trade.classList.remove('new-trade');
+            }, 400);
+        });
+
+        // Add subtle pulse to existing trades that might have updated
+        const existingTrades = Array.from(container.children)
+            .filter(child => child.classList.contains('trade-item'))
+            .filter(child => currentTradeIds.includes(child.dataset.tradeId));
+
+        existingTrades.forEach((trade, index) => {
+            trade.classList.add('trade-item-updated');
+            setTimeout(() => {
+                trade.classList.remove('trade-item-updated');
+            }, 300);
+        });
     }
 
 
@@ -894,10 +1058,22 @@ class TradingDashboard {
             clearInterval(this.refreshInterval);
         }
 
-        // Refresh every 10 seconds for more responsive updates
+        // Refresh every 5 seconds for more responsive updates
         this.refreshInterval = setInterval(() => {
+            this.debouncedLoadData();
+        }, 5000);
+    }
+
+    debouncedLoadData() {
+        // Clear existing timeout
+        if (this.loadDataTimeout) {
+            clearTimeout(this.loadDataTimeout);
+        }
+
+        // Set new timeout
+        this.loadDataTimeout = setTimeout(() => {
             this.loadAllData();
-        }, 10000);
+        }, 500); // 500ms debounce
     }
 
     // Utility functions
@@ -1016,23 +1192,35 @@ class TradingDashboard {
 
     _recomputeStatsFromTrades() {
         const stats = { wins: 0, losses: 0, refunds: 0, last_result: null };
+        
+        console.log('Recomputing stats from trades:', {
+            tradesDataLength: this.tradesData.length,
+            tradesData: this.tradesData.slice(0, 3) // Log first 3 trades for debugging
+        });
+        
         if (this.tradesData.length === 0) {
             this.derivedStats = stats;
+            console.log('No trades data, setting default stats:', stats);
             return;
         }
+        
         // Most recent trade decides last_result
         this.tradesData.forEach(tr => {
             const rs = (tr.result_status || '').toLowerCase();
+            console.log('Processing trade:', { id: tr.id, result_status: tr.result_status, rs });
             if (rs.includes('win')) stats.wins += 1;
             else if (rs.includes('lose')) stats.losses += 1;
             else if (rs.includes('refund')) stats.refunds += 1;
         });
+        
         const latest = this.tradesData[0]; // tradesData sorted desc
         const rsLatest = (latest?.result_status || '').toLowerCase();
         if (rsLatest.includes('win')) stats.last_result = 'win';
         else if (rsLatest.includes('lose')) stats.last_result = 'lose';
         else if (rsLatest.includes('refund')) stats.last_result = 'refund';
+        
         this.derivedStats = stats;
+        console.log('Computed stats:', stats);
 
         // Propagate stats progressively into balanceData performance for chart tooltips if desired
         if (this.balanceData.length > 0) {
