@@ -653,6 +653,15 @@ body::after {
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
+    align-items: center;
+}
+
+.chart-controls select {
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%234facfe' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 16px;
+    padding-right: 40px;
 }
 
 @media (min-width: 768px) {
@@ -664,34 +673,67 @@ body::after {
 
 .chart-controls select,
 .trade-controls select {
-    padding: 14px 18px;
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    border-radius: var(--border-radius-small);
-    background: rgba(255, 255, 255, 0.1);
+    padding: 12px 16px;
+    border: 1px solid rgba(79, 172, 254, 0.3);
+    border-radius: 8px;
+    background: linear-gradient(135deg, rgba(79, 172, 254, 0.1), rgba(0, 242, 254, 0.05));
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%234facfe' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 16px;
     backdrop-filter: blur(15px);
     color: #ffffff;
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     font-weight: 600;
     -webkit-appearance: none;
     -moz-appearance: none;
     appearance: none;
     cursor: pointer;
-    min-height: 48px;
+    min-height: 44px;
     touch-action: manipulation;
-    transition: var(--transition);
+    transition: all 0.2s ease;
     position: relative;
     z-index: 1;
     flex: 1;
-    min-width: 130px;
+    min-width: 120px;
+    box-shadow: 0 2px 8px rgba(79, 172, 254, 0.15);
+    padding-right: 40px;
 }
+
+/* Dropdown arrow is now handled by background-image */
 
 @media (min-width: 768px) {
     .chart-controls select,
     .trade-controls select,
     .trade-controls button {
         font-size: 0.9rem;
-        padding: 10px 16px;
+        padding: 12px 18px;
         flex: none;
+        min-width: auto;
+    }
+    
+    .trade-controls button {
+        min-width: 120px;
+    }
+}
+
+@media (max-width: 767px) {
+    .trade-controls {
+        flex-direction: column;
+        gap: 8px;
+        align-items: stretch;
+    }
+    
+    .chart-controls {
+        flex-direction: column;
+        gap: 8px;
+        align-items: stretch;
+    }
+    
+    .chart-controls select,
+    .trade-controls select,
+    .trade-controls button {
+        width: 100%;
         min-width: auto;
     }
 }
@@ -717,10 +759,26 @@ body::after {
 .trade-controls select:focus,
 .trade-controls button:focus {
     outline: none;
-    border-color: rgba(255, 255, 255, 0.6);
-    box-shadow:
-        0 0 0 3px rgba(255, 255, 255, 0.2),
-        var(--shadow-primary);
+    border-color: rgba(79, 172, 254, 0.6);
+    box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.2);
+}
+
+.chart-controls select:hover,
+.trade-controls select:hover {
+    border-color: rgba(79, 172, 254, 0.5);
+    background: linear-gradient(135deg, rgba(79, 172, 254, 0.15), rgba(0, 242, 254, 0.08));
+    box-shadow: 0 4px 12px rgba(79, 172, 254, 0.25);
+}
+
+.trade-controls button:hover {
+    background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%);
+    box-shadow: 0 6px 20px rgba(79, 172, 254, 0.4);
+    transform: translateY(-1px);
+}
+
+.trade-controls button:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 8px rgba(79, 172, 254, 0.3);
 }
 
 .chart-container {
@@ -739,6 +797,19 @@ body::after {
 /* Trades Card */
 .trades-card {
     grid-column: span 1;
+    position: relative;
+    overflow: hidden;
+}
+
+.trades-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(79, 172, 254, 0.5), transparent);
+    opacity: 0.6;
 }
 
 @media (min-width: 1024px) {
@@ -753,11 +824,83 @@ body::after {
     align-items: center;
 }
 
+.trade-controls button {
+    padding: 12px 18px;
+    border: 1px solid rgba(79, 172, 254, 0.3);
+    border-radius: 8px;
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    color: #ffffff;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    min-height: 44px;
+    touch-action: manipulation;
+    transition: all 0.2s ease;
+    position: relative;
+    z-index: 1;
+    flex: 1;
+    min-width: 100px;
+    box-shadow: 0 4px 15px rgba(79, 172, 254, 0.3);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.trade-controls button::before {
+    content: '🔄';
+    margin-right: 6px;
+    font-size: 0.9rem;
+}
+
 .trades-container {
     max-height: 400px;
     overflow-y: auto;
     margin-top: 15px;
     -webkit-overflow-scrolling: touch;
+    padding-right: 8px;
+    margin-right: -8px;
+}
+
+/* Custom Scrollbar for Trades Container */
+.trades-container::-webkit-scrollbar {
+    width: 12px;
+}
+
+.trades-container::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 15px;
+    margin: 10px 0;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.trades-container::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 15px;
+    border: 2px solid rgba(0, 0, 0, 0.1);
+    box-shadow: 
+        0 4px 15px rgba(102, 126, 234, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.trades-container::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+    box-shadow: 
+        0 6px 20px rgba(102, 126, 234, 0.6),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    transform: scale(1.05);
+}
+
+.trades-container::-webkit-scrollbar-thumb:active {
+    background: linear-gradient(135deg, #5a67d8 0%, #667eea 100%);
+    box-shadow: 
+        0 2px 10px rgba(102, 126, 234, 0.8),
+        inset 0 1px 0 rgba(255, 255, 255, 0.3);
+    transform: scale(0.95);
+}
+
+/* Firefox scrollbar */
+.trades-container {
+    scrollbar-width: thin;
+    scrollbar-color: #667eea rgba(255, 255, 255, 0.03);
 }
 
 @media (min-width: 768px) {
@@ -780,6 +923,24 @@ body::after {
     transition: var(--transition);
     position: relative;
     overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.trade-item::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, rgba(79, 172, 254, 0.3), transparent);
+    border-radius: var(--border-radius-small) var(--border-radius-small) 0 0;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.trade-item:hover::after {
+    opacity: 1;
 }
 
 @media (min-width: 768px) {
@@ -1403,11 +1564,338 @@ body::after {
 .loading {
     opacity: 0;
     animation: fadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1) 0.2s forwards;
+    text-align: center;
+    padding: 40px 20px;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.9rem;
+    background: linear-gradient(135deg, rgba(79, 172, 254, 0.05), rgba(0, 242, 254, 0.02));
+    border-radius: var(--border-radius-small);
+    border: 1px solid rgba(79, 172, 254, 0.1);
+    margin: 20px 0;
+}
+
+.loading::before {
+    content: '⏳';
+    display: block;
+    font-size: 2rem;
+    margin-bottom: 10px;
+    opacity: 0.8;
+}
+
+/* Empty state styling */
+.trades-container .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.9rem;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.02), rgba(79, 172, 254, 0.02));
+    border-radius: var(--border-radius-small);
+    border: 1px dashed rgba(255, 255, 255, 0.1);
+    margin: 20px 0;
+}
+
+.empty-state::before {
+    content: '📊';
+    display: block;
+    font-size: 3rem;
+    margin-bottom: 15px;
+    opacity: 0.5;
+}
+
+.empty-state h4 {
+    margin: 0 0 10px 0;
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 1.1rem;
+}
+
+.empty-state p {
+    margin: 0;
+    font-size: 0.85rem;
+    line-height: 1.4;
 }
 
 /* Animation keyframes for smooth updates */
 @keyframes fadeIn {
     to { opacity: 1; }
+}
+
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.7;
+    }
+}
+
+/* Smooth scroll behavior */
+.trades-container {
+    scroll-behavior: smooth;
+}
+
+/* Global Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 14px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 20px;
+    margin: 5px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 20px;
+    border: 3px solid rgba(0, 0, 0, 0.1);
+    box-shadow: 
+        0 4px 20px rgba(102, 126, 234, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+    box-shadow: 
+        0 6px 25px rgba(102, 126, 234, 0.5),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    transform: scale(1.02);
+}
+
+::-webkit-scrollbar-thumb:active {
+    background: linear-gradient(135deg, #5a67d8 0%, #667eea 100%);
+    box-shadow: 
+        0 2px 15px rgba(102, 126, 234, 0.7),
+        inset 0 1px 0 rgba(255, 255, 255, 0.3);
+    transform: scale(0.98);
+}
+
+/* Firefox global scrollbar */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: #667eea rgba(255, 255, 255, 0.02);
+}
+
+/* Special scrollbar for chart containers */
+.chart-container::-webkit-scrollbar {
+    width: 10px;
+}
+
+.chart-container::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    margin: 8px 0;
+}
+
+.chart-container::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    border-radius: 12px;
+    border: 2px solid rgba(0, 0, 0, 0.1);
+    box-shadow: 0 3px 12px rgba(79, 172, 254, 0.4);
+    transition: all 0.3s ease;
+}
+
+.chart-container::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%);
+    box-shadow: 0 4px 16px rgba(79, 172, 254, 0.6);
+    transform: scale(1.05);
+}
+
+/* Scrollbar animation on scroll */
+@keyframes scrollbarGlow {
+    0% { box-shadow: 0 4px 20px rgba(102, 126, 234, 0.3); }
+    50% { box-shadow: 0 6px 25px rgba(102, 126, 234, 0.6); }
+    100% { box-shadow: 0 4px 20px rgba(102, 126, 234, 0.3); }
+}
+
+.trades-container::-webkit-scrollbar-thumb {
+    animation: scrollbarGlow 3s ease-in-out infinite;
+}
+
+/* Mobile scrollbar optimization */
+@media (max-width: 768px) {
+    ::-webkit-scrollbar {
+        width: 8px;
+    }
+    
+    .trades-container::-webkit-scrollbar {
+        width: 6px;
+    }
+    
+    .chart-container::-webkit-scrollbar {
+        width: 6px;
+    }
+}
+
+/* Scrollbar corner styling */
+::-webkit-scrollbar-corner {
+    background: rgba(255, 255, 255, 0.02);
+}
+
+/* Smooth scroll behavior for all elements */
+* {
+    scroll-behavior: smooth;
+}
+
+/* Custom scrollbar for specific containers */
+.card::-webkit-scrollbar {
+    width: 8px;
+}
+
+.card::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 10px;
+    margin: 5px 0;
+}
+
+.card::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    border-radius: 10px;
+    border: 2px solid rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 8px rgba(240, 147, 251, 0.3);
+    transition: all 0.3s ease;
+}
+
+.card::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(135deg, #f5576c 0%, #f093fb 100%);
+    box-shadow: 0 4px 12px rgba(240, 147, 251, 0.5);
+    transform: scale(1.05);
+}
+
+/* Special scrollbar for balance and stats cards */
+.balance-card::-webkit-scrollbar-thumb,
+.stats-card::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    box-shadow: 0 2px 8px rgba(79, 172, 254, 0.3);
+}
+
+.balance-card::-webkit-scrollbar-thumb:hover,
+.stats-card::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%);
+    box-shadow: 0 4px 12px rgba(79, 172, 254, 0.5);
+}
+
+/* Scrollbar for chart cards */
+.chart-card::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+    box-shadow: 0 2px 8px rgba(250, 112, 154, 0.3);
+}
+
+.chart-card::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(135deg, #fee140 0%, #fa709a 100%);
+    box-shadow: 0 4px 12px rgba(250, 112, 154, 0.5);
+}
+
+/* Scrollbar for trades card */
+.trades-card::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+}
+
+.trades-card::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.5);
+}
+
+/* Scrollbar for performance stats */
+.performance-stats::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    box-shadow: 0 2px 8px rgba(79, 172, 254, 0.3);
+}
+
+.performance-stats::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%);
+    box-shadow: 0 4px 12px rgba(79, 172, 254, 0.5);
+}
+
+/* Scrollbar for balance controls */
+.balance-controls::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    box-shadow: 0 2px 8px rgba(240, 147, 251, 0.3);
+}
+
+.balance-controls::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(135deg, #f5576c 0%, #f093fb 100%);
+    box-shadow: 0 4px 12px rgba(240, 147, 251, 0.5);
+}
+
+/* Scrollbar for dashboard grid */
+.dashboard-grid::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+}
+
+.dashboard-grid::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.5);
+}
+
+/* Scrollbar for main dashboard */
+.dashboard::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+}
+
+.dashboard::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.5);
+}
+
+/* Scrollbar for body */
+body::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+}
+
+body::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.5);
+}
+
+/* Scrollbar for html */
+html::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+}
+
+html::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.5);
+}
+
+/* Scrollbar for main content */
+.main-content::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+}
+
+.main-content::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.5);
+}
+
+/* Trade item animations */
+.trade-item {
+    animation: slideInUp 0.3s ease-out;
+}
+
+.trade-item:nth-child(even) {
+    animation-delay: 0.1s;
+}
+
+.trade-item:nth-child(odd) {
+    animation-delay: 0.05s;
 }
 
 @keyframes statUpdate {
