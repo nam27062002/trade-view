@@ -885,7 +885,7 @@ body::after {
     color: var(--text-primary);
     border: 1px solid rgba(79, 172, 254, 0.3);
     border-radius: 10px;
-    padding: 8px 16px 8px 12px;
+    padding: 8px 12px;
     font-size: 0.8rem;
     font-weight: 600;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -897,10 +897,7 @@ body::after {
     -webkit-appearance: none;
     -moz-appearance: none;
     appearance: none;
-    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23ffffff' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
-    background-position: right 8px center;
-    background-repeat: no-repeat;
-    background-size: 16px;
+    /* Dropdown arrow removed */
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1),
                 inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }
@@ -931,31 +928,57 @@ body::after {
     transform: translateY(-1px) scale(1.02);
 }
 
-/* Custom dropdown options styling */
+/* Custom dropdown options styling - Enhanced specificity */
 .chart-control-select option {
-    background: rgba(20, 25, 40, 0.95);
-    color: #ffffff;
+    background: rgba(20, 25, 40, 0.95) !important;
+    color: #ffffff !important;
     padding: 8px 12px;
     border: none;
     font-weight: 500;
     backdrop-filter: blur(10px);
 }
 
-.chart-control-select option:hover,
-.chart-control-select option:focus,
+.chart-control-select option[selected],
 .chart-control-select option:checked {
     background: linear-gradient(135deg,
-        rgba(88, 166, 255, 0.3) 0%,
-        rgba(79, 172, 254, 0.2) 100%
-    );
-    color: #ffffff;
+        rgba(88, 166, 255, 0.5) 0%,
+        rgba(79, 172, 254, 0.4) 100%
+    ) !important;
+    color: #ffffff !important;
+    font-weight: 600 !important;
+}
+
+.chart-control-select option:hover {
+    background: linear-gradient(135deg,
+        rgba(88, 166, 255, 0.2) 0%,
+        rgba(79, 172, 254, 0.1) 100%
+    ) !important;
+    color: #ffffff !important;
+}
+
+/* Override hover for selected option */
+.chart-control-select option[selected]:hover,
+.chart-control-select option:checked:hover {
+    background: linear-gradient(135deg,
+        rgba(88, 166, 255, 0.6) 0%,
+        rgba(79, 172, 254, 0.5) 100%
+    ) !important;
+    color: #ffffff !important;
+    font-weight: 600 !important;
+}
+
+.chart-control-select option:focus {
+    background: linear-gradient(135deg,
+        rgba(88, 166, 255, 0.25) 0%,
+        rgba(79, 172, 254, 0.15) 100%
+    ) !important;
+    color: #ffffff !important;
 }
 
 /* Firefox specific styling */
 @-moz-document url-prefix() {
     .chart-control-select {
-        background-image: none;
-        padding-right: 12px;
+        /* Background image already removed globally */
     }
 }
 
@@ -1007,6 +1030,46 @@ body::after {
     .chart-control-select:focus {
         transform: none;
     }
+}
+
+/* ULTIMATE FIX: Browser-agnostic option styling with highest specificity */
+select.chart-control-select option[value]:not([value=""]):not(:disabled) {
+    background-color: rgba(20, 25, 40, 0.95) !important;
+    color: #ffffff !important;
+}
+
+select.chart-control-select option[selected]:not(:disabled),
+select.chart-control-select option:checked:not(:disabled) {
+    background-color: rgba(88, 166, 255, 0.5) !important;
+    background-image: linear-gradient(135deg, rgba(88, 166, 255, 0.5), rgba(79, 172, 254, 0.4)) !important;
+    color: #ffffff !important;
+    font-weight: 600 !important;
+}
+
+/* Force selected state even on hover */
+select.chart-control-select option[selected]:hover:not(:disabled),
+select.chart-control-select option:checked:hover:not(:disabled) {
+    background-color: rgba(88, 166, 255, 0.6) !important;
+    background-image: linear-gradient(135deg, rgba(88, 166, 255, 0.6), rgba(79, 172, 254, 0.5)) !important;
+    color: #ffffff !important;
+    font-weight: 600 !important;
+}
+
+/* Apply same logic to other selects */
+select option[selected]:not(:disabled),
+select option:checked:not(:disabled) {
+    background-color: rgba(88, 166, 255, 0.5) !important;
+    background-image: linear-gradient(135deg, rgba(88, 166, 255, 0.5), rgba(79, 172, 254, 0.4)) !important;
+    color: #ffffff !important;
+    font-weight: 600 !important;
+}
+
+select option[selected]:hover:not(:disabled),
+select option:checked:hover:not(:disabled) {
+    background-color: rgba(88, 166, 255, 0.6) !important;
+    background-image: linear-gradient(135deg, rgba(88, 166, 255, 0.6), rgba(79, 172, 254, 0.5)) !important;
+    color: #ffffff !important;
+    font-weight: 600 !important;
 }
 
 .results-chart-container {
@@ -1098,7 +1161,7 @@ body::after {
         width: 100%;
         max-width: 160px;
         font-size: 0.75rem;
-        padding: 6px 12px 6px 10px;
+        padding: 6px 10px;
         min-width: 110px;
     }
 
@@ -1157,11 +1220,9 @@ body::after {
 
     .chart-control-select {
         font-size: 0.7rem;
-        padding: 5px 10px 5px 8px;
+        padding: 5px 8px;
         min-width: 100px;
         max-width: 140px;
-        background-size: 14px;
-        background-position: right 6px center;
     }
 
     .results-chart-header {
@@ -1195,7 +1256,7 @@ body::after {
     color: var(--text-primary);
     border: 1px solid rgba(79, 172, 254, 0.3);
     border-radius: 10px;
-    padding: 8px 16px 8px 12px;
+    padding: 8px 12px;
     font-size: 0.8rem;
     font-weight: 600;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -1207,10 +1268,7 @@ body::after {
     -webkit-appearance: none;
     -moz-appearance: none;
     appearance: none;
-    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23ffffff' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
-    background-position: right 8px center;
-    background-repeat: no-repeat;
-    background-size: 16px;
+    /* Dropdown arrow removed */
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1),
                 inset 0 1px 0 rgba(255, 255, 255, 0.1);
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -1257,9 +1315,7 @@ body::after {
         width: 100%;
         min-width: auto;
         font-size: 0.75rem;
-        padding: 6px 12px 6px 10px;
-        background-size: 14px;
-        background-position: right 6px center;
+        padding: 6px 10px;
     }
 }
 
@@ -1321,36 +1377,65 @@ body::after {
     transform: translateY(-1px);
 }
 
-/* Custom dropdown options styling for chart and trade controls */
+/* Custom dropdown options styling for chart and trade controls - Enhanced specificity */
 .chart-controls select option,
 .trade-controls select option {
-    background: rgba(20, 25, 40, 0.95);
-    color: #ffffff;
+    background: rgba(20, 25, 40, 0.95) !important;
+    color: #ffffff !important;
     padding: 8px 12px;
     border: none;
     font-weight: 500;
     backdrop-filter: blur(10px);
 }
 
-.chart-controls select option:hover,
-.chart-controls select option:focus,
+.chart-controls select option[selected],
 .chart-controls select option:checked,
-.trade-controls select option:hover,
-.trade-controls select option:focus,
+.trade-controls select option[selected],
 .trade-controls select option:checked {
     background: linear-gradient(135deg,
-        rgba(88, 166, 255, 0.3) 0%,
-        rgba(79, 172, 254, 0.2) 100%
-    );
-    color: #ffffff;
+        rgba(88, 166, 255, 0.5) 0%,
+        rgba(79, 172, 254, 0.4) 100%
+    ) !important;
+    color: #ffffff !important;
+    font-weight: 600 !important;
+}
+
+.chart-controls select option:hover,
+.trade-controls select option:hover {
+    background: linear-gradient(135deg,
+        rgba(88, 166, 255, 0.2) 0%,
+        rgba(79, 172, 254, 0.1) 100%
+    ) !important;
+    color: #ffffff !important;
+}
+
+/* Override hover for selected options */
+.chart-controls select option[selected]:hover,
+.chart-controls select option:checked:hover,
+.trade-controls select option[selected]:hover,
+.trade-controls select option:checked:hover {
+    background: linear-gradient(135deg,
+        rgba(88, 166, 255, 0.6) 0%,
+        rgba(79, 172, 254, 0.5) 100%
+    ) !important;
+    color: #ffffff !important;
+    font-weight: 600 !important;
+}
+
+.chart-controls select option:focus,
+.trade-controls select option:focus {
+    background: linear-gradient(135deg,
+        rgba(88, 166, 255, 0.25) 0%,
+        rgba(79, 172, 254, 0.15) 100%
+    ) !important;
+    color: #ffffff !important;
 }
 
 /* Firefox specific styling for chart and trade controls */
 @-moz-document url-prefix() {
     .chart-controls select,
     .trade-controls select {
-        background-image: none;
-        padding-right: 12px;
+        /* Background image already removed globally */
     }
 }
 
