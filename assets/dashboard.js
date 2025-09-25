@@ -333,6 +333,20 @@ class TradingDashboard {
             const data = snapshot.val();
             if (!data) {
                 this.balanceData = [];
+                // Fallback: fetch current balance snapshot if exists
+                try {
+                    const balSnap = await this.database.ref('/live_demo_balance').once('value');
+                    const balVal = balSnap.val();
+                    if (balVal && typeof balVal === 'object') {
+                        const ts = new Date();
+                        this.balanceData = [{
+                            id: 'current_balance',
+                            balance: balVal.balance ?? balVal.current_balance ?? 0,
+                            performance: balVal.stats || balVal.performance || {},
+                            timestamp: ts
+                        }];
+                    }
+                } catch { /* ignore fallback errors */ }
                 return;
             }
             this.balanceData = Object.entries(data)
@@ -1197,6 +1211,7 @@ class TradingDashboard {
             });
         });
         this.balanceData = series;
+        // If we have no performance stats yet but there is a current balance snapshot in RTDB, we could merge later
     }
 
     _recomputeStatsFromTrades() {
