@@ -227,6 +227,14 @@ class TradingDashboard {
                 this.loadTradesData()
             ]);
 
+            // If no explicit balance logs came back, synthesize from trades
+            if (this.balanceData.length === 0 && this.tradesData.length > 0) {
+                this._buildBalanceFromTrades();
+            }
+
+            // Always recompute aggregate stats from current balanceData + trades (bet history)
+            this._recomputeStatsFromTrades();
+
             // Smart update logic
             const hasNewBalance = this.balanceData.length > previousBalanceLength;
             const hasNewTrades = this.tradesData.length > previousTradesLength;
@@ -251,22 +259,24 @@ class TradingDashboard {
     }
 
     async loadBalanceDataRTDB() {
-        const snapshot = await this.database.ref('/live_demo/balance_logs').once('value');
-        const data = snapshot.val();
-
-        if (!data) {
+        try {
+            const snapshot = await this.database.ref('/live_demo/balance_logs').once('value');
+            const data = snapshot.val();
+            if (!data) {
+                this.balanceData = [];
+                return;
+            }
+            this.balanceData = Object.entries(data)
+                .map(([key, value]) => ({
+                    id: key,
+                    ...value,
+                    timestamp: new Date(value.ts || value.timestamp || Date.now())
+                }))
+                .sort((a, b) => a.timestamp - b.timestamp);
+        } catch (e) {
+            // If permissions or path missing, silently fallback
             this.balanceData = [];
-            return;
         }
-
-        // Convert to array and sort by timestamp
-        this.balanceData = Object.entries(data)
-            .map(([key, value]) => ({
-                id: key,
-                ...value,
-                timestamp: new Date(value.ts || value.timestamp || Date.now())
-            }))
-            .sort((a, b) => a.timestamp - b.timestamp);
     }
 
     async loadBalanceDataFirestore() {
@@ -447,17 +457,16 @@ class TradingDashboard {
     }
 
     updateStatsDisplay() {
+        // Prefer derived stats (this.derivedStats) built from bet history; fallback to last balance performance
         const latest = this.balanceData[this.balanceData.length - 1];
-        const performance = latest?.performance || {};
+        const performance = this.derivedStats || latest?.performance || {};
 
-        // Extract stats
         const wins = performance.wins || 0;
         const losses = performance.losses || 0;
         const refunds = performance.refunds || 0;
         const totalTrades = wins + losses + refunds;
         const winRate = totalTrades > 0 ? ((wins / totalTrades) * 100).toFixed(1) : 0;
 
-        // Update display
         document.getElementById('winRate').textContent = winRate + '%';
         document.getElementById('totalTrades').textContent = totalTrades;
         document.getElementById('wins').textContent = wins;
@@ -465,13 +474,12 @@ class TradingDashboard {
         document.getElementById('refunds').textContent = refunds;
         document.getElementById('lastResult').textContent = performance.last_result || '--';
 
-        // Store for other uses
         this.currentStats = { wins, losses, refunds, totalTrades, winRate };
     }
 
     smartUpdateStatsDisplay() {
         const latest = this.balanceData[this.balanceData.length - 1];
-        const performance = latest?.performance || {};
+        const performance = this.derivedStats || latest?.performance || {};
 
         const newStats = {
             wins: performance.wins || 0,
@@ -975,6 +983,80 @@ class TradingDashboard {
     _todayYMD() {
         const d = new Date();
         return `${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}`;
+    }
+
+    _buildBalanceFromTrades() {
+        // Reconstruct a cumulative balance series if each trade has balance_after OR by summing pnl from a synthetic start.
+        if (this.tradesData.length === 0) return;
+        // Sort ascending by time to build series
+        const asc = [...this.tradesData].sort((a, b) => a.timestamp - b.timestamp);
+        const series = [];
+        let lastBalance = asc[0].balance_after || null;
+        let synthetic = false;
+        if (lastBalance == null) {
+            // If not provided, start at 0 and accumulate pnl
+            synthetic = true;
+            lastBalance = 0;
+        }
+        asc.forEach(tr => {
+            if (synthetic && typeof tr.pnl === 'number') {
+                lastBalance += tr.pnl;
+            } else if (!synthetic && typeof tr.balance_after === 'number') {
+                lastBalance = tr.balance_after;
+            }
+            series.push({
+                id: tr.id || tr.sid,
+                balance: lastBalance,
+                performance: {}, // filled by stats recompute later
+                timestamp: tr.timestamp
+            });
+        });
+        this.balanceData = series;
+    }
+
+    _recomputeStatsFromTrades() {
+        const stats = { wins: 0, losses: 0, refunds: 0, last_result: null };
+        if (this.tradesData.length === 0) {
+            this.derivedStats = stats;
+            return;
+        }
+        // Most recent trade decides last_result
+        this.tradesData.forEach(tr => {
+            const rs = (tr.result_status || '').toLowerCase();
+            if (rs.includes('win')) stats.wins += 1;
+            else if (rs.includes('lose')) stats.losses += 1;
+            else if (rs.includes('refund')) stats.refunds += 1;
+        });
+        const latest = this.tradesData[0]; // tradesData sorted desc
+        const rsLatest = (latest?.result_status || '').toLowerCase();
+        if (rsLatest.includes('win')) stats.last_result = 'win';
+        else if (rsLatest.includes('lose')) stats.last_result = 'lose';
+        else if (rsLatest.includes('refund')) stats.last_result = 'refund';
+        this.derivedStats = stats;
+
+        // Propagate stats progressively into balanceData performance for chart tooltips if desired
+        if (this.balanceData.length > 0) {
+            const cumulative = { wins: 0, losses: 0, refunds: 0 };
+            const byTime = [...this.tradesData].sort((a, b) => a.timestamp - b.timestamp);
+            let i = 0;
+            this.balanceData.forEach(point => {
+                while (i < byTime.length && byTime[i].timestamp <= point.timestamp) {
+                    const rs = (byTime[i].result_status || '').toLowerCase();
+                    if (rs.includes('win')) cumulative.wins += 1;
+                    else if (rs.includes('lose')) cumulative.losses += 1;
+                    else if (rs.includes('refund')) cumulative.refunds += 1;
+                    i++;
+                }
+                const total = cumulative.wins + cumulative.losses + cumulative.refunds;
+                point.performance = {
+                    wins: cumulative.wins,
+                    losses: cumulative.losses,
+                    refunds: cumulative.refunds,
+                    last_result: stats.last_result,
+                    win_rate: total > 0 ? (cumulative.wins / total) * 100 : 0
+                };
+            });
+        }
     }
 }
 
