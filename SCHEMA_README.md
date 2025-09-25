@@ -2,21 +2,37 @@
 
 This document summarizes the unified architecture between simulation (`analyst/simulation/simulate_nomd5.py`) and live demo (`live_demo/run_live_demo.py`).
 
+---
+
 ## Core Components
 
-- **TradingProcessor**: single source of truth for:
-  - Loading strategy/metrics
-  - Making betting decisions (`make_betting_decision`)
-  - Settlement (`process_settlement`) applying balanced pot + refund logic
-  - Tracking balance & stats
-- **DecisionEngine** (live only wrapper):
-  - Collects streaming snapshots per session
-  - Calls TradingProcessor for decision/settlement
-  - Persists bet history + balance to Firebase
+**TradingProcessor** (single shared logic):
+
+- Loads strategy / metrics
+- Makes betting decisions (`make_betting_decision`)
+- Performs settlement (`process_settlement`) with balanced pot + refund handling
+- Maintains balance & stats in memory
+
+**DecisionEngine** (live wrapper):
+
+- Collects streaming snapshots per session
+- Delegates decision & settlement to `TradingProcessor`
+- Persists bet history + balance snapshots to Firebase
 
 ## Countdown Normalization
 
-All decisions & settlement rely on countdown defined as: `countdown = 5 + (n - 1 - idx)` so the last snapshot of a session has countdown=5. Simulation builds snapshots eagerly; live stream normalizes at session completion before settlement.
+Unified rule applied before each decision / settlement:
+
+`countdown = 5 + (n - 1 - idx)`
+
+Where:
+
+- `n` = total snapshots in the session
+- `idx` = zero-based index of the snapshot
+
+So the final snapshot always has `countdown = 5`.
+
+Simulation builds all snapshots eagerly and applies the formula immediately. Live ingestion normalizes right before decision/settlement.
 
 ## Realtime Database Schema
 
@@ -61,109 +77,28 @@ All decisions & settlement rely on countdown defined as: `countdown = 5 + (n - 1
 }
 ```
 
-## Frontend Fallback Logic
+## Frontend Balance Fallback Order
 
-1. Primary balance series: `/live_demo/balance_logs` (ordered by ts)
-2. If empty but bet history present: synthesize series from cumulative trade `pnl` or recorded `balance_after_settlement`.
-3. If no logs and no trades: single snapshot fallback from `/live_demo_balance` (implemented in `dashboard.js`).
-
-## Strategy Overrides
-
-- Simulation: CLI flags `--strategy` & `--timepoint` call `TradingProcessor.update_strategy`.
-- Live: runtime method `LiveDataHandler.set_strategy()` delegates to DecisionEngine → TradingProcessor.
-
-## Extensibility
-
-1. Implement logic inside shared strategy config & decision routine.
-2. Ensure `TradingProcessor.trading_strategy` loads updated metrics or config.
-3. No changes needed in simulation or live orchestrators (they already delegate).
-
-## Testing Ideas
-
-- Feed synthetic snapshots to TradingProcessor for win / lose / full_refund / partial_refund cases.
-- Replay a recorded session JSON through simulation then stream snapshots sequentially to mimic live; assert identical decision & pnl.
-
----
-Generated automatically to reflect current unified design. Keep this updated as schema or logic evolves.
-# Live Demo & Simulation Unified Trading Logic
-
-This document summarizes the unified architecture between simulation (`analyst/simulation/simulate_nomd5.py`) and live demo (`live_demo/run_live_demo.py`).
-
-## Core Components
-- TradingProcessor: Single source of truth for
-  - Loading strategy/metrics
-  - Making betting decisions (`make_betting_decision`)
-  - Settlement (`process_settlement`) applying balanced pot + refund logic
-  - Tracking balance & stats
-- DecisionEngine (live only wrapper):
-  - Collects streaming snapshots per session
-  - Calls TradingProcessor for decision/settlement
-  - Persists bet history + balance to Firebase
-
-## Countdown Normalization
-All decisions & settlement rely on countdown defined as: `countdown = 5 + (n - 1 - idx)` so the last snapshot of a session has countdown=5.
-Simulation builds snapshots eagerly; live stream normalizes at session completion before settlement.
-
-## Realtime Database Schema
-```
-/live_demo_balance {
-  balance: <int>,
-  stats: { wins, losses, refunds, total_bet_sessions, last_result },
-  mode: "simulation" | "real",
-  updated_at: ISO timestamp
-}
-
-/live_demo/balance_logs/{push_key} {
-  balance: <int>,
-  performance: {...},
-  ts: epoch_or_iso
-}
-
-/live_demo_bet_history/YYYYMMDD/{session_id}/{push_key} {
-  session_id,
-  decision_time,
-  settlement_time,
-  strategy,
-  timepoint,
-  bet_side,
-  bet_idx,
-  bet_countdown,
-  stake,
-  same_side_total_at_bet,
-  opposite_side_total_at_bet,
-  final_tai_total,
-  final_xiu_total,
-  final_total_min,
-  final_pot_size,
-  outcome,
-  result_status,
-  pnl,
-  refunded_amount,
-  effective_bet_amount,
-  balance_after_settlement,
-  stats_after: { wins, losses, refunds, total_bet_sessions, last_result },
-  mode (optional)
-}
-```
-
-## Frontend Fallback Logic
-1. Primary balance series: `/live_demo/balance_logs` (ordered by ts)
-2. If empty but bet history present: synthesize series from cumulative trade `pnl` or recorded `balance_after_settlement`.
-3. If no logs and no trades: single snapshot fallback from `/live_demo_balance` (implemented in `dashboard.js`).
+1. Use `/live_demo/balance_logs` (chronological series)
+2. Else synthesize from bet history cumulative `pnl` or explicit `balance_after_settlement`
+3. Else fallback single snapshot from `/live_demo_balance` (now implemented in `dashboard.js`)
 
 ## Strategy Overrides
-- Simulation: `--strategy` and `--timepoint` flags call `TradingProcessor.update_strategy`.
-- Live: runtime method `LiveDataHandler.set_strategy()` delegates to DecisionEngine -> TradingProcessor.
 
-## Extensibility
-To add a new strategy:
-1. Implement logic inside shared strategy config & decision routine.
-2. Ensure `TradingProcessor.trading_strategy` loads updated metrics or config.
-3. No changes needed in simulation or live orchestrators (they already delegate).
+- Simulation: CLI flags `--strategy`, `--timepoint` → `TradingProcessor.update_strategy`
+- Live: `LiveDataHandler.set_strategy()` → DecisionEngine → `TradingProcessor`
 
-## Testing Ideas
-- Feed synthetic snapshots to TradingProcessor in a unit test for win / lose / full_refund / partial_refund.
-- Replay a small recorded session JSON through simulation then transform snapshots sequentially to mimic live stream; assert identical decision & pnl.
+## Extensibility Path
+
+1. Add/adjust strategy logic only inside shared strategy & processor methods
+2. Reload / hot-swap metrics in `TradingProcessor` (future: dynamic reload hook)
+3. No orchestrator changes required (simulation & live already delegate)
+
+## Suggested Tests
+
+- Synthetic snapshot sequences for: win / lose / full_refund / partial_refund (win & lose variants)
+- Replay recorded session both (a) full batch via simulation and (b) streamed snapshot-by-snapshot via DecisionEngine; assert identical final balance and per-session PnL
 
 ---
+
 Generated automatically to reflect current unified design. Keep this updated as schema or logic evolves.
