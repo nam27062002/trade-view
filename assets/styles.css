@@ -1370,43 +1370,7 @@ body::after {
 
 /* Hover effects removed */
 
-/* Loading */
-.loading {
-    text-align: center;
-    padding: 40px 25px;
-    color: var(--text-secondary);
-    font-style: italic;
-    position: relative;
-    font-size: 1rem;
-    font-weight: 500;
-}
-
-@media (min-width: 768px) {
-    .loading {
-        padding: 40px;
-        font-size: 1rem;
-    }
-}
-
-.loading::after {
-    content: '';
-    display: inline-block;
-    width: 20px;
-    height: 20px;
-    border: 3px solid var(--glass-border);
-    border-radius: 50%;
-    border-top-color: rgba(255, 255, 255, 0.8);
-    animation: spin 1.2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
-    margin-left: 10px;
-}
-
-@media (min-width: 768px) {
-    .loading::after {
-        width: 20px;
-        height: 20px;
-        margin-left: 10px;
-    }
-}
+/* Loading - removed duplicate definition */
 
 @keyframes spin {
     to {
