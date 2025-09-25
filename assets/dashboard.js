@@ -365,7 +365,8 @@ class TradingDashboard {
     }
 
     async loadTradesData() {
-        const limit = parseInt(document.getElementById('tradeLimit').value);
+        const limitValue = document.getElementById('tradeLimit').value;
+        const limit = limitValue === 'all' ? null : parseInt(limitValue);
 
         if (this.dataSource === 'rtdb') {
             return this.loadTradesDataRTDB(limit);
@@ -429,15 +430,23 @@ class TradingDashboard {
         });
 
         // Sort newest first and apply limit
-        this.tradesData = flattened.sort((a, b) => b.timestamp - a.timestamp).slice(0, limit);
+        this.tradesData = flattened.sort((a, b) => b.timestamp - a.timestamp);
+        if (limit !== null) {
+            this.tradesData = this.tradesData.slice(0, limit);
+        }
     }
 
     async loadTradesDataFirestore(limit) {
-        const snapshot = await this.firestore
+        let query = this.firestore
             .collection('live_demo_trades')
-            .orderBy('ts', 'desc')
-            .limit(limit)
-            .get();
+            .orderBy('ts', 'desc');
+        
+        // Only apply limit if it's not null (i.e., not "all")
+        if (limit !== null) {
+            query = query.limit(limit);
+        }
+        
+        const snapshot = await query.get();
 
         this.tradesData = snapshot.docs.map(doc => ({
             id: doc.id,
