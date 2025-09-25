@@ -1117,7 +1117,12 @@ class TradingDashboard {
         const container = document.getElementById('tradesContainer');
 
         if (this.tradesData.length === 0) {
-            container.innerHTML = '<div class="loading">No trades found</div>';
+            container.innerHTML = `
+                <div class="empty-state">
+                    <h4>No Trades Found</h4>
+                    <p>No trading data available at the moment.<br>Check back later or refresh to load new data.</p>
+                </div>
+            `;
             return;
         }
 

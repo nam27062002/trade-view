@@ -739,6 +739,19 @@ body::after {
 /* Trades Card */
 .trades-card {
     grid-column: span 1;
+    position: relative;
+    overflow: hidden;
+}
+
+.trades-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(79, 172, 254, 0.5), transparent);
+    opacity: 0.6;
 }
 
 @media (min-width: 1024px) {
@@ -758,6 +771,41 @@ body::after {
     overflow-y: auto;
     margin-top: 15px;
     -webkit-overflow-scrolling: touch;
+    padding-right: 8px;
+    margin-right: -8px;
+}
+
+/* Custom Scrollbar for Trades Container */
+.trades-container::-webkit-scrollbar {
+    width: 8px;
+}
+
+.trades-container::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+    margin: 8px 0;
+}
+
+.trades-container::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    border-radius: 10px;
+    border: 2px solid rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 8px rgba(79, 172, 254, 0.3);
+}
+
+.trades-container::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%);
+    box-shadow: 0 4px 12px rgba(79, 172, 254, 0.5);
+}
+
+.trades-container::-webkit-scrollbar-thumb:active {
+    background: linear-gradient(135deg, #3d8bfe 0%, #00d4fe 100%);
+}
+
+/* Firefox scrollbar */
+.trades-container {
+    scrollbar-width: thin;
+    scrollbar-color: #4facfe rgba(255, 255, 255, 0.05);
 }
 
 @media (min-width: 768px) {
@@ -780,6 +828,24 @@ body::after {
     transition: var(--transition);
     position: relative;
     overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.trade-item::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, rgba(79, 172, 254, 0.3), transparent);
+    border-radius: var(--border-radius-small) var(--border-radius-small) 0 0;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.trade-item:hover::after {
+    opacity: 1;
 }
 
 @media (min-width: 768px) {
@@ -1403,11 +1469,97 @@ body::after {
 .loading {
     opacity: 0;
     animation: fadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1) 0.2s forwards;
+    text-align: center;
+    padding: 40px 20px;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.9rem;
+    background: linear-gradient(135deg, rgba(79, 172, 254, 0.05), rgba(0, 242, 254, 0.02));
+    border-radius: var(--border-radius-small);
+    border: 1px solid rgba(79, 172, 254, 0.1);
+    margin: 20px 0;
+}
+
+.loading::before {
+    content: '⏳';
+    display: block;
+    font-size: 2rem;
+    margin-bottom: 10px;
+    opacity: 0.8;
+}
+
+/* Empty state styling */
+.trades-container .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.9rem;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.02), rgba(79, 172, 254, 0.02));
+    border-radius: var(--border-radius-small);
+    border: 1px dashed rgba(255, 255, 255, 0.1);
+    margin: 20px 0;
+}
+
+.empty-state::before {
+    content: '📊';
+    display: block;
+    font-size: 3rem;
+    margin-bottom: 15px;
+    opacity: 0.5;
+}
+
+.empty-state h4 {
+    margin: 0 0 10px 0;
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 1.1rem;
+}
+
+.empty-state p {
+    margin: 0;
+    font-size: 0.85rem;
+    line-height: 1.4;
 }
 
 /* Animation keyframes for smooth updates */
 @keyframes fadeIn {
     to { opacity: 1; }
+}
+
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.7;
+    }
+}
+
+/* Smooth scroll behavior */
+.trades-container {
+    scroll-behavior: smooth;
+}
+
+/* Trade item animations */
+.trade-item {
+    animation: slideInUp 0.3s ease-out;
+}
+
+.trade-item:nth-child(even) {
+    animation-delay: 0.1s;
+}
+
+.trade-item:nth-child(odd) {
+    animation-delay: 0.05s;
 }
 
 @keyframes statUpdate {
