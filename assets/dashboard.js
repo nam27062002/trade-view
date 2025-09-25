@@ -419,107 +419,61 @@ class TradingDashboard {
     }
 
     _processAlternativeTradesData(data) {
-        console.log('Processing alternative trades data structure without filtering:', data);
-        
+        console.log('Processing nested trades data structure:', data);
         const flattened = [];
-        
-        // Handle different data structures
-        if (Array.isArray(data)) {
-            // Direct array of trades
-            data.forEach((trade, index) => {
-                if (trade && typeof trade === 'object') {
-                    // No mode filtering - include all trades
+        if (!data || typeof data !== 'object') {
+            return flattened;
+        }
+
+        // Level 1: Dates (e.g., "20250925")
+        for (const dateKey in data) {
+            const sessions = data[dateKey];
+            if (!sessions || typeof sessions !== 'object') continue;
+
+            // Level 2: Sessions (e.g., "session_12345")
+            for (const sessionKey in sessions) {
+                const tradesInSession = sessions[sessionKey];
+                if (!tradesInSession || typeof tradesInSession !== 'object') continue;
+
+                // Level 3: Trades (e.g., push keys)
+                for (const tradeKey in tradesInSession) {
+                    const trade = tradesInSession[tradeKey];
+                    if (!trade || typeof trade !== 'object') continue;
+
+                    // Now we have the actual trade object
+                    const processedTrade = {
+                        id: trade.id || tradeKey,
+                        ...trade, // Spread the original trade object
+                        timestamp: trade.ts ? new Date(trade.ts) : new Date() // Use the original timestamp
+                    };
                     
-                    const tsDate = new Date();
-                    
-                    flattened.push({
-                        id: trade.id || `trade_${index}`,
-                        sid: trade.session_id || trade.sid,
-                        bet_side: trade.bet_side,
-                        result_status: trade.result_status,
-                        pnl: trade.pnl,
-                        balance_after: trade.balance_after || trade.balance_after_settlement,
-                        outcome: trade.outcome,
-                        stake: trade.stake,
-                        bet_idx: trade.bet_idx,
-                        bet_countdown: trade.bet_countdown,
-                        final_tai_total: trade.final_tai_total,
-                        final_xiu_total: trade.final_xiu_total,
-                        refunded_amount: trade.refunded_amount,
-                        effective_bet_amount: trade.effective_bet_amount,
-                        strategy: trade.strategy,
-                        // timepoint removed
-                        mode: trade.mode,
-                        timestamp: tsDate
-                    });
-                }
-            });
-        } else if (typeof data === 'object') {
-            // Object structure - try to find trades
-            Object.entries(data).forEach(([key, value]) => {
-                if (value && typeof value === 'object') {
-                    if (Array.isArray(value)) {
-                        // Array under key
-                        value.forEach((trade, index) => {
-                            if (trade && typeof trade === 'object') {
-                                // No mode filtering - include all trades
-                                
-                                const tsDate = new Date();
-                                
-                                flattened.push({
-                                    id: trade.id || `${key}_${index}`,
-                                    sid: trade.session_id || trade.sid,
-                                    bet_side: trade.bet_side,
-                                    result_status: trade.result_status,
-                                    pnl: trade.pnl,
-                                    balance_after: trade.balance_after || trade.balance_after_settlement,
-                                    outcome: trade.outcome,
-                                    stake: trade.stake,
-                                    bet_idx: trade.bet_idx,
-                                    bet_countdown: trade.bet_countdown,
-                                    final_tai_total: trade.final_tai_total,
-                                    final_xiu_total: trade.final_xiu_total,
-                                    refunded_amount: trade.refunded_amount,
-                                    effective_bet_amount: trade.effective_bet_amount,
-                                    strategy: trade.strategy,
-                                    // timepoint removed
-                                    mode: trade.mode,
-                                    timestamp: tsDate
-                                });
-                            }
-                        });
-                    } else {
-                        // Single trade object
-                        // No mode filtering - include all trades
-                        
-                        const tsDate = new Date();
-                        
-                        flattened.push({
-                            id: value.id || key,
-                            sid: value.session_id || value.sid,
-                            bet_side: value.bet_side,
-                            result_status: value.result_status,
-                            pnl: value.pnl,
-                            balance_after: value.balance_after || value.balance_after_settlement,
-                            outcome: value.outcome,
-                            stake: value.stake,
-                            bet_idx: value.bet_idx,
-                            bet_countdown: value.bet_countdown,
-                            final_tai_total: value.final_tai_total,
-                            final_xiu_total: value.final_xiu_total,
-                            refunded_amount: value.refunded_amount,
-                            effective_bet_amount: value.effective_bet_amount,
-                            strategy: value.strategy,
-                            // timepoint removed
-                            mode: value.mode,
-                            timestamp: tsDate
-                        });
-                    }
-                }
+        // Debug logging for first few trades
+        if (flattened.length < 3) {
+            console.log('Sample trade data:', {
+                id: processedTrade.id,
+                bet_side: processedTrade.bet_side,
+                result_status: processedTrade.result_status,
+                pnl: processedTrade.pnl,
+                balance_after: processedTrade.balance_after,
+                balance_after_settlement: processedTrade.balance_after_settlement,
+                balance: processedTrade.balance,
+                profit_loss: processedTrade.profit_loss,
+                profit: processedTrade.profit,
+                outcome: processedTrade.outcome,
+                timestamp: processedTrade.timestamp,
+                stake: processedTrade.stake,
+                allFields: Object.keys(processedTrade) // Show all available fields
             });
         }
-        
-        // No sorting - use all data as-is
+                    
+                    flattened.push(processedTrade);
+                }
+            }
+        }
+    
+        // After collecting all trades, sort them by timestamp descending
+        flattened.sort((a, b) => b.timestamp - a.timestamp);
+
         console.log('Processed alternative trades data:', flattened.length, 'trades');
         return flattened;
     }
@@ -818,6 +772,15 @@ class TradingDashboard {
         const minBalance = Math.min(...balanceValues);
         const maxIndex = balanceValues.indexOf(maxBalance);
         const minIndex = balanceValues.indexOf(minBalance);
+        
+        console.log('Balance chart data:', {
+            totalPoints: balanceValues.length,
+            maxBalance,
+            minBalance,
+            maxIndex,
+            minIndex,
+            balanceValues: balanceValues.slice(0, 5) // First 5 values for debugging
+        });
         
         console.log('Balance values:', balanceValues);
         console.log('Max balance:', maxBalance, 'at index:', maxIndex);
@@ -1130,7 +1093,9 @@ class TradingDashboard {
 
         if (isMobile) {
             // Mobile layout: stacked format
-            const tradesHtml = this.tradesData.map(trade => `
+            const tradesHtml = this.tradesData.map(trade => {
+                const metrics = this._calculateTradeMetrics(trade);
+                return `
                 <div class="trade-item mobile-trade" data-trade-id="${trade.id}">
                     <div class="trade-header">
                         <span class="trade-time">${this.formatDateTime(trade.timestamp)}</span>
@@ -1140,11 +1105,11 @@ class TradingDashboard {
                     <div class="trade-details">
                         <div class="trade-detail">
                             <span class="detail-label">P&L:</span>
-                            <span class="trade-delta ${this.getDeltaClass(trade.pnl)}">${this.formatDelta(trade.pnl)}</span>
+                            <span class="trade-delta ${this.getDeltaClass(metrics.pnl)}">${this.formatDelta(metrics.pnl)}</span>
                         </div>
                         <div class="trade-detail">
                             <span class="detail-label">Balance:</span>
-                            <span>${this.formatNumber(trade.balance_after || 0)}</span>
+                            <span>${this.formatNumber(metrics.balanceAfter)}</span>
                         </div>
                         <div class="trade-detail">
                             <span class="detail-label">Outcome:</span>
@@ -1156,21 +1121,25 @@ class TradingDashboard {
                         </div>
                     </div>
                 </div>
-            `).join('');
+            `;
+            }).join('');
             container.innerHTML = tradesHtml;
         } else {
             // Desktop layout: table format
-            const tradesHtml = this.tradesData.map(trade => `
+            const tradesHtml = this.tradesData.map(trade => {
+                const metrics = this._calculateTradeMetrics(trade);
+                return `
                 <div class="trade-item" data-trade-id="${trade.id}">
                     <div class="trade-time">${this.formatDateTime(trade.timestamp)}</div>
                     <div class="trade-side ${this.convertSide(trade.bet_side)?.toLowerCase() || ''}">${this.convertSide(trade.bet_side) || '--'}</div>
                     <div class="trade-result ${this._mapResultClass(trade.result_status) || ''}">${(trade.result_status || '--').toUpperCase()}</div>
-                    <div class="trade-balance">${this.formatNumber(trade.balance_after || 0)}</div>
-                    <div class="trade-delta ${this.getDeltaClass(trade.pnl)}">${this.formatDelta(trade.pnl)}</div>
+                    <div class="trade-balance">${this.formatNumber(metrics.balanceAfter)}</div>
+                    <div class="trade-delta ${this.getDeltaClass(metrics.pnl)}">${this.formatDelta(metrics.pnl)}</div>
                     <div class="trade-session">${trade.sid || '--'}</div>
                     <div class="trade-outcome">${this.convertSide(trade.outcome) || '--'}</div>
                 </div>
-            `).join('');
+            `;
+            }).join('');
 
             const headerHtml = `
                 <div class="trade-item trade-header" style="font-weight: 600; background: var(--glass-bg); border: 1px solid var(--glass-border); color: var(--text-primary);">
@@ -1306,14 +1275,55 @@ class TradingDashboard {
         return rs;
     }
 
+    _calculateTradeMetrics(trade) {
+        // Try to get P&L from various possible fields
+        let pnl = trade.pnl || trade.profit_loss || trade.profit || trade.delta || 0;
+        
+        // Try to get balance after from various possible fields
+        let balanceAfter = trade.balance_after || trade.balance_after_settlement || trade.balance || 0;
+        
+        // Debug logging for first few trades
+        if (this.tradesData.indexOf(trade) < 3) {
+            console.log('Trade metrics calculation:', {
+                id: trade.id,
+                originalPnl: trade.pnl,
+                originalBalanceAfter: trade.balance_after,
+                calculatedPnl: pnl,
+                calculatedBalanceAfter: balanceAfter,
+                stake: trade.stake,
+                result_status: trade.result_status,
+                allFields: Object.keys(trade) // Show all available fields
+            });
+        }
+        
+        // If we don't have balance_after but have stake and result, try to calculate
+        if (!balanceAfter && trade.stake && trade.result_status) {
+            const stake = parseFloat(trade.stake) || 0;
+            const resultStatus = String(trade.result_status).toLowerCase();
+            
+            if (resultStatus.includes('win')) {
+                pnl = stake; // Win = get back stake + profit
+                balanceAfter = stake * 2; // Assuming 1:1 payout
+            } else if (resultStatus.includes('lose')) {
+                pnl = -stake; // Lose = lose stake
+                balanceAfter = 0; // Assuming balance goes to 0 or previous balance - stake
+            } else if (resultStatus.includes('refund')) {
+                pnl = 0; // Refund = get back stake
+                balanceAfter = stake;
+            }
+        }
+        
+        return { pnl, balanceAfter };
+    }
+
 
     _buildBalanceFromTrades() {
         // Reconstruct a cumulative balance series if each trade has balance_after OR by summing pnl from a synthetic start.
         if (this.tradesData.length === 0) return;
         console.log('Building balance from trades, trades count:', this.tradesData.length);
         
-        // No sorting - use all data as-is
-        const asc = [...this.tradesData];
+        // Sort trades by timestamp ascending for proper balance calculation
+        const asc = [...this.tradesData].sort((a, b) => a.timestamp - b.timestamp);
         const series = [];
         
         // Try to find a starting balance from the most recent trade
@@ -1322,8 +1332,9 @@ class TradingDashboard {
         
         // Look for balance_after in recent trades first
         for (let i = asc.length - 1; i >= 0; i--) {
-            if (typeof asc[i].balance_after === 'number' && asc[i].balance_after > 0) {
-                lastBalance = asc[i].balance_after;
+            const metrics = this._calculateTradeMetrics(asc[i]);
+            if (typeof metrics.balanceAfter === 'number' && metrics.balanceAfter > 0) {
+                lastBalance = metrics.balanceAfter;
                 console.log('Found starting balance from trade:', lastBalance);
                 break;
             }
@@ -1351,21 +1362,36 @@ class TradingDashboard {
         // Go through trades in order to build balance history
         for (let i = 0; i < asc.length; i++) {
             const tr = asc[i];
+            const metrics = this._calculateTradeMetrics(tr);
             
-            if (synthetic && typeof tr.pnl === 'number') {
-        // For synthetic, add pnl to go forward in time
-        currentBalance += tr.pnl;
-            } else if (!synthetic && typeof tr.pnl === 'number') {
-        // For real balance, add pnl to go forward
-        currentBalance += tr.pnl;
+            if (synthetic && typeof metrics.pnl === 'number') {
+                // For synthetic, add pnl to go forward in time
+                currentBalance += metrics.pnl;
+            } else if (!synthetic && typeof metrics.pnl === 'number') {
+                // For real balance, add pnl to go forward
+                currentBalance += metrics.pnl;
             }
             
-            series.unshift({
+            // Use calculated balance or fallback to metrics.balanceAfter
+            const finalBalance = currentBalance || metrics.balanceAfter || 0;
+            
+            series.push({
                 id: tr.id || tr.sid,
-                balance: currentBalance,
+                balance: finalBalance,
                 performance: {}, // filled by stats recompute later
                 timestamp: tr.timestamp
             });
+            
+            // Debug logging for first few trades
+            if (i < 3) {
+                console.log('Balance calculation for trade:', {
+                    id: tr.id,
+                    pnl: metrics.pnl,
+                    balanceAfter: metrics.balanceAfter,
+                    currentBalance: currentBalance,
+                    finalBalance: finalBalance
+                });
+            }
         }
         
         // Add current balance point if not already included
@@ -1378,9 +1404,19 @@ class TradingDashboard {
             });
         }
         
+        // Sort series by timestamp ascending for proper display
+        series.sort((a, b) => a.timestamp - b.timestamp);
+        
         this.balanceData = series;
         console.log('Built balance data from trades:', this.balanceData);
         console.log('Balance range:', Math.min(...this.balanceData.map(b => b.balance)), 'to', Math.max(...this.balanceData.map(b => b.balance)));
+        
+        // Debug: Log first few balance points
+        console.log('First few balance points:', this.balanceData.slice(0, 5).map(b => ({
+            id: b.id,
+            balance: b.balance,
+            timestamp: b.timestamp
+        })));
     }
 
     _recomputeStatsFromTrades() {
@@ -1397,8 +1433,11 @@ class TradingDashboard {
             return;
         }
         
+        // Sort trades by timestamp descending to get most recent first
+        const sortedTrades = [...this.tradesData].sort((a, b) => b.timestamp - a.timestamp);
+        
         // Most recent trade decides last_result
-        this.tradesData.forEach(tr => {
+        sortedTrades.forEach(tr => {
             const rs = (tr.result_status || '').toLowerCase();
             console.log('Processing trade:', { id: tr.id, result_status: tr.result_status, rs });
             if (rs.includes('win')) stats.wins += 1;
@@ -1406,7 +1445,7 @@ class TradingDashboard {
             else if (rs.includes('refund')) stats.refunds += 1;
         });
         
-        const latest = this.tradesData[0]; // No sorting
+        const latest = sortedTrades[0]; // Most recent trade
         const rsLatest = (latest?.result_status || '').toLowerCase();
         if (rsLatest.includes('win')) stats.last_result = 'win';
         else if (rsLatest.includes('lose')) stats.last_result = 'lose';
@@ -1418,7 +1457,7 @@ class TradingDashboard {
         // Propagate stats progressively into balanceData performance for chart tooltips if desired
         if (this.balanceData.length > 0) {
             const cumulative = { wins: 0, losses: 0, refunds: 0 };
-            const byTime = [...this.tradesData];
+            const byTime = [...this.tradesData].sort((a, b) => a.timestamp - b.timestamp);
             let i = 0;
             this.balanceData.forEach(point => {
                 while (i < byTime.length && byTime[i].timestamp <= point.timestamp) {
