@@ -2072,28 +2072,30 @@ body.light-mode .form-group button {
 .balance-controls {
     display: flex;
     flex-direction: row;
-    gap: 16px;
-    align-items: flex-start;
-    justify-content: flex-end;
+    gap: 20px;
+    align-items: center;
+    justify-content: center;
     position: relative;
     z-index: 5;
-    margin-bottom: 20px;
-    padding: 0 20px;
+    margin-bottom: 25px;
+    padding: 0 30px;
 }
 
 .control-group {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 12px;
-    padding: 12px;
+    border-radius: 15px;
+    padding: 15px 20px;
     backdrop-filter: blur(15px);
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    min-width: 120px;
+    min-width: 140px;
+    flex: 1;
+    max-width: 180px;
 }
 
 .control-group:hover {
@@ -2119,10 +2121,10 @@ body.light-mode .form-group button {
     background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
     color: var(--text-primary);
     border: 2px solid rgba(255, 255, 255, 0.2);
-    border-radius: 10px;
-    padding: 8px 12px;
-    font-size: 0.75rem;
-    min-width: 100px;
+    border-radius: 12px;
+    padding: 10px 15px;
+    font-size: 0.8rem;
+    width: 100%;
     backdrop-filter: blur(20px);
     position: relative;
     z-index: 10;
@@ -2130,6 +2132,7 @@ body.light-mode .form-group button {
     cursor: pointer;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
 }
 
 .control-select:focus,
@@ -2161,14 +2164,16 @@ body.light-mode .form-group button {
 .inline-option {
     display: flex;
     align-items: center;
-    gap: 8px;
-    margin-top: 8px;
-    padding: 6px 10px;
+    gap: 10px;
+    margin-top: 10px;
+    padding: 8px 12px;
     background: rgba(255, 255, 255, 0.03);
     border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 8px;
+    border-radius: 10px;
     backdrop-filter: blur(10px);
     transition: all 0.3s ease;
+    width: 100%;
+    justify-content: center;
 }
 
 .inline-option:hover {
@@ -2438,8 +2443,12 @@ body.light-mode .form-group button {
 .balance-main {
     text-align: center;
     margin: 0;
-    padding: 20px;
+    padding: 30px 20px;
     position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
 }
 
 .balance-main::before {
@@ -2483,6 +2492,117 @@ body.light-mode .form-group button {
 
 .balance-card:hover::before {
     opacity: 1;
+}
+
+/* Special alignment for balance card */
+.balance-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.balance-card > * {
+    width: 100%;
+    max-width: 100%;
+}
+
+/* Special centering for balance elements */
+.balance-controls,
+.balance-main,
+.balance-footer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.balance-controls {
+    flex-direction: row;
+    gap: 20px;
+}
+
+.balance-main {
+    flex-direction: column;
+    gap: 20px;
+}
+
+.balance-footer {
+    flex-direction: row;
+    gap: 20px;
+}
+
+/* Special responsive adjustments */
+@media (max-width: 768px) {
+    .balance-controls {
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .balance-footer {
+        flex-direction: column;
+        gap: 15px;
+    }
+}
+
+/* Special alignment for balance elements */
+.balance-controls .control-group {
+    flex: 1;
+    max-width: 200px;
+}
+
+.balance-footer .balance-status,
+.balance-footer .balance-trend {
+    flex: 1;
+    max-width: 150px;
+}
+
+/* Special mobile adjustments */
+@media (max-width: 768px) {
+    .balance-controls .control-group {
+        max-width: none;
+        width: 100%;
+    }
+    
+    .balance-footer .balance-status,
+    .balance-footer .balance-trend {
+        max-width: none;
+        width: 100%;
+    }
+}
+
+/* Special desktop adjustments */
+@media (min-width: 769px) {
+    .balance-controls {
+        justify-content: center;
+        align-items: center;
+    }
+    
+    .balance-main {
+        justify-content: center;
+        align-items: center;
+    }
+    
+    .balance-footer {
+        justify-content: center;
+        align-items: center;
+    }
+}
+
+/* Special alignment for balance card */
+.balance-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    justify-content: center;
+}
+
+.balance-card > * {
+    width: 100%;
+    max-width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 /* Special styling for balance display */
@@ -2612,12 +2732,15 @@ body.light-mode .form-group button {
 
 .balance-display-container {
     position: relative;
-    display: inline-block;
-    margin-bottom: 15px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    width: 100%;
 }
 
 .balance-display {
-    font-size: 2.2rem;
+    font-size: 2.5rem;
     font-weight: 900;
     color: #4facfe;
     text-align: center;
@@ -2627,6 +2750,14 @@ body.light-mode .form-group button {
     position: relative;
     z-index: 1;
     -webkit-font-smoothing: antialiased;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
+    border: 2px solid rgba(79, 172, 254, 0.3);
+    border-radius: 25px;
+    padding: 25px 40px;
+    backdrop-filter: blur(20px);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    min-width: 200px;
     -moz-osx-font-smoothing: grayscale;
     max-width: 100%;
     word-spacing: 0.05em;
@@ -2656,11 +2787,16 @@ body.light-mode .form-group button {
     margin-top: 20px;
     padding-top: 15px;
     border-top: 1px solid rgba(255, 255, 255, 0.1);
+    width: 100%;
+    max-width: 400px;
+    gap: 20px;
 }
 
 .balance-status {
     display: flex;
     align-items: center;
+    flex: 1;
+    justify-content: center;
 }
 
 .status-indicator {
@@ -2697,6 +2833,8 @@ body.light-mode .form-group button {
     border-radius: 20px;
     border: 1px solid rgba(255, 255, 255, 0.1);
     backdrop-filter: blur(10px);
+    flex: 1;
+    justify-content: center;
 }
 
 .trend-icon {
@@ -2763,22 +2901,24 @@ body.light-mode .form-group button {
     .balance-controls {
         flex-direction: column;
         align-items: center;
-        gap: 12px;
-        padding: 0 15px;
-        margin-bottom: 15px;
+        gap: 15px;
+        padding: 0 20px;
+        margin-bottom: 20px;
     }
     
     .control-group {
         width: 100%;
-        padding: 10px;
+        padding: 12px;
         min-width: auto;
+        max-width: none;
     }
     
     .control-select,
     .control-input {
         min-width: 80px;
-        padding: 6px 8px;
-        font-size: 0.7rem;
+        padding: 8px 12px;
+        font-size: 0.75rem;
+        width: 100%;
     }
     
     .control-label {
@@ -2801,8 +2941,9 @@ body.light-mode .form-group button {
     }
     
     .balance-display {
-        font-size: 1.8rem;
-        padding: 12px 16px;
+        font-size: 2.0rem;
+        padding: 15px 20px;
+        min-width: 150px;
     }
     
     .balance-currency {
@@ -2812,15 +2953,17 @@ body.light-mode .form-group button {
     
     .balance-footer {
         flex-direction: column;
-        gap: 10px;
-        align-items: stretch;
+        gap: 15px;
+        align-items: center;
+        max-width: none;
     }
 }
 
 @media (max-width: 480px) {
     .balance-display {
-        font-size: 1.6rem;
-        padding: 10px 14px;
+        font-size: 1.8rem;
+        padding: 12px 16px;
+        min-width: 120px;
     }
     
     .balance-currency {
