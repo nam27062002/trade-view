@@ -1654,17 +1654,12 @@ body.light-mode .form-group button {
 }
 
 .balance-currency {
-    position: absolute;
-    top: 50%;
-    right: -35px;
-    transform: translateY(-50%);
-    font-size: 0.9rem;
+    font-size: 1.4rem;
     font-weight: 600;
-    color: rgba(255, 255, 255, 0.7);
-    background: rgba(0, 0, 0, 0.3);
-    padding: 4px 8px;
-    border-radius: 6px;
-    backdrop-filter: blur(10px);
+    color: rgba(79, 172, 254, 0.8);
+    margin-left: 8px;
+    vertical-align: baseline;
+    display: inline;
 }
 
 .balance-footer {
@@ -1747,8 +1742,8 @@ body.light-mode .form-group button {
     }
     
     .balance-currency {
-        right: -30px;
-        font-size: 0.8rem;
+        font-size: 1.2rem;
+        margin-left: 6px;
     }
     
     .balance-footer {
@@ -1765,8 +1760,8 @@ body.light-mode .form-group button {
     }
     
     .balance-currency {
-        right: -25px;
-        font-size: 0.7rem;
+        font-size: 1.0rem;
+        margin-left: 4px;
     }
     
     .balance-title h3 {

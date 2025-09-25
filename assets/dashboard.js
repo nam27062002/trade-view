@@ -299,7 +299,10 @@ class TradingDashboard {
 
             // Force update stats display and charts
             this.updateStatsDisplay();
-            this.updateResultsChart();
+            // Only update results chart if trades data changed
+            if (tradesChanged) {
+                this.updateResultsChart();
+            }
 
             if (balanceChanged || tradesChanged || statsChanged) {
                 this.smartUpdateDashboard(balanceChanged, tradesChanged, statsChanged);
@@ -548,7 +551,7 @@ class TradingDashboard {
         const trendElement = document.getElementById('balanceTrend');
 
         if (this.balanceData.length === 0) {
-            balanceEl.textContent = '--';
+            balanceEl.innerHTML = '-- <span class="balance-currency">VND</span>';
             changeEl.textContent = '--';
             
             if (statusElement) {
@@ -564,9 +567,9 @@ class TradingDashboard {
         const latest = this.balanceData[this.balanceData.length - 1];
         const previous = this.balanceData.length > 1 ? this.balanceData[this.balanceData.length - 2] : null;
 
-        // Format balance (remove VND since it's now in separate element)
+        // Format balance with VND inline
         const balance = latest.balance || 0;
-        balanceEl.textContent = this.formatNumber(balance);
+        balanceEl.innerHTML = `${this.formatNumber(balance)} <span class="balance-currency">VND</span>`;
 
         // Calculate change
         if (previous) {
@@ -1043,50 +1046,52 @@ class TradingDashboard {
 
         console.log('Updating Results Chart:', { wins, losses, refunds, performance });
 
-        if (this.charts.results) {
-            this.charts.results.destroy();
-        }
-
-        this.charts.results = new Chart(ctx, {
-            type: 'doughnut',
-            data: {
-                labels: ['Wins', 'Losses', 'Refunds'],
-                datasets: [{
-                    data: [wins, losses, refunds],
-                    backgroundColor: [
-                        this.colors.success,
-                        this.colors.danger,
-                        this.colors.warning
-                    ],
-                    borderWidth: 3,
-                    borderColor: 'rgba(255, 255, 255, 0.2)',
-                    hoverBorderWidth: 5,
-                    hoverBorderColor: 'rgba(255, 255, 255, 0.8)'
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                cutout: '60%',
-                plugins: {
-                    legend: {
-                        position: 'bottom',
-                        labels: {
-                            color: 'rgba(255, 255, 255, 0.8)',
-                            padding: 20,
-                            usePointStyle: true,
-                            pointStyle: 'circle'
-                        }
-                    }
+        // If chart doesn't exist, create it
+        if (!this.charts.results) {
+            this.charts.results = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Wins', 'Losses', 'Refunds'],
+                    datasets: [{
+                        data: [wins, losses, refunds],
+                        backgroundColor: [
+                            this.colors.success,
+                            this.colors.danger,
+                            this.colors.warning
+                        ],
+                        borderWidth: 3,
+                        borderColor: 'rgba(255, 255, 255, 0.2)',
+                        hoverBorderWidth: 5,
+                        hoverBorderColor: 'rgba(255, 255, 255, 0.8)'
+                    }]
                 },
-                animation: {
-                    animateRotate: true,
-                    animateScale: true,
-                    duration: 1000,
-                    easing: 'easeInOutQuart'
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '60%',
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                color: 'rgba(255, 255, 255, 0.8)',
+                                padding: 20,
+                                usePointStyle: true,
+                                pointStyle: 'circle'
+                            }
+                        }
+                    },
+                    animation: {
+                        animateRotate: false, // Disable rotation animation
+                        animateScale: false,  // Disable scale animation
+                        duration: 0           // No animation duration
+                    }
                 }
-            }
-        });
+            });
+        } else {
+            // Chart exists, just update the data without animation
+            this.charts.results.data.datasets[0].data = [wins, losses, refunds];
+            this.charts.results.update('none'); // Update without animation
+        }
     }
 
     smartUpdateResultsChart() {
@@ -1103,18 +1108,9 @@ class TradingDashboard {
 
         console.log('Smart updating Results Chart:', { wins, losses, refunds, performance });
 
-        // Add subtle loading indicator
-        const resultsChartContainer = document.querySelector('#resultsChart').closest('.chart-container');
-        resultsChartContainer.classList.add('chart-updating');
-
-        // Update data smoothly
+        // Update data without animation to avoid jarring reloads
         this.charts.results.data.datasets[0].data = [wins, losses, refunds];
-        this.charts.results.update('active'); // Subtle animation for smooth experience
-
-        // Remove loading indicator
-        setTimeout(() => {
-            resultsChartContainer.classList.remove('chart-updating');
-        }, 300);
+        this.charts.results.update('none'); // Update without animation
     }
 
     updateTradesDisplay() {
