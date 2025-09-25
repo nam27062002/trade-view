@@ -68,23 +68,50 @@
         <div class="dashboard-grid">
             <!-- Balance Overview -->
             <div class="card balance-card">
-                <div class="card-header">
-                    <h3>💰 Current Balance</h3>
-                    <div style="display:flex; flex-direction:column; gap:6px; align-items:flex-end;">
-                        <div class="balance-display" id="currentBalance">--</div>
-                        <div style="display:flex; gap:6px; flex-wrap:wrap; justify-content:flex-end;">
-                            <label style="font-size:0.65rem; opacity:0.65; align-self:center;">Mode</label>
-                            <select id="viewMode" style="background:#161b22; color:#e6edf3; border:1px solid #30363d; border-radius:6px; padding:2px 4px; font-size:0.65rem;">
+                <div class="balance-header">
+                    <div class="balance-title-section">
+                        <div class="balance-icon">💰</div>
+                        <div class="balance-title">
+                            <h3>Current Balance</h3>
+                            <span class="balance-subtitle">Live Trading Account</span>
+                        </div>
+                    </div>
+                    <div class="balance-controls">
+                        <div class="control-group">
+                            <label class="control-label">Mode</label>
+                            <select id="viewMode" class="control-select">
                                 <option value="simulation" selected>Demo</option>
                                 <option value="real">Real</option>
                                 <option value="all">All</option>
                             </select>
-                            <label style="font-size:0.65rem; opacity:0.65; align-self:center;">Date</label>
-                            <input type="date" id="historyDate" style="background:#161b22; color:#e6edf3; border:1px solid #30363d; border-radius:6px; padding:2px 4px; font-size:0.65rem;" />
+                        </div>
+                        <div class="control-group">
+                            <label class="control-label">Date</label>
+                            <input type="date" id="historyDate" class="control-input" />
                         </div>
                     </div>
                 </div>
-                <div class="balance-change" id="balanceChange">--</div>
+                
+                <div class="balance-main">
+                    <div class="balance-display-container">
+                        <div class="balance-display" id="currentBalance">--</div>
+                        <div class="balance-currency">VND</div>
+                    </div>
+                    <div class="balance-change" id="balanceChange">--</div>
+                </div>
+                
+                <div class="balance-footer">
+                    <div class="balance-status">
+                        <div class="status-indicator" id="balanceStatus">
+                            <div class="status-dot"></div>
+                            <span class="status-text">Live</span>
+                        </div>
+                    </div>
+                    <div class="balance-trend" id="balanceTrend">
+                        <span class="trend-icon">📈</span>
+                        <span class="trend-text">Stable</span>
+                    </div>
+                </div>
             </div>
 
             <!-- Performance Stats -->

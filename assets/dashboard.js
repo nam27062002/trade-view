@@ -544,19 +544,29 @@ class TradingDashboard {
     updateBalanceDisplay() {
         const balanceEl = document.getElementById('currentBalance');
         const changeEl = document.getElementById('balanceChange');
+        const statusElement = document.getElementById('balanceStatus');
+        const trendElement = document.getElementById('balanceTrend');
 
         if (this.balanceData.length === 0) {
             balanceEl.textContent = '--';
             changeEl.textContent = '--';
+            
+            if (statusElement) {
+                const statusDot = statusElement.querySelector('.status-dot');
+                const statusText = statusElement.querySelector('.status-text');
+                statusDot.style.background = '#f44336';
+                statusDot.style.boxShadow = '0 0 8px rgba(244, 67, 54, 0.6)';
+                statusText.textContent = 'Offline';
+            }
             return;
         }
 
         const latest = this.balanceData[this.balanceData.length - 1];
         const previous = this.balanceData.length > 1 ? this.balanceData[this.balanceData.length - 2] : null;
 
-        // Format balance
+        // Format balance (remove VND since it's now in separate element)
         const balance = latest.balance || 0;
-        balanceEl.textContent = this.formatNumber(balance) + ' VND';
+        balanceEl.textContent = this.formatNumber(balance);
 
         // Calculate change
         if (previous) {
@@ -565,9 +575,54 @@ class TradingDashboard {
 
             changeEl.textContent = `${change >= 0 ? '+' : ''}${this.formatNumber(change)} VND (${changePercent}%)`;
             changeEl.className = `balance-change ${change >= 0 ? 'positive' : 'negative'}`;
+            
+            // Update trend indicator
+            if (trendElement) {
+                const trendIcon = trendElement.querySelector('.trend-icon');
+                const trendText = trendElement.querySelector('.trend-text');
+                
+                if (change > 0) {
+                    trendIcon.textContent = '📈';
+                    trendText.textContent = 'Rising';
+                } else if (change < 0) {
+                    trendIcon.textContent = '📉';
+                    trendText.textContent = 'Falling';
+                } else {
+                    trendIcon.textContent = '➡️';
+                    trendText.textContent = 'Stable';
+                }
+            }
         } else {
             changeEl.textContent = 'No previous data';
             changeEl.className = 'balance-change';
+            
+            if (trendElement) {
+                const trendIcon = trendElement.querySelector('.trend-icon');
+                const trendText = trendElement.querySelector('.trend-text');
+                trendIcon.textContent = '➡️';
+                trendText.textContent = 'Stable';
+            }
+        }
+        
+        // Update status indicator
+        if (statusElement) {
+            const statusDot = statusElement.querySelector('.status-dot');
+            const statusText = statusElement.querySelector('.status-text');
+            
+            // Check if data is recent (within last 5 minutes)
+            const now = new Date();
+            const dataAge = now - latest.timestamp;
+            const isRecent = dataAge < 5 * 60 * 1000; // 5 minutes
+            
+            if (isRecent) {
+                statusDot.style.background = '#4caf50';
+                statusDot.style.boxShadow = '0 0 8px rgba(76, 175, 80, 0.6)';
+                statusText.textContent = 'Live';
+            } else {
+                statusDot.style.background = '#ff9800';
+                statusDot.style.boxShadow = '0 0 8px rgba(255, 152, 0, 0.6)';
+                statusText.textContent = 'Delayed';
+            }
         }
     }
 
