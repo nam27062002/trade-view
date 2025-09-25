@@ -85,7 +85,14 @@
                                 <option value="all">All</option>
                             </select>
                         </div>
-                        <!-- Date filtering removed -->
+                        <div class="control-group">
+                            <label class="control-label">Date</label>
+                            <input type="date" id="historyDate" class="control-input" />
+                            <div class="inline-option" style="margin-top:6px; display:flex; align-items:center; gap:4px;">
+                                <input type="checkbox" id="allDates" checked style="width:16px; height:16px; cursor:pointer;" />
+                                <label for="allDates" style="font-size:0.7rem; cursor:pointer; opacity:0.8;">All Dates</label>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 
@@ -147,7 +154,15 @@
             <div class="card chart-card">
                 <div class="card-header">
                     <h3>📈 Balance History</h3>
-                    <!-- Time range filtering removed -->
+                    <div class="chart-controls">
+                        <select id="timeRange">
+                            <option value="1h">Last 1 Hour</option>
+                            <option value="6h">Last 6 Hours</option>
+                            <option value="24h" selected>Last 24 Hours</option>
+                            <option value="7d">Last 7 Days</option>
+                            <option value="30d">Last 30 Days</option>
+                        </select>
+                    </div>
                 </div>
                 <div class="chart-container">
                     <canvas id="balanceChart"></canvas>
