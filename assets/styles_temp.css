@@ -361,7 +361,9 @@ body::after {
 /* Hover effects removed */
 
 @media (min-width: 768px) {
-    /* Hover effects removed */
+    .card:hover {
+        transform: translateY(-8px) scale(1.03);
+    }
 }
 
 .card-header {
@@ -501,7 +503,10 @@ body::after {
     transition: var(--transition);
 }
 
-/* Hover effects removed */
+.balance-change:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-primary);
+}
 
 .balance-change.positive {
     background: linear-gradient(135deg, rgba(79, 172, 254, 0.2), rgba(0, 242, 254, 0.1));
@@ -550,10 +555,18 @@ body::after {
     overflow: hidden;
 }
 
-/* Hover effects removed */
+.stat:hover,
+.stat:active {
+    transform: scale(1.05) translateY(-2px);
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.3);
+    box-shadow: var(--shadow-primary);
+}
 
 @media (min-width: 768px) {
-    /* Hover effects removed */
+    .stat:hover {
+        transform: scale(1.05);
+    }
 }
 
 .stat::before {
@@ -567,7 +580,9 @@ body::after {
     transition: left 0.6s ease;
 }
 
-/* Hover effects removed */
+.stat:hover::before {
+    left: 100%;
+}
 
 @media (min-width: 768px) {
     .stat {
@@ -696,11 +711,30 @@ body::after {
     }
 }
 
-/* Hover effects removed */
+.chart-controls select:hover,
+.trade-controls select:hover,
+.trade-controls button {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    color: #ffffff;
+    font-weight: 700;
+    box-shadow: 0 4px 15px rgba(79, 172, 254, 0.3);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
 
-/* Hover effects removed */
+.trade-controls button:hover {
+    background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%);
+    border-color: rgba(255, 255, 255, 0.5);
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: 0 6px 20px rgba(79, 172, 254, 0.4);
+}
 
-/* Hover effects removed */
+.chart-controls select:hover,
+.trade-controls select:hover {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.4);
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
 
 .chart-controls select:active,
 .trade-controls select:active,
@@ -710,7 +744,11 @@ body::after {
 }
 
 @media (min-width: 768px) {
-    /* Hover effects removed */
+    .chart-controls select:hover,
+    .trade-controls select:hover,
+    .trade-controls button:hover {
+        transform: translateY(-2px) scale(1.02);
+    }
 }
 
 .chart-controls select:focus,
@@ -793,7 +831,13 @@ body::after {
     }
 }
 
-/* Hover effects removed */
+.trade-item:hover,
+.trade-item:active {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.3);
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-primary);
+}
 
 .trade-item::before {
     content: '';
@@ -806,10 +850,14 @@ body::after {
     transition: left 0.6s ease;
 }
 
-/* Hover effects removed */
+.trade-item:hover::before {
+    left: 100%;
+}
 
 @media (min-width: 768px) {
-    /* Hover effects removed */
+    .trade-item:hover {
+        transform: translateY(-2px);
+    }
 }
 
 .trade-time {
@@ -936,7 +984,11 @@ body::after {
     transition: var(--transition);
 }
 
-/* Hover effects removed */
+.mobile-trade:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-primary);
+    background: rgba(255, 255, 255, 0.15);
+}
 
 .trade-header {
     display: flex;
@@ -1134,10 +1186,17 @@ body::after {
     }
 }
 
-/* Hover effects removed */
+.close:hover,
+.close:active {
+    color: rgba(230, 237, 243, 0.95);
+    background: rgba(88, 166, 255, 0.2);
+    transform: scale(1.05);
+}
 
 @media (min-width: 768px) {
-    /* Hover effects removed */
+    .close:hover {
+        transform: scale(1.1);
+    }
 }
 
 .form-group {
@@ -1212,13 +1271,24 @@ body::after {
     transition: left 0.6s ease;
 }
 
-/* Hover effects removed */
-
-@media (min-width: 768px) {
-    /* Hover effects removed */
+.form-group button:hover,
+.form-group button:active {
+    background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%);
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 6px 20px rgba(79, 172, 254, 0.4);
+    border-color: rgba(255, 255, 255, 0.5);
 }
 
-/* Hover effects removed */
+@media (min-width: 768px) {
+    .form-group button:hover {
+        transform: translateY(-2px) scale(1.02);
+        padding: 16px 30px;
+    }
+}
+
+.form-group button:hover::before {
+    left: 100%;
+}
 
 /* Loading */
 .loading {
@@ -1471,7 +1541,10 @@ body::after {
     box-shadow: var(--shadow-primary);
 }
 
-/* Hover effects removed */
+.theme-toggle:hover {
+    transform: scale(1.1);
+    box-shadow: var(--shadow-hover);
+}
 
 .theme-toggle svg {
     width: 24px;
