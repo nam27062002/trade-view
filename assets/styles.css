@@ -2076,7 +2076,7 @@ body.light-mode .form-group button {
     align-items: center;
     justify-content: center;
     position: relative;
-    z-index: 5;
+    z-index: 100;
     margin-bottom: 25px;
     padding: 0 30px;
 }
@@ -2096,6 +2096,8 @@ body.light-mode .form-group button {
     min-width: 140px;
     flex: 1;
     max-width: 180px;
+    position: relative;
+    z-index: 101;
 }
 
 .control-group:hover {
@@ -2127,7 +2129,7 @@ body.light-mode .form-group button {
     width: 100%;
     backdrop-filter: blur(20px);
     position: relative;
-    z-index: 10;
+    z-index: 102;
     pointer-events: auto;
     cursor: pointer;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -2174,6 +2176,8 @@ body.light-mode .form-group button {
     transition: all 0.3s ease;
     width: 100%;
     justify-content: center;
+    position: relative;
+    z-index: 103;
 }
 
 .inline-option:hover {
@@ -2190,6 +2194,7 @@ body.light-mode .form-group button {
     border: 2px solid rgba(255, 255, 255, 0.3);
     border-radius: 6px;
     position: relative;
+    z-index: 104;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
@@ -2605,6 +2610,149 @@ body.light-mode .form-group button {
     align-items: center;
 }
 
+/* Ensure controls are always clickable */
+.balance-controls,
+.control-group,
+.control-select,
+.control-input,
+.inline-option,
+.inline-option input[type="checkbox"] {
+    pointer-events: auto !important;
+    position: relative !important;
+}
+
+/* Special z-index hierarchy */
+.balance-controls {
+    z-index: 100 !important;
+}
+
+.control-group {
+    z-index: 101 !important;
+}
+
+.control-select,
+.control-input {
+    z-index: 102 !important;
+}
+
+.inline-option {
+    z-index: 103 !important;
+}
+
+.inline-option input[type="checkbox"] {
+    z-index: 104 !important;
+}
+
+/* Special hover effects for controls */
+.balance-controls:hover {
+    z-index: 105 !important;
+}
+
+.control-group:hover {
+    z-index: 106 !important;
+}
+
+.control-select:hover,
+.control-input:hover {
+    z-index: 107 !important;
+}
+
+.inline-option:hover {
+    z-index: 108 !important;
+}
+
+.inline-option input[type="checkbox"]:hover {
+    z-index: 109 !important;
+}
+
+/* Special focus effects for controls */
+.control-select:focus,
+.control-input:focus {
+    z-index: 110 !important;
+}
+
+.inline-option input[type="checkbox"]:focus {
+    z-index: 111 !important;
+}
+
+/* Special active effects for controls */
+.control-select:active,
+.control-input:active {
+    z-index: 112 !important;
+}
+
+.inline-option input[type="checkbox"]:active {
+    z-index: 113 !important;
+}
+
+/* Special checked effects for controls */
+.inline-option input[type="checkbox"]:checked {
+    z-index: 114 !important;
+}
+
+/* Special checked hover effects for controls */
+.inline-option input[type="checkbox"]:checked:hover {
+    z-index: 115 !important;
+}
+
+/* Special checked focus effects for controls */
+.inline-option input[type="checkbox"]:checked:focus {
+    z-index: 116 !important;
+}
+
+/* Special checked active effects for controls */
+.inline-option input[type="checkbox"]:checked:active {
+    z-index: 117 !important;
+}
+
+/* Special mobile adjustments for z-index */
+@media (max-width: 768px) {
+    .balance-controls {
+        z-index: 100 !important;
+    }
+    
+    .control-group {
+        z-index: 101 !important;
+    }
+    
+    .control-select,
+    .control-input {
+        z-index: 102 !important;
+    }
+    
+    .inline-option {
+        z-index: 103 !important;
+    }
+    
+    .inline-option input[type="checkbox"] {
+        z-index: 104 !important;
+    }
+}
+
+/* Special desktop adjustments for z-index */
+@media (min-width: 769px) {
+    .balance-controls {
+        z-index: 100 !important;
+    }
+    
+    .control-group {
+        z-index: 101 !important;
+    }
+    
+    .control-select,
+    .control-input {
+        z-index: 102 !important;
+    }
+    
+    .inline-option {
+        z-index: 103 !important;
+    }
+    
+    .inline-option input[type="checkbox"] {
+        z-index: 104 !important;
+    }
+}
+
 /* Special styling for balance display */
 .balance-display {
     position: relative;
@@ -2857,14 +3005,14 @@ body.light-mode .form-group button {
     }
     
     .balance-controls {
-        z-index: 15;
+        z-index: 100;
         gap: 20px;
         padding: 0 30px;
         margin-bottom: 25px;
     }
     
     .control-group {
-        z-index: 15;
+        z-index: 101;
         position: relative;
         padding: 16px;
         min-width: 150px;
