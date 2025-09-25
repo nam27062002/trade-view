@@ -271,10 +271,12 @@ class TradingDashboard {
             const previousTradesData = [...this.tradesData];
             const previousStats = { ...this.currentStats };
 
+            console.log('Starting to load all data...');
             await Promise.all([
                 this.loadBalanceData(),
                 this.loadTradesData()
             ]);
+            console.log('Finished loading all data. Balance data:', this.balanceData.length, 'Trades data:', this.tradesData.length);
 
             // If no explicit balance logs came back, synthesize from trades
             if (this.balanceData.length === 0 && this.tradesData.length > 0) {
@@ -412,11 +414,37 @@ class TradingDashboard {
         const dateStr = historyDateEl && historyDateEl.value ? historyDateEl.value.replace(/-/g, '') : this._todayYMD();
         const modeFilter = viewModeEl ? viewModeEl.value : 'simulation';
 
+        console.log('Loading trades data for date:', dateStr, 'mode:', modeFilter, 'limit:', limit);
+
         const path = `/live_demo_bet_history/${dateStr}`;
+        console.log('Fetching from path:', path);
         const snapshot = await this.database.ref(path).once('value');
         const dateBucketData = snapshot.val();
 
+        console.log('Raw data from RTDB:', dateBucketData);
+
         if (!dateBucketData) {
+            console.log('No data found for date:', dateStr);
+            // Try alternative paths
+            const altPaths = [
+                '/live_demo_bet_history',
+                '/live_demo_trades',
+                '/bet_history',
+                '/trades'
+            ];
+            
+            for (const altPath of altPaths) {
+                console.log('Trying alternative path:', altPath);
+                const altSnapshot = await this.database.ref(altPath).once('value');
+                const altData = altSnapshot.val();
+                if (altData) {
+                    console.log('Found data in alternative path:', altPath, altData);
+                    // Process alternative data structure
+                    this.tradesData = this._processAlternativeTradesData(altData, modeFilter, limit);
+                    return;
+                }
+            }
+            
             this.tradesData = [];
             return;
         }
@@ -464,9 +492,131 @@ class TradingDashboard {
         if (limit !== null) {
             this.tradesData = this.tradesData.slice(0, limit);
         }
+        
+        console.log('Processed trades data:', this.tradesData.length, 'trades');
+    }
+
+    _processAlternativeTradesData(data, modeFilter, limit) {
+        console.log('Processing alternative trades data structure:', data);
+        
+        const flattened = [];
+        
+        // Handle different data structures
+        if (Array.isArray(data)) {
+            // Direct array of trades
+            data.forEach((trade, index) => {
+                if (trade && typeof trade === 'object') {
+                    if (modeFilter !== 'all' && trade.mode && trade.mode !== modeFilter) return;
+                    
+                    const tsDate = trade.timestamp ? new Date(trade.timestamp) : 
+                                  trade.ts ? new Date(trade.ts) : 
+                                  trade.decision_time ? new Date(trade.decision_time) :
+                                  trade.settlement_time ? new Date(trade.settlement_time) : new Date();
+                    
+                    flattened.push({
+                        id: trade.id || `trade_${index}`,
+                        sid: trade.session_id || trade.sid,
+                        bet_side: trade.bet_side,
+                        result_status: trade.result_status,
+                        pnl: trade.pnl,
+                        balance_after: trade.balance_after || trade.balance_after_settlement,
+                        outcome: trade.outcome,
+                        stake: trade.stake,
+                        bet_idx: trade.bet_idx,
+                        bet_countdown: trade.bet_countdown,
+                        final_tai_total: trade.final_tai_total,
+                        final_xiu_total: trade.final_xiu_total,
+                        refunded_amount: trade.refunded_amount,
+                        effective_bet_amount: trade.effective_bet_amount,
+                        strategy: trade.strategy,
+                        timepoint: trade.timepoint,
+                        mode: trade.mode,
+                        timestamp: tsDate
+                    });
+                }
+            });
+        } else if (typeof data === 'object') {
+            // Object structure - try to find trades
+            Object.entries(data).forEach(([key, value]) => {
+                if (value && typeof value === 'object') {
+                    if (Array.isArray(value)) {
+                        // Array under key
+                        value.forEach((trade, index) => {
+                            if (trade && typeof trade === 'object') {
+                                if (modeFilter !== 'all' && trade.mode && trade.mode !== modeFilter) return;
+                                
+                                const tsDate = trade.timestamp ? new Date(trade.timestamp) : 
+                                              trade.ts ? new Date(trade.ts) : 
+                                              trade.decision_time ? new Date(trade.decision_time) :
+                                              trade.settlement_time ? new Date(trade.settlement_time) : new Date();
+                                
+                                flattened.push({
+                                    id: trade.id || `${key}_${index}`,
+                                    sid: trade.session_id || trade.sid,
+                                    bet_side: trade.bet_side,
+                                    result_status: trade.result_status,
+                                    pnl: trade.pnl,
+                                    balance_after: trade.balance_after || trade.balance_after_settlement,
+                                    outcome: trade.outcome,
+                                    stake: trade.stake,
+                                    bet_idx: trade.bet_idx,
+                                    bet_countdown: trade.bet_countdown,
+                                    final_tai_total: trade.final_tai_total,
+                                    final_xiu_total: trade.final_xiu_total,
+                                    refunded_amount: trade.refunded_amount,
+                                    effective_bet_amount: trade.effective_bet_amount,
+                                    strategy: trade.strategy,
+                                    timepoint: trade.timepoint,
+                                    mode: trade.mode,
+                                    timestamp: tsDate
+                                });
+                            }
+                        });
+                    } else {
+                        // Single trade object
+                        if (modeFilter !== 'all' && value.mode && value.mode !== modeFilter) return;
+                        
+                        const tsDate = value.timestamp ? new Date(value.timestamp) : 
+                                      value.ts ? new Date(value.ts) : 
+                                      value.decision_time ? new Date(value.decision_time) :
+                                      value.settlement_time ? new Date(value.settlement_time) : new Date();
+                        
+                        flattened.push({
+                            id: value.id || key,
+                            sid: value.session_id || value.sid,
+                            bet_side: value.bet_side,
+                            result_status: value.result_status,
+                            pnl: value.pnl,
+                            balance_after: value.balance_after || value.balance_after_settlement,
+                            outcome: value.outcome,
+                            stake: value.stake,
+                            bet_idx: value.bet_idx,
+                            bet_countdown: value.bet_countdown,
+                            final_tai_total: value.final_tai_total,
+                            final_xiu_total: value.final_xiu_total,
+                            refunded_amount: value.refunded_amount,
+                            effective_bet_amount: value.effective_bet_amount,
+                            strategy: value.strategy,
+                            timepoint: value.timepoint,
+                            mode: value.mode,
+                            timestamp: tsDate
+                        });
+                    }
+                }
+            });
+        }
+        
+        // Sort newest first and apply limit
+        const sorted = flattened.sort((a, b) => b.timestamp - a.timestamp);
+        const limited = limit !== null ? sorted.slice(0, limit) : sorted;
+        
+        console.log('Processed alternative trades data:', limited.length, 'trades');
+        return limited;
     }
 
     async loadTradesDataFirestore(limit) {
+        console.log('Loading trades data from Firestore, limit:', limit);
+        
         let query = this.firestore
             .collection('live_demo_trades')
             .orderBy('ts', 'desc');
@@ -477,12 +627,15 @@ class TradingDashboard {
         }
         
         const snapshot = await query.get();
+        console.log('Firestore snapshot size:', snapshot.size);
 
         this.tradesData = snapshot.docs.map(doc => ({
             id: doc.id,
             ...doc.data(),
             timestamp: new Date(doc.data().ts || doc.data().timestamp || Date.now())
         }));
+        
+        console.log('Processed Firestore trades data:', this.tradesData.length, 'trades');
     }
 
     updateDashboard() {
