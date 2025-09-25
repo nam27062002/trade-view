@@ -68,21 +68,33 @@
         <div class="dashboard-grid">
             <!-- Balance Overview -->
             <div class="card balance-card">
-                <div class="balance-controls">
-                    <div class="control-group">
-                        <label class="control-label">Mode</label>
-                        <select id="viewMode" class="control-select">
-                            <option value="simulation" selected>Demo</option>
-                            <option value="real">Real</option>
-                            <option value="all">All</option>
-                        </select>
+                <div class="balance-header">
+                    <div class="balance-title-section">
+                        <div class="balance-icon">💰</div>
+                        <div class="balance-title">
+                            <h3>Current Balance</h3>
+                            <span class="balance-subtitle">Live Trading Account</span>
+                        </div>
                     </div>
-                    <div class="control-group">
-                        <label class="control-label">Date</label>
-                        <input type="date" id="historyDate" class="control-input" />
-                        <div class="inline-option" style="margin-top:6px; display:flex; align-items:center; gap:4px;">
-                            <input type="checkbox" id="allDates" checked style="width:16px; height:16px; cursor:pointer;" />
-                            <label for="allDates" style="font-size:0.7rem; cursor:pointer; opacity:0.8;">All Dates</label>
+                    <div class="balance-controls-row">
+                        <div class="control-item">
+                            <label class="control-label">Mode</label>
+                            <select id="viewMode" class="control-select">
+                                <option value="simulation" selected>Demo</option>
+                                <option value="real">Real</option>
+                                <option value="all">All</option>
+                            </select>
+                        </div>
+                        <div class="control-item">
+                            <label class="control-label">Date</label>
+                            <input type="date" id="historyDate" class="control-input" />
+                        </div>
+                        <div class="control-item">
+                            <label class="control-label">All Dates</label>
+                            <div class="checkbox-wrapper">
+                                <input type="checkbox" id="allDates" checked class="control-checkbox" />
+                                <label for="allDates" class="checkbox-label">✓</label>
+                            </div>
                         </div>
                     </div>
                 </div>
