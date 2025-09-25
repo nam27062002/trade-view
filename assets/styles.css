@@ -2079,6 +2079,8 @@ body.light-mode .form-group button {
     z-index: 100;
     margin-bottom: 25px;
     padding: 0 30px;
+    overflow: visible;
+    min-width: 0;
 }
 
 .control-group {
@@ -2095,9 +2097,10 @@ body.light-mode .form-group button {
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     min-width: 140px;
     flex: 1;
-    max-width: 180px;
+    max-width: none;
     position: relative;
     z-index: 101;
+    overflow: visible;
 }
 
 .control-group:hover {
@@ -2135,6 +2138,10 @@ body.light-mode .form-group button {
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     text-align: center;
+    overflow: visible;
+    white-space: nowrap;
+    text-overflow: unset;
+    min-width: 0;
 }
 
 .control-select:focus,
@@ -2454,6 +2461,8 @@ body.light-mode .form-group button {
     flex-direction: column;
     align-items: center;
     gap: 20px;
+    overflow: visible;
+    min-width: 0;
 }
 
 .balance-main::before {
@@ -2529,6 +2538,8 @@ body.light-mode .form-group button {
 .balance-main {
     flex-direction: column;
     gap: 20px;
+    overflow: visible;
+    min-width: 0;
 }
 
 .balance-footer {
@@ -2585,6 +2596,8 @@ body.light-mode .form-group button {
     .balance-main {
         justify-content: center;
         align-items: center;
+        overflow: visible;
+        min-width: 0;
     }
     
     .balance-footer {
@@ -2600,14 +2613,18 @@ body.light-mode .form-group button {
     align-items: center;
     text-align: center;
     justify-content: center;
+    overflow: visible;
+    min-width: 0;
 }
 
 .balance-card > * {
     width: 100%;
-    max-width: 100%;
+    max-width: none;
     display: flex;
     justify-content: center;
     align-items: center;
+    overflow: visible;
+    min-width: 0;
 }
 
 /* Ensure controls are always clickable */
@@ -2703,6 +2720,111 @@ body.light-mode .form-group button {
 /* Special checked active effects for controls */
 .inline-option input[type="checkbox"]:checked:active {
     z-index: 117 !important;
+}
+
+/* Ensure all content is fully visible */
+.balance-card,
+.balance-controls,
+.balance-main,
+.balance-display-container,
+.balance-display,
+.control-group,
+.control-select,
+.control-input,
+.inline-option {
+    overflow: visible !important;
+    text-overflow: unset !important;
+    max-width: none !important;
+    min-width: 0 !important;
+}
+
+/* Special responsive adjustments for content visibility */
+@media (max-width: 768px) {
+    .balance-card,
+    .balance-controls,
+    .balance-main,
+    .balance-display-container,
+    .balance-display,
+    .control-group,
+    .control-select,
+    .control-input,
+    .inline-option {
+        overflow: visible !important;
+        text-overflow: unset !important;
+        max-width: none !important;
+        min-width: 0 !important;
+    }
+}
+
+@media (min-width: 769px) {
+    .balance-card,
+    .balance-controls,
+    .balance-main,
+    .balance-display-container,
+    .balance-display,
+    .control-group,
+    .control-select,
+    .control-input,
+    .inline-option {
+        overflow: visible !important;
+        text-overflow: unset !important;
+        max-width: none !important;
+        min-width: 0 !important;
+    }
+}
+
+/* Special adjustments for very small screens */
+@media (max-width: 480px) {
+    .balance-card,
+    .balance-controls,
+    .balance-main,
+    .balance-display-container,
+    .balance-display,
+    .control-group,
+    .control-select,
+    .control-input,
+    .inline-option {
+        overflow: visible !important;
+        text-overflow: unset !important;
+        max-width: none !important;
+        min-width: 0 !important;
+    }
+}
+
+/* Special adjustments for extra large screens */
+@media (min-width: 1200px) {
+    .balance-card,
+    .balance-controls,
+    .balance-main,
+    .balance-display-container,
+    .balance-display,
+    .control-group,
+    .control-select,
+    .control-input,
+    .inline-option {
+        overflow: visible !important;
+        text-overflow: unset !important;
+        max-width: none !important;
+        min-width: 0 !important;
+    }
+}
+
+/* Special adjustments for all screen sizes */
+@media (min-width: 1px) {
+    .balance-card,
+    .balance-controls,
+    .balance-main,
+    .balance-display-container,
+    .balance-display,
+    .control-group,
+    .control-select,
+    .control-input,
+    .inline-option {
+        overflow: visible !important;
+        text-overflow: unset !important;
+        max-width: none !important;
+        min-width: 0 !important;
+    }
 }
 
 /* Special mobile adjustments for z-index */
@@ -2885,6 +3007,8 @@ body.light-mode .form-group button {
     align-items: center;
     gap: 15px;
     width: 100%;
+    overflow: visible;
+    min-width: 0;
 }
 
 .balance-display {
@@ -2893,8 +3017,8 @@ body.light-mode .form-group button {
     color: #4facfe;
     text-align: center;
     white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    overflow: visible;
+    text-overflow: unset;
     position: relative;
     z-index: 1;
     -webkit-font-smoothing: antialiased;
@@ -2907,10 +3031,9 @@ body.light-mode .form-group button {
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     min-width: 200px;
     -moz-osx-font-smoothing: grayscale;
-    max-width: 100%;
+    max-width: none;
     word-spacing: 0.05em;
     letter-spacing: -0.02em;
-    padding: 15px 20px;
     border-radius: 12px;
     background: linear-gradient(135deg, rgba(79, 172, 254, 0.1), rgba(0, 242, 254, 0.05));
     border: 1px solid rgba(79, 172, 254, 0.2);
@@ -3052,6 +3175,8 @@ body.light-mode .form-group button {
         gap: 15px;
         padding: 0 20px;
         margin-bottom: 20px;
+        overflow: visible;
+        min-width: 0;
     }
     
     .control-group {
@@ -3059,6 +3184,7 @@ body.light-mode .form-group button {
         padding: 12px;
         min-width: auto;
         max-width: none;
+        overflow: visible;
     }
     
     .control-select,
@@ -3067,6 +3193,9 @@ body.light-mode .form-group button {
         padding: 8px 12px;
         font-size: 0.75rem;
         width: 100%;
+        overflow: visible;
+        text-overflow: unset;
+        max-width: none;
     }
     
     .control-label {
@@ -3092,6 +3221,9 @@ body.light-mode .form-group button {
         font-size: 2.0rem;
         padding: 15px 20px;
         min-width: 150px;
+        overflow: visible;
+        text-overflow: unset;
+        max-width: none;
     }
     
     .balance-currency {
@@ -3112,6 +3244,9 @@ body.light-mode .form-group button {
         font-size: 1.8rem;
         padding: 12px 16px;
         min-width: 120px;
+        overflow: visible;
+        text-overflow: unset;
+        max-width: none;
     }
     
     .balance-currency {

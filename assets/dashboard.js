@@ -739,8 +739,10 @@ class TradingDashboard {
         document.getElementById('losses').textContent = losses || 0;
         document.getElementById('refunds').textContent = refunds || 0;
         document.getElementById('lastResult').textContent = performance.last_result || 'N/A';
+        document.getElementById('maxWinStreak').textContent = performance.max_win_streak || 0;
+        document.getElementById('maxLossStreak').textContent = performance.max_loss_streak || 0;
 
-        this.currentStats = { wins, losses, refunds, totalTrades, winRate };
+        this.currentStats = { wins, losses, refunds, totalTrades, winRate, max_win_streak: performance.max_win_streak || 0, max_loss_streak: performance.max_loss_streak || 0 };
     }
 
     smartUpdateStatsDisplay() {
@@ -751,7 +753,9 @@ class TradingDashboard {
             wins: performance.wins || 0,
             losses: performance.losses || 0,
             refunds: performance.refunds || 0,
-            lastResult: performance.last_result || '--'
+            lastResult: performance.last_result || '--',
+            max_win_streak: performance.max_win_streak || 0,
+            max_loss_streak: performance.max_loss_streak || 0
         };
 
         // Check if any stats changed
@@ -759,7 +763,7 @@ class TradingDashboard {
 
         if (statsChanged) {
             // Add smooth animation to changed stats
-            const statElements = ['winRate', 'totalTrades', 'wins', 'losses', 'refunds', 'lastResult'];
+            const statElements = ['winRate', 'totalTrades', 'wins', 'losses', 'refunds', 'lastResult', 'maxWinStreak', 'maxLossStreak'];
             statElements.forEach(id => {
                 const el = document.getElementById(id);
                 if (el) {
@@ -1476,7 +1480,7 @@ class TradingDashboard {
     }
 
     _recomputeStatsFromTrades() {
-        const stats = { wins: 0, losses: 0, refunds: 0, last_result: null };
+        const stats = { wins: 0, losses: 0, refunds: 0, last_result: null, max_win_streak: 0, max_loss_streak: 0 };
         
         console.log('Recomputing stats from trades:', {
             tradesDataLength: this.tradesData.length,
@@ -1489,14 +1493,37 @@ class TradingDashboard {
             return;
         }
         
-        // Most recent trade decides last_result
-        this.tradesData.forEach(tr => {
+        // Most recent trade decides last_result and calculate streaks
+        let currentWinStreak = 0;
+        let currentLossStreak = 0;
+        let maxWinStreak = 0;
+        let maxLossStreak = 0;
+        
+        // Sort trades chronologically for streak calculation
+        const chronologicalTrades = [...this.tradesData].sort((a, b) => a.timestamp - b.timestamp);
+        
+        chronologicalTrades.forEach(tr => {
             const rs = (tr.result_status || '').toLowerCase();
             console.log('Processing trade:', { id: tr.id, result_status: tr.result_status, rs });
-            if (rs.includes('win')) stats.wins += 1;
-            else if (rs.includes('lose')) stats.losses += 1;
-            else if (rs.includes('refund')) stats.refunds += 1;
+            
+            if (rs.includes('win')) {
+                stats.wins += 1;
+                currentWinStreak += 1;
+                currentLossStreak = 0;
+                maxWinStreak = Math.max(maxWinStreak, currentWinStreak);
+            } else if (rs.includes('lose')) {
+                stats.losses += 1;
+                currentLossStreak += 1;
+                currentWinStreak = 0;
+                maxLossStreak = Math.max(maxLossStreak, currentLossStreak);
+            } else if (rs.includes('refund')) {
+                stats.refunds += 1;
+                // Refunds don't break streaks, maintain current streak counts
+            }
         });
+        
+        stats.max_win_streak = maxWinStreak;
+        stats.max_loss_streak = maxLossStreak;
         
         const latest = this.tradesData[0]; // tradesData sorted desc
         const rsLatest = (latest?.result_status || '').toLowerCase();
