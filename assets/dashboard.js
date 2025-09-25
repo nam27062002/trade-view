@@ -37,6 +37,11 @@ class TradingDashboard {
         this.init();
     }
 
+    ensureTradesSorted() {
+        // Always ensure trades are sorted newest first (descending timestamp)
+        this.tradesData.sort((a, b) => b.timestamp - a.timestamp);
+    }
+
     init() {
         this.setupEventListeners();
         this.setupThemeToggle();
@@ -516,6 +521,9 @@ class TradingDashboard {
         });
         this.tradesData = flattened.sort((a,b)=> b.timestamp - a.timestamp);
         if (limit !== null) this.tradesData = this.tradesData.slice(0, limit);
+
+        // Ensure proper sorting after loading
+        this.ensureTradesSorted();
     }
 
     async loadTradesDataFirestore(limit) {
@@ -535,6 +543,9 @@ class TradingDashboard {
             ...doc.data(),
             timestamp: new Date(doc.data().ts || doc.data().timestamp || Date.now())
         }));
+
+        // Ensure proper sorting after loading from Firestore
+        this.ensureTradesSorted();
     }
 
     updateDashboard() {
@@ -1223,6 +1234,9 @@ class TradingDashboard {
             return;
         }
 
+        // Ensure trades are always sorted newest first before display
+        this.ensureTradesSorted();
+
         const isMobile = window.innerWidth < 768;
 
         if (isMobile) {
@@ -1283,6 +1297,9 @@ class TradingDashboard {
     smartUpdateTradesDisplay() {
         const container = document.getElementById('tradesContainer');
         const isMobile = window.innerWidth <= 768;
+
+        // Ensure trades are always sorted newest first
+        this.ensureTradesSorted();
 
         // Handle empty state
         if (this.tradesData.length === 0) {
@@ -1355,14 +1372,19 @@ class TradingDashboard {
             insertPosition = Array.from(container.children).indexOf(header) + 1;
         }
 
-        newTradeIds.forEach((tradeId, index) => {
-            const tradeData = this.tradesData.find(t => t.id === tradeId);
-            if (!tradeData) return;
+        // Sort new trades by timestamp (newest first) to maintain correct order
+        const sortedNewTrades = newTradeIds
+            .map(id => this.tradesData.find(t => t.id === id))
+            .filter(trade => trade) // Remove any undefined trades
+            .sort((a, b) => b.timestamp - a.timestamp); // Sort newest first
 
+        // Insert trades in reverse order so newest appears first
+        // This way, when we insert multiple new trades, the newest will be at the top
+        sortedNewTrades.reverse().forEach((tradeData, index) => {
             const tradeElement = this.createTradeElement(tradeData, isMobile);
             tradeElement.classList.add('new-trade');
 
-            // Insert at the correct position (newest first)
+            // Always insert right after header (newest first)
             if (insertPosition < container.children.length) {
                 container.insertBefore(tradeElement, container.children[insertPosition]);
             } else {
