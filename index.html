@@ -172,12 +172,42 @@
             </div>
 
             <!-- Trade Results Pie Chart -->
-            <div class="card chart-card">
-                <div class="card-header">
-                    <h3>🥧 Trade Results Distribution</h3>
+            <div class="card chart-card results-chart-card">
+                <div class="card-header results-chart-header">
+                    <div class="chart-title-section">
+                        <h3>📊 Trade Results Distribution</h3>
+                        <p class="chart-subtitle">Performance breakdown by outcome</p>
+                    </div>
+                    <div class="chart-controls">
+                        <select id="chartStyle" class="chart-control-select">
+                            <option value="doughnut">Doughnut</option>
+                            <option value="pie">Pie Chart</option>
+                            <option value="polarArea">Polar Area</option>
+                        </select>
+                    </div>
                 </div>
-                <div class="chart-container">
+                <div class="chart-container results-chart-container">
                     <canvas id="resultsChart"></canvas>
+                    <div class="chart-stats-overlay">
+                        <div class="chart-stat-item">
+                            <span class="stat-icon win-icon">●</span>
+                            <span class="stat-label">Wins</span>
+                            <span class="stat-value" id="chartWinsValue">--</span>
+                            <span class="stat-percentage" id="chartWinsPerc">--%</span>
+                        </div>
+                        <div class="chart-stat-item">
+                            <span class="stat-icon loss-icon">●</span>
+                            <span class="stat-label">Losses</span>
+                            <span class="stat-value" id="chartLossesValue">--</span>
+                            <span class="stat-percentage" id="chartLossesPerc">--%</span>
+                        </div>
+                        <div class="chart-stat-item">
+                            <span class="stat-icon refund-icon">●</span>
+                            <span class="stat-label">Refunds</span>
+                            <span class="stat-value" id="chartRefundsValue">--</span>
+                            <span class="stat-percentage" id="chartRefundsPerc">--%</span>
+                        </div>
+                    </div>
                 </div>
             </div>
 

@@ -1039,61 +1039,152 @@ class TradingDashboard {
 
     updateResultsChart() {
         const ctx = document.getElementById('resultsChart').getContext('2d');
-        
+
         // Get stats from derivedStats or currentStats
         const performance = this.derivedStats || this.currentStats || {};
         const wins = performance.wins || 0;
         const losses = performance.losses || 0;
         const refunds = performance.refunds || 0;
+        const total = wins + losses + refunds;
 
-        console.log('Updating Results Chart:', { wins, losses, refunds, performance });
+        console.log('Updating Results Chart:', { wins, losses, refunds, total, performance });
+
+        // Update overlay stats
+        this.updateChartStatsOverlay(wins, losses, refunds, total);
+
+        // Get current chart style
+        const chartStyleSelect = document.getElementById('chartStyle');
+        const currentStyle = chartStyleSelect ? chartStyleSelect.value : 'doughnut';
+
+        // Enhanced colors with gradients
+        const enhancedColors = {
+            wins: ['#4ade80', '#22c55e', '#16a34a'], // Green gradient
+            losses: ['#f87171', '#ef4444', '#dc2626'], // Red gradient
+            refunds: ['#fbbf24', '#f59e0b', '#d97706'] // Yellow gradient
+        };
 
         // If chart doesn't exist, create it
         if (!this.charts.results) {
             this.charts.results = new Chart(ctx, {
-                type: 'doughnut',
+                type: currentStyle,
                 data: {
                     labels: ['Wins', 'Losses', 'Refunds'],
                     datasets: [{
                         data: [wins, losses, refunds],
                         backgroundColor: [
-                            this.colors.success,
-                            this.colors.danger,
-                            this.colors.warning
+                            enhancedColors.wins[0],
+                            enhancedColors.losses[0],
+                            enhancedColors.refunds[0]
                         ],
-                        borderWidth: 3,
-                        borderColor: 'rgba(255, 255, 255, 0.2)',
-                        hoverBorderWidth: 5,
-                        hoverBorderColor: 'rgba(255, 255, 255, 0.8)'
+                        borderWidth: 2,
+                        borderColor: 'rgba(255, 255, 255, 0.3)',
+                        hoverBorderWidth: 4,
+                        hoverBorderColor: 'rgba(255, 255, 255, 0.9)',
+                        hoverBackgroundColor: [
+                            enhancedColors.wins[1],
+                            enhancedColors.losses[1],
+                            enhancedColors.refunds[1]
+                        ],
+                        // Enhanced hover effects
+                        hoverOffset: currentStyle === 'doughnut' ? 8 : 0
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    cutout: '60%',
+                    cutout: currentStyle === 'doughnut' ? '65%' : 0,
                     plugins: {
                         legend: {
-                            position: 'bottom',
-                            labels: {
-                                color: 'rgba(255, 255, 255, 0.8)',
-                                padding: 20,
-                                usePointStyle: true,
-                                pointStyle: 'circle'
+                            display: false, // Hide default legend, using custom overlay
+                        },
+                        tooltip: {
+                            enabled: true,
+                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                            titleColor: '#ffffff',
+                            bodyColor: '#ffffff',
+                            borderColor: 'rgba(79, 172, 254, 0.5)',
+                            borderWidth: 1,
+                            cornerRadius: 8,
+                            displayColors: true,
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.label || '';
+                                    const value = context.parsed;
+                                    const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : '0.0';
+                                    return `${label}: ${value} (${percentage}%)`;
+                                }
                             }
                         }
                     },
+                    interaction: {
+                        mode: 'nearest',
+                        intersect: false
+                    },
                     animation: {
-                        animateRotate: false, // Disable rotation animation
-                        animateScale: false,  // Disable scale animation
-                        duration: 0           // No animation duration
+                        animateRotate: true,
+                        animateScale: true,
+                        duration: 800,
+                        easing: 'easeInOutQuart'
+                    },
+                    onHover: (event, elements) => {
+                        ctx.canvas.style.cursor = elements.length > 0 ? 'pointer' : 'default';
                     }
                 }
             });
+
+            // Add chart style change listener
+            if (chartStyleSelect) {
+                chartStyleSelect.addEventListener('change', () => {
+                    this.changeChartStyle(chartStyleSelect.value);
+                });
+            }
         } else {
-            // Chart exists, just update the data without animation
+            // Chart exists, just update the data
             this.charts.results.data.datasets[0].data = [wins, losses, refunds];
-            this.charts.results.update('none'); // Update without animation
+            this.charts.results.update('active');
         }
+    }
+
+    updateChartStatsOverlay(wins, losses, refunds, total) {
+        // Update wins
+        const winsValueEl = document.getElementById('chartWinsValue');
+        const winsPercEl = document.getElementById('chartWinsPerc');
+        if (winsValueEl) winsValueEl.textContent = wins;
+        if (winsPercEl) {
+            const winsPerc = total > 0 ? ((wins / total) * 100).toFixed(1) : '0.0';
+            winsPercEl.textContent = `${winsPerc}%`;
+        }
+
+        // Update losses
+        const lossesValueEl = document.getElementById('chartLossesValue');
+        const lossesPercEl = document.getElementById('chartLossesPerc');
+        if (lossesValueEl) lossesValueEl.textContent = losses;
+        if (lossesPercEl) {
+            const lossesPerc = total > 0 ? ((losses / total) * 100).toFixed(1) : '0.0';
+            lossesPercEl.textContent = `${lossesPerc}%`;
+        }
+
+        // Update refunds
+        const refundsValueEl = document.getElementById('chartRefundsValue');
+        const refundsPercEl = document.getElementById('chartRefundsPerc');
+        if (refundsValueEl) refundsValueEl.textContent = refunds;
+        if (refundsPercEl) {
+            const refundsPerc = total > 0 ? ((refunds / total) * 100).toFixed(1) : '0.0';
+            refundsPercEl.textContent = `${refundsPerc}%`;
+        }
+    }
+
+    changeChartStyle(newStyle) {
+        if (!this.charts.results) return;
+
+        // Destroy existing chart
+        this.charts.results.destroy();
+        this.charts.results = null;
+
+        // Recreate chart with new style
+        setTimeout(() => {
+            this.updateResultsChart();
+        }, 100);
     }
 
     smartUpdateResultsChart() {
@@ -1107,8 +1198,12 @@ class TradingDashboard {
         const wins = performance.wins || 0;
         const losses = performance.losses || 0;
         const refunds = performance.refunds || 0;
+        const total = wins + losses + refunds;
 
-        console.log('Smart updating Results Chart:', { wins, losses, refunds, performance });
+        console.log('Smart updating Results Chart:', { wins, losses, refunds, total, performance });
+
+        // Update overlay stats
+        this.updateChartStatsOverlay(wins, losses, refunds, total);
 
         // Update data without animation to avoid jarring reloads
         this.charts.results.data.datasets[0].data = [wins, losses, refunds];
@@ -1424,7 +1519,8 @@ class TradingDashboard {
             month: '2-digit',
             day: '2-digit',
             hour: '2-digit',
-            minute: '2-digit'
+            minute: '2-digit',
+            second: '2-digit'
         }).format(date);
     }
 

@@ -793,6 +793,245 @@ body::after {
     }
 }
 
+/* === ENHANCED RESULTS CHART STYLING === */
+.results-chart-card {
+    background: linear-gradient(135deg,
+        rgba(79, 172, 254, 0.1) 0%,
+        rgba(240, 147, 251, 0.08) 30%,
+        rgba(255, 215, 0, 0.06) 60%,
+        rgba(255, 255, 255, 0.08) 100%
+    );
+    border: 2px solid rgba(79, 172, 254, 0.2);
+    box-shadow:
+        0 20px 60px rgba(79, 172, 254, 0.1),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: visible;
+}
+
+.results-chart-card::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    background: linear-gradient(135deg,
+        rgba(79, 172, 254, 0.3) 0%,
+        rgba(240, 147, 251, 0.2) 30%,
+        rgba(255, 215, 0, 0.15) 60%,
+        rgba(255, 255, 255, 0.1) 100%
+    );
+    border-radius: inherit;
+    z-index: -1;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+}
+
+.results-chart-card:hover {
+    transform: translateY(-3px);
+    box-shadow:
+        0 25px 80px rgba(79, 172, 254, 0.2),
+        inset 0 1px 0 rgba(255, 255, 255, 0.15);
+    border-color: rgba(79, 172, 254, 0.3);
+}
+
+.results-chart-card:hover::before {
+    opacity: 1;
+}
+
+.results-chart-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.chart-title-section h3 {
+    margin: 0 0 5px 0;
+    font-size: 1.1rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, #4facfe 0%, #f093fb 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-shadow: none;
+}
+
+.chart-subtitle {
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.6);
+    margin: 0;
+    font-weight: 400;
+    letter-spacing: 0.3px;
+}
+
+.chart-control-select {
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--text-primary);
+    border: 1px solid rgba(79, 172, 254, 0.3);
+    border-radius: 8px;
+    padding: 6px 12px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    min-width: 120px;
+    backdrop-filter: blur(10px);
+}
+
+.chart-control-select:focus {
+    outline: none;
+    border-color: #58a6ff;
+    box-shadow: 0 0 0 2px rgba(88, 166, 255, 0.2);
+    background: rgba(255, 255, 255, 0.12);
+}
+
+.chart-control-select:hover {
+    border-color: rgba(88, 166, 255, 0.5);
+    background: rgba(255, 255, 255, 0.12);
+}
+
+.results-chart-container {
+    position: relative;
+    height: 350px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: visible;
+}
+
+.chart-stats-overlay {
+    position: absolute;
+    bottom: 15px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 15px;
+    background: linear-gradient(135deg,
+        rgba(0, 0, 0, 0.4) 0%,
+        rgba(0, 0, 0, 0.6) 100%
+    );
+    backdrop-filter: blur(15px);
+    border-radius: 15px;
+    padding: 8px 16px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+    z-index: 10;
+}
+
+.chart-stat-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    min-width: 45px;
+    text-align: center;
+}
+
+.stat-icon {
+    font-size: 1rem;
+    margin-bottom: 2px;
+}
+
+.win-icon {
+    color: #4ade80;
+    text-shadow: 0 0 8px rgba(74, 222, 128, 0.6);
+}
+
+.loss-icon {
+    color: #f87171;
+    text-shadow: 0 0 8px rgba(248, 113, 113, 0.6);
+}
+
+.refund-icon {
+    color: #fbbf24;
+    text-shadow: 0 0 8px rgba(251, 191, 36, 0.6);
+}
+
+.stat-label {
+    font-size: 0.6rem;
+    color: rgba(255, 255, 255, 0.7);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.stat-value {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.stat-percentage {
+    font-size: 0.65rem;
+    color: rgba(255, 255, 255, 0.8);
+    font-weight: 500;
+}
+
+/* Responsive adjustments for results chart */
+@media (max-width: 768px) {
+    .results-chart-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    .chart-control-select {
+        width: 100%;
+        max-width: 150px;
+    }
+
+    .results-chart-container {
+        height: 300px;
+    }
+
+    .chart-stats-overlay {
+        position: static;
+        transform: none;
+        margin-top: 15px;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .chart-stat-item {
+        min-width: 40px;
+    }
+
+    .stat-icon {
+        font-size: 0.9rem;
+    }
+
+    .stat-label {
+        font-size: 0.55rem;
+    }
+
+    .stat-value {
+        font-size: 0.7rem;
+    }
+
+    .stat-percentage {
+        font-size: 0.6rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .results-chart-container {
+        height: 250px;
+    }
+
+    .chart-stats-overlay {
+        gap: 10px;
+        padding: 6px 12px;
+    }
+
+    .chart-stat-item {
+        min-width: 35px;
+    }
+}
+
 .chart-controls {
     display: flex;
     flex-wrap: wrap;
@@ -1118,9 +1357,10 @@ body::after {
 }
 
 .trade-time {
-    color: rgba(230, 237, 243, 0.6);
-    font-size: 0.75rem;
+    color: rgba(230, 237, 243, 0.9);
+    font-size: 0.8rem;
     margin-bottom: 4px;
+    font-weight: 500;
 }
 
 @media (min-width: 768px) {
@@ -1204,30 +1444,25 @@ body::after {
 
 .trade-delta {
     font-weight: 600;
+    font-size: 0.85rem;
 }
 
 .trade-delta.positive {
-    background: var(--success-gradient);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    text-shadow: 0 0 8px rgba(79, 172, 254, 0.4);
+    color: #00ff88;
+    text-shadow: 0 0 8px rgba(0, 255, 136, 0.5);
+    font-weight: 700;
 }
 
 .trade-delta.negative {
-    background: var(--danger-gradient);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    text-shadow: 0 0 8px rgba(250, 112, 154, 0.4);
+    color: #ff4757;
+    text-shadow: 0 0 8px rgba(255, 71, 87, 0.5);
+    font-weight: 700;
 }
 
 .trade-delta.neutral {
-    background: var(--warning-gradient);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    text-shadow: 0 0 8px rgba(255, 236, 210, 0.4);
+    color: #ffa502;
+    text-shadow: 0 0 8px rgba(255, 165, 2, 0.5);
+    font-weight: 700;
 }
 
 /* Mobile Trade Styles - Dark Theme */
@@ -1263,12 +1498,13 @@ body::after {
     display: flex;
     align-items: center;
     gap: 6px;
-    font-size: 0.8rem;
-    color: rgba(230, 237, 243, 0.9);
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.95);
+    font-weight: 500;
 }
 
 .detail-label {
-    color: rgba(230, 237, 243, 0.6);
+    color: rgba(230, 237, 243, 0.8);
     font-weight: 600;
     min-width: 35px;
 }
@@ -2510,10 +2746,41 @@ body.light-mode .form-group button {
 }
 
 /* Special animation for mode selector */
+/* Removed duplicate z-index rule - using unified system instead */
+
 #viewMode option {
-    background: rgba(0, 0, 0, 0.9);
+    background: rgba(0, 0, 0, 0.95);
     color: white;
-    padding: 8px;
+    padding: 8px 12px;
+    border: none;
+    font-size: 0.85rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+#viewMode option:hover,
+#viewMode option:focus {
+    background: rgba(79, 172, 254, 0.8);
+    color: white;
+}
+
+#viewMode option:checked,
+#viewMode option:selected {
+    background: rgba(79, 172, 254, 0.9);
+    color: white;
+}
+
+/* Ensure dropdown container doesn't clip - Updated for new structure */
+.control-item {
+    position: relative;
+    z-index: 102;
+    overflow: visible !important;
+}
+
+.control-select,
+.control-input {
+    position: relative;
+    z-index: 103;
+    overflow: visible !important;
 }
 
 /* Special animation for date input */
@@ -2660,7 +2927,7 @@ body.light-mode .form-group button {
 /* Special styling for balance card */
 .balance-card {
     position: relative;
-    overflow: hidden;
+    overflow: visible;
 }
 
 .balance-card::before {
@@ -2825,110 +3092,54 @@ body.light-mode .form-group button {
 }
 
 /* Ensure controls are always clickable */
-.balance-controls,
-.control-group,
+.balance-controls-header,
+.balance-controls-row,
+.control-item,
 .control-select,
 .control-input,
-.inline-option,
-.inline-option input[type="checkbox"] {
+.checkbox-wrapper,
+.control-checkbox {
     pointer-events: auto !important;
     position: relative !important;
 }
 
-/* Special z-index hierarchy */
-.balance-controls {
+/* Clean z-index hierarchy for new structure */
+.balance-controls-header {
     z-index: 100 !important;
 }
 
-.control-group {
+.balance-controls-row {
     z-index: 101 !important;
+}
+
+.control-item {
+    z-index: 102 !important;
 }
 
 .control-select,
 .control-input {
-    z-index: 102 !important;
-}
-
-.inline-option {
     z-index: 103 !important;
 }
 
-.inline-option input[type="checkbox"] {
+.checkbox-wrapper {
     z-index: 104 !important;
 }
 
-/* Special hover effects for controls */
-.balance-controls:hover {
+.control-checkbox {
     z-index: 105 !important;
 }
 
-.control-group:hover {
-    z-index: 106 !important;
-}
-
-.control-select:hover,
-.control-input:hover {
-    z-index: 107 !important;
-}
-
-.inline-option:hover {
-    z-index: 108 !important;
-}
-
-.inline-option input[type="checkbox"]:hover {
-    z-index: 109 !important;
-}
-
-/* Special focus effects for controls */
-.control-select:focus,
-.control-input:focus {
-    z-index: 110 !important;
-}
-
-.inline-option input[type="checkbox"]:focus {
-    z-index: 111 !important;
-}
-
-/* Special active effects for controls */
-.control-select:active,
-.control-input:active {
-    z-index: 112 !important;
-}
-
-.inline-option input[type="checkbox"]:active {
-    z-index: 113 !important;
-}
-
-/* Special checked effects for controls */
-.inline-option input[type="checkbox"]:checked {
-    z-index: 114 !important;
-}
-
-/* Special checked hover effects for controls */
-.inline-option input[type="checkbox"]:checked:hover {
-    z-index: 115 !important;
-}
-
-/* Special checked focus effects for controls */
-.inline-option input[type="checkbox"]:checked:focus {
-    z-index: 116 !important;
-}
-
-/* Special checked active effects for controls */
-.inline-option input[type="checkbox"]:checked:active {
-    z-index: 117 !important;
-}
-
-/* Ensure all content is fully visible */
+/* Ensure all content is fully visible - Updated for new structure */
 .balance-card,
-.balance-controls,
+.balance-controls-header,
+.balance-controls-row,
 .balance-main,
 .balance-display-container,
 .balance-display,
-.control-group,
+.control-item,
 .control-select,
 .control-input,
-.inline-option {
+.checkbox-wrapper {
     overflow: visible !important;
     text-overflow: unset !important;
     max-width: none !important;
@@ -3024,51 +3235,17 @@ body.light-mode .form-group button {
     }
 }
 
-/* Special mobile adjustments for z-index */
+/* Responsive z-index adjustments for new structure */
 @media (max-width: 768px) {
-    .balance-controls {
-        z-index: 100 !important;
-    }
-    
-    .control-group {
-        z-index: 101 !important;
-    }
-    
+    .balance-controls-header,
+    .balance-controls-row,
+    .control-item,
     .control-select,
-    .control-input {
-        z-index: 102 !important;
-    }
-    
-    .inline-option {
-        z-index: 103 !important;
-    }
-    
-    .inline-option input[type="checkbox"] {
-        z-index: 104 !important;
-    }
-}
-
-/* Special desktop adjustments for z-index */
-@media (min-width: 769px) {
-    .balance-controls {
-        z-index: 100 !important;
-    }
-    
-    .control-group {
-        z-index: 101 !important;
-    }
-    
-    .control-select,
-    .control-input {
-        z-index: 102 !important;
-    }
-    
-    .inline-option {
-        z-index: 103 !important;
-    }
-    
-    .inline-option input[type="checkbox"] {
-        z-index: 104 !important;
+    .control-input,
+    .checkbox-wrapper,
+    .control-checkbox {
+        z-index: auto !important;
+        position: relative !important;
     }
 }
 
@@ -3780,7 +3957,16 @@ body.light-mode .theme-toggle svg {
         display: flex;
         align-items: center;
         justify-content: center;
+        color: rgba(255, 255, 255, 0.95);
+        font-weight: 500;
     }
+
+    .trade-item:not(.trade-header):not(.mobile-trade) .trade-balance {
+        color: #ffffff;
+        font-weight: 600;
+        font-size: 0.9rem;
+    }
+}
 }
 
 /* === IMPROVED BALANCE CONTROLS LAYOUT === */
@@ -3788,6 +3974,9 @@ body.light-mode .theme-toggle svg {
     margin-bottom: 20px;
     padding-bottom: 15px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    position: relative;
+    z-index: 100;
+    overflow: visible;
 }
 
 .balance-main {
@@ -3829,6 +4018,9 @@ body.light-mode .theme-toggle svg {
     gap: 20px;
     align-items: end;
     flex-wrap: wrap;
+    position: relative;
+    z-index: 100;
+    overflow: visible;
 }
 
 .control-item {
@@ -3836,6 +4028,9 @@ body.light-mode .theme-toggle svg {
     flex-direction: column;
     gap: 6px;
     min-width: 100px;
+    position: relative;
+    z-index: 100;
+    overflow: visible;
 }
 
 .control-label {
