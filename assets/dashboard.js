@@ -60,25 +60,14 @@ class TradingDashboard {
         };
 
         // Controls
-        document.getElementById('timeRange').onchange = () => this.updateBalanceChart();
+        // Time range filtering removed - using all data
         document.getElementById('refreshTrades').onclick = () => this.loadTradesData();
         document.getElementById('tradeLimit').onchange = () => this.loadTradesData();
         const viewModeEl = document.getElementById('viewMode');
         if (viewModeEl) {
             viewModeEl.onchange = () => this.loadTradesData();
         }
-        const historyDateEl = document.getElementById('historyDate');
-        if (historyDateEl) {
-            // Default to today
-            if (!historyDateEl.value) {
-                const today = new Date();
-                const yyyy = today.getFullYear();
-                const mm = String(today.getMonth() + 1).padStart(2, '0');
-                const dd = String(today.getDate()).padStart(2, '0');
-                historyDateEl.value = `${yyyy}-${mm}-${dd}`;
-            }
-            historyDateEl.onchange = () => this.loadTradesData();
-        }
+        // Date filtering removed - using all data
 
         // Handle window resize for responsive layout
         window.addEventListener('resize', () => {
@@ -381,10 +370,9 @@ class TradingDashboard {
     }
 
     async loadBalanceDataFirestore() {
+        // Load all balance data without any filtering
         const snapshot = await this.firestore
             .collection('live_demo_balance_logs')
-            .orderBy('ts', 'desc')
-            .limit(1000)
             .get();
 
         this.balanceData = snapshot.docs
@@ -397,103 +385,40 @@ class TradingDashboard {
     }
 
     async loadTradesData() {
-        const limitValue = document.getElementById('tradeLimit').value;
-        const limit = limitValue === 'all' ? null : parseInt(limitValue);
-
+        // Load all trades data without any filtering
         if (this.dataSource === 'rtdb') {
-            return this.loadTradesDataRTDB(limit);
+            return this.loadTradesDataRTDB();
         } else {
-            return this.loadTradesDataFirestore(limit);
+            return this.loadTradesDataFirestore();
         }
     }
 
-    async loadTradesDataRTDB(limit) {
-        // New schema: /live_demo_bet_history/YYYYMMDD/{session_id}/{push_key}: record
-        const historyDateEl = document.getElementById('historyDate');
-        const viewModeEl = document.getElementById('viewMode');
-        const dateStr = historyDateEl && historyDateEl.value ? historyDateEl.value.replace(/-/g, '') : this._todayYMD();
-        const modeFilter = viewModeEl ? viewModeEl.value : 'simulation';
+    async loadTradesDataRTDB() {
+        // Load all trades data without any filtering
+        console.log('Loading all trades data without filtering');
 
-        console.log('Loading trades data for date:', dateStr, 'mode:', modeFilter, 'limit:', limit);
-
-        const path = `/live_demo_bet_history/${dateStr}`;
-        console.log('Fetching from path:', path);
-        const snapshot = await this.database.ref(path).once('value');
-        const dateBucketData = snapshot.val();
-
-        console.log('Raw data from RTDB:', dateBucketData);
-
-        if (!dateBucketData) {
-            console.log('No data found for date:', dateStr);
-            // Try alternative paths
-            const altPaths = [
-                '/live_demo_bet_history',
-                '/live_demo_trades',
-                '/bet_history',
-                '/trades'
-            ];
-            
-            for (const altPath of altPaths) {
-                console.log('Trying alternative path:', altPath);
-                const altSnapshot = await this.database.ref(altPath).once('value');
-                const altData = altSnapshot.val();
-                if (altData) {
-                    console.log('Found data in alternative path:', altPath, altData);
-                    // Process alternative data structure
-                    this.tradesData = this._processAlternativeTradesData(altData, modeFilter, limit);
-                    return;
-                }
+        // Try multiple paths to find trades data
+        const altPaths = [
+            '/live_demo_bet_history',
+            '/live_demo_trades',
+            '/bet_history',
+            '/trades'
+        ];
+        
+        for (const altPath of altPaths) {
+            console.log('Trying path:', altPath);
+            const altSnapshot = await this.database.ref(altPath).once('value');
+            const altData = altSnapshot.val();
+            if (altData) {
+                console.log('Found data in alternative path:', altPath, altData);
+                // Process alternative data structure
+                this.tradesData = this._processAlternativeTradesData(altData, modeFilter, limit);
+                return;
             }
-            
-            this.tradesData = [];
-            return;
-        }
-
-        // Flatten: for each session id => for each push key => record
-        const flattened = [];
-        Object.entries(dateBucketData).forEach(([sessionId, sessionRecords]) => {
-            if (sessionRecords && typeof sessionRecords === 'object') {
-                Object.entries(sessionRecords).forEach(([pushKey, rec]) => {
-                    if (rec && typeof rec === 'object') {
-                        // Mode filtering
-                        if (modeFilter !== 'all' && rec.mode && rec.mode !== modeFilter) return;
-                        const decisionTime = rec.decision_time || rec.decisionTime;
-                        const settlementTime = rec.settlement_time || rec.settlementTime;
-                        const tsStr = settlementTime || decisionTime;
-                        let tsDate;
-                        try { tsDate = tsStr ? new Date(tsStr) : new Date(); } catch { tsDate = new Date(); }
-                        flattened.push({
-                            id: pushKey,
-                            sid: rec.session_id || sessionId,
-                            bet_side: rec.bet_side,
-                            result_status: rec.result_status,
-                            pnl: rec.pnl,
-                            balance_after: rec.balance_after_settlement,
-                            outcome: rec.outcome,
-                            stake: rec.stake,
-                            bet_idx: rec.bet_idx,
-                            bet_countdown: rec.bet_countdown,
-                            final_tai_total: rec.final_tai_total,
-                            final_xiu_total: rec.final_xiu_total,
-                            refunded_amount: rec.refunded_amount,
-                            effective_bet_amount: rec.effective_bet_amount,
-                            strategy: rec.strategy,
-                            timepoint: rec.timepoint,
-                            mode: rec.mode,
-                            timestamp: tsDate
-                        });
-                    }
-                });
-            }
-        });
-
-        // Sort newest first and apply limit
-        this.tradesData = flattened.sort((a, b) => b.timestamp - a.timestamp);
-        if (limit !== null) {
-            this.tradesData = this.tradesData.slice(0, limit);
         }
         
-        console.log('Processed trades data:', this.tradesData.length, 'trades');
+        this.tradesData = [];
+        return;
     }
 
     _processAlternativeTradesData(data, modeFilter, limit) {
@@ -506,7 +431,7 @@ class TradingDashboard {
             // Direct array of trades
             data.forEach((trade, index) => {
                 if (trade && typeof trade === 'object') {
-                    if (modeFilter !== 'all' && trade.mode && trade.mode !== modeFilter) return;
+                    // No mode filtering - include all trades
                     
                     const tsDate = trade.timestamp ? new Date(trade.timestamp) : 
                                   trade.ts ? new Date(trade.ts) : 
@@ -543,7 +468,7 @@ class TradingDashboard {
                         // Array under key
                         value.forEach((trade, index) => {
                             if (trade && typeof trade === 'object') {
-                                if (modeFilter !== 'all' && trade.mode && trade.mode !== modeFilter) return;
+                                // No mode filtering - include all trades
                                 
                                 const tsDate = trade.timestamp ? new Date(trade.timestamp) : 
                                               trade.ts ? new Date(trade.ts) : 
@@ -574,7 +499,7 @@ class TradingDashboard {
                         });
                     } else {
                         // Single trade object
-                        if (modeFilter !== 'all' && value.mode && value.mode !== modeFilter) return;
+                        // No mode filtering - include all trades
                         
                         const tsDate = value.timestamp ? new Date(value.timestamp) : 
                                       value.ts ? new Date(value.ts) : 
@@ -606,27 +531,21 @@ class TradingDashboard {
             });
         }
         
-        // Sort newest first and apply limit
+        // Sort newest first without limit
         const sorted = flattened.sort((a, b) => b.timestamp - a.timestamp);
-        const limited = limit !== null ? sorted.slice(0, limit) : sorted;
         
-        console.log('Processed alternative trades data:', limited.length, 'trades');
-        return limited;
+        console.log('Processed alternative trades data:', sorted.length, 'trades');
+        return sorted;
     }
 
     async loadTradesDataFirestore(limit) {
-        console.log('Loading trades data from Firestore, limit:', limit);
+        console.log('Loading all trades data from Firestore without filtering');
         
-        let query = this.firestore
+        // Load all data without any filtering
+        const snapshot = await this.firestore
             .collection('live_demo_trades')
-            .orderBy('ts', 'desc');
+            .get();
         
-        // Only apply limit if it's not null (i.e., not "all")
-        if (limit !== null) {
-            query = query.limit(limit);
-        }
-        
-        const snapshot = await query.get();
         console.log('Firestore snapshot size:', snapshot.size);
 
         this.tradesData = snapshot.docs.map(doc => ({
@@ -878,41 +797,14 @@ class TradingDashboard {
 
     updateBalanceChart() {
         const ctx = document.getElementById('balanceChart').getContext('2d');
-        const timeRange = document.getElementById('timeRange').value;
 
         console.log('Updating balance chart with data:', this.balanceData);
-        console.log('Time range:', timeRange);
 
-        // Filter data by time range
-        const now = new Date();
-        const cutoff = new Date(now);
+        // Use all data without time filtering
+        let filteredData = this.balanceData;
+        console.log('Using all data without time filtering:', filteredData);
 
-        switch (timeRange) {
-            case '1h': cutoff.setHours(now.getHours() - 1); break;
-            case '6h': cutoff.setHours(now.getHours() - 6); break;
-            case '24h': cutoff.setDate(now.getDate() - 1); break;
-            case '7d': cutoff.setDate(now.getDate() - 7); break;
-            case '30d': cutoff.setDate(now.getDate() - 30); break;
-        }
-
-        let filteredData = this.balanceData.filter(item => item.timestamp >= cutoff);
-        console.log('Filtered data for time range:', filteredData);
-
-        // If filtered data is too sparse, use more data points
-        if (filteredData.length < 2) {
-            console.log('Not enough data after filtering, using all available data');
-            filteredData = [...this.balanceData];
-        }
-
-        // Sample data to reduce chart density, but ensure we have at least 2 points
-        filteredData = this.sampleChartData(filteredData, timeRange);
-        console.log('Sampled data:', filteredData);
-        
-        // Ensure we have at least 2 points for a line chart
-        if (filteredData.length < 2 && this.balanceData.length >= 2) {
-            console.log('Not enough points after sampling, using all balance data');
-            filteredData = [...this.balanceData];
-        }
+        console.log('Using all data points for chart');
         
         // If we still only have 1 point, create a synthetic second point for line chart
         if (filteredData.length === 1) {
@@ -1098,33 +990,10 @@ class TradingDashboard {
         const chartContainer = document.querySelector('.chart-container');
         chartContainer.classList.add('chart-updating');
 
-        const timeRange = document.getElementById('timeRange').value;
-        const now = new Date();
-        const cutoff = new Date(now);
-
-        switch (timeRange) {
-            case '1h': cutoff.setHours(now.getHours() - 1); break;
-            case '6h': cutoff.setHours(now.getHours() - 6); break;
-            case '24h': cutoff.setDate(now.getDate() - 1); break;
-            case '7d': cutoff.setDate(now.getDate() - 7); break;
-            case '30d': cutoff.setDate(now.getDate() - 30); break;
-        }
-
-        let filteredData = this.balanceData.filter(item => item.timestamp >= cutoff);
+        // Use all data without time filtering
+        let filteredData = this.balanceData;
         
-        // If filtered data is too sparse, use more data points
-        if (filteredData.length < 2) {
-            console.log('Not enough data after filtering in smart update, using all available data');
-            filteredData = [...this.balanceData];
-        }
-        
-        filteredData = this.sampleChartData(filteredData, timeRange);
-        
-        // Ensure we have at least 2 points for a line chart
-        if (filteredData.length < 2 && this.balanceData.length >= 2) {
-            console.log('Not enough points after sampling in smart update, using all balance data');
-            filteredData = [...this.balanceData];
-        }
+        // Use all data points without sampling
         
         // If we still only have 1 point, create a synthetic second point for line chart
         if (filteredData.length === 1) {
@@ -1441,42 +1310,6 @@ class TradingDashboard {
     }
 
 
-    sampleChartData(data, timeRange) {
-        // If we have very few data points, return all of them
-        if (data.length <= 10) return data;
-        
-        // If we only have 1-2 points, return them as-is
-        if (data.length <= 2) return data;
-
-        // Determine sampling interval based on time range and data density
-        let sampleInterval;
-        switch (timeRange) {
-            case '1h': sampleInterval = Math.max(1, Math.floor(data.length / 30)); break;
-            case '6h': sampleInterval = Math.max(1, Math.floor(data.length / 50)); break;
-            case '24h': sampleInterval = Math.max(1, Math.floor(data.length / 60)); break;
-            case '7d': sampleInterval = Math.max(1, Math.floor(data.length / 70)); break;
-            case '30d': sampleInterval = Math.max(1, Math.floor(data.length / 80)); break;
-            default: sampleInterval = Math.max(1, Math.floor(data.length / 50));
-        }
-
-        const sampledData = [];
-        for (let i = 0; i < data.length; i += sampleInterval) {
-            sampledData.push(data[i]);
-        }
-
-        // Always include the last data point
-        if (data.length > 0 && sampledData[sampledData.length - 1] !== data[data.length - 1]) {
-            sampledData.push(data[data.length - 1]);
-        }
-
-        // Ensure we have at least 2 points for a line chart
-        if (sampledData.length < 2 && data.length >= 2) {
-            // If sampling resulted in too few points, include first and last
-            return [data[0], data[data.length - 1]];
-        }
-
-        return sampledData;
-    }
 
     convertSide(side) {
         if (!side) return null;
@@ -1495,10 +1328,6 @@ class TradingDashboard {
         return rs;
     }
 
-    _todayYMD() {
-        const d = new Date();
-        return `${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}`;
-    }
 
     _buildBalanceFromTrades() {
         // Reconstruct a cumulative balance series if each trade has balance_after OR by summing pnl from a synthetic start.
