@@ -435,13 +435,14 @@ body::after {
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 2.0rem;
+    font-size: 1.4rem;
     font-weight: 800;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
     color: #ffffff;
     text-shadow: 0 0 20px rgba(79, 172, 254, 0.8),
                  0 0 40px rgba(79, 172, 254, 0.4);
     text-align: center;
-    margin: 20px 0;
+    margin: 16px 0;
     white-space: nowrap;
     overflow: hidden;
     position: relative;
@@ -450,9 +451,9 @@ body::after {
     -moz-osx-font-smoothing: grayscale;
     width: 100%;
     height: auto;
-    min-height: 80px;
+    min-height: 60px;
     letter-spacing: -0.01em;
-    padding: 20px 16px;
+    padding: 16px 14px;
     border-radius: 20px;
     background: linear-gradient(145deg,
         rgba(79, 172, 254, 0.15) 0%,
@@ -470,17 +471,28 @@ body::after {
 
 @media (max-width: 480px) {
     .balance-display {
-        font-size: 1.8rem;
-        padding: 18px 20px;
+        font-size: 1.2rem;
+        padding: 14px 10px;
         min-width: auto;
         max-width: 100%;
-        margin: 16px 0;
+        width: 100%;
+        margin: 14px 0;
+        min-height: 50px;
+        word-break: keep-all;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .balance-display .balance-currency {
+        font-size: 1.2rem !important;
+        font-weight: 800;
+        margin-left: 0.2em;
     }
 
     .balance-controls {
         flex-direction: column;
         gap: 16px;
-        padding: 20px;
+        padding: 18px 16px;
         margin-bottom: 20px;
     }
 
@@ -488,7 +500,7 @@ body::after {
         width: 100%;
         max-width: none;
         min-width: auto;
-        padding: 20px;
+        padding: 18px 16px;
     }
 
     .control-label {
@@ -498,31 +510,45 @@ body::after {
 
     .control-select,
     .control-input {
-        font-size: 0.95rem;
-        padding: 12px 16px;
+        font-size: 0.9rem;
+        padding: 12px 14px;
     }
 
     .balance-main {
-        padding: 20px 16px;
+        padding: 18px 14px;
     }
 
     .balance-change {
-        font-size: 1.0rem;
-        padding: 12px 16px;
+        font-size: 0.9rem;
+        padding: 10px 12px;
+        min-height: 40px;
+        width: 100%;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 }
 
 @media (min-width: 481px) and (max-width: 767px) {
     .balance-display {
-        font-size: 2.0rem;
-        padding: 18px 22px;
+        font-size: 1.3rem;
+        padding: 15px 12px;
         min-width: auto;
         max-width: 100%;
+        width: 100%;
+        min-height: 55px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .balance-display .balance-currency {
+        font-size: 1.3rem !important;
+        font-weight: 800;
+        margin-left: 0.2em;
     }
 
     .balance-controls {
         gap: 18px;
-        padding: 18px 22px;
+        padding: 18px 20px;
     }
 
     .control-group {
@@ -538,20 +564,54 @@ body::after {
         font-size: 0.9rem;
         padding: 11px 15px;
     }
+
+    .balance-change {
+        font-size: 0.95rem;
+        padding: 11px 14px;
+        min-height: 42px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
 }
 
 @media (min-width: 768px) {
     .balance-display {
         font-size: 1.4rem;
-        margin: 20px 0;
+        padding: 16px 14px;
+        margin: 16px 0;
         max-width: 100%;
+        min-height: 60px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .balance-display .balance-currency {
+        font-size: 1.4rem !important;
+        font-weight: 800;
+        margin-left: 0.2em;
+    }
+
+    .balance-change {
+        font-size: 1.0rem;
+        padding: 12px 16px;
+        min-height: 44px;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 }
 
 @media (min-width: 1200px) {
     .balance-display {
         font-size: 1.5rem;
+        padding: 18px 16px;
         max-width: 100%;
+        min-height: 65px;
+    }
+
+    .balance-display .balance-currency {
+        font-size: 1.5rem !important;
+        font-weight: 800;
+        margin-left: 0.2em;
     }
 }
 
@@ -3421,6 +3481,70 @@ body.light-mode .theme-toggle svg {
     }
 }
 
+/* Balance currency styling */
+.balance-currency {
+    font-size: inherit;
+    font-weight: inherit;
+    font-family: inherit;
+    color: inherit;
+    text-shadow: inherit;
+    margin-left: 0.3em;
+    display: inline;
+    -webkit-font-smoothing: inherit;
+    -moz-osx-font-smoothing: inherit;
+}
+
+.balance-display .balance-currency {
+    font-size: 1.4rem !important;
+    font-weight: 800 !important;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif !important;
+    color: #ffffff !important;
+    text-shadow: 0 0 20px rgba(79, 172, 254, 0.8),
+                 0 0 40px rgba(79, 172, 254, 0.4) !important;
+    margin-left: 0.2em;
+    letter-spacing: -0.01em !important;
+    -webkit-font-smoothing: antialiased !important;
+    -moz-osx-font-smoothing: grayscale !important;
+    display: inline !important;
+}
+
+/* Perfect centering and overflow protection */
+.balance-display,
+.balance-change {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    text-align: center !important;
+    overflow: hidden !important;
+    word-wrap: break-word;
+    hyphens: none;
+}
+
+.balance-display {
+    flex-wrap: nowrap !important;
+    white-space: nowrap !important;
+}
+
+.balance-change {
+    flex-wrap: nowrap !important;
+    white-space: nowrap !important;
+}
+
+/* Ensure container constraints are respected */
+.balance-main .balance-display-container {
+    width: 100%;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.balance-main {
+    overflow: hidden;
+    width: 100%;
+    box-sizing: border-box;
+}
+
 @keyframes balance-shimmer {
     0% { background-position: 200% 0; }
     100% { background-position: -200% 0; }
@@ -3442,4 +3566,167 @@ body.light-mode .theme-toggle svg {
     transform: translateY(-1px) scale(1.02);
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
     background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.04) 100%);
+}
+
+/* Trade List Animations */
+@keyframes slideInFromTop {
+    0% {
+        opacity: 0;
+        transform: translateY(-20px) scale(0.95);
+    }
+    50% {
+        opacity: 0.8;
+        transform: translateY(-5px) scale(1.02);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+@keyframes newTradeGlow {
+    0% {
+        box-shadow: 0 0 0 rgba(79, 172, 254, 0);
+        background: inherit;
+    }
+    50% {
+        box-shadow: 0 0 20px rgba(79, 172, 254, 0.4),
+                    inset 0 1px 0 rgba(79, 172, 254, 0.2);
+        background: linear-gradient(135deg,
+            rgba(79, 172, 254, 0.1) 0%,
+            rgba(0, 242, 254, 0.05) 100%);
+    }
+    100% {
+        box-shadow: 0 0 0 rgba(79, 172, 254, 0);
+        background: inherit;
+    }
+}
+
+@keyframes subtlePulse {
+    0%, 100% {
+        transform: scale(1);
+        background: inherit;
+    }
+    50% {
+        transform: scale(1.01);
+        background: linear-gradient(135deg,
+            rgba(255, 255, 255, 0.08) 0%,
+            rgba(255, 255, 255, 0.04) 100%);
+    }
+}
+
+/* New Trade Animation */
+.trade-item.new-trade {
+    animation: slideInFromTop 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+               newTradeGlow 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+    animation-fill-mode: both;
+    border: 1px solid rgba(79, 172, 254, 0.3) !important;
+}
+
+/* Updated Trade Animation */
+.trade-item.trade-item-updated {
+    animation: subtlePulse 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border-color: rgba(255, 255, 255, 0.3) !important;
+}
+
+/* Base trade item styling for smooth transitions */
+.trade-item {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transform-origin: center top;
+}
+
+/* Mobile trade specific animations */
+.mobile-trade.new-trade {
+    animation: slideInFromTop 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+               newTradeGlow 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+    animation-fill-mode: both;
+}
+
+.mobile-trade.trade-item-updated {
+    animation: subtlePulse 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Enhanced Visual Feedback */
+@keyframes fadeInScale {
+    0% {
+        opacity: 0;
+        transform: translateY(-10px) scale(0.98);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* Newest trade item special highlight */
+.trade-item:first-of-type:not(.trade-header) {
+    position: relative;
+    border-left: 3px solid rgba(79, 172, 254, 0.6) !important;
+}
+
+.trade-item:first-of-type:not(.trade-header)::before {
+    content: 'LATEST';
+    position: absolute;
+    top: -8px;
+    left: -1px;
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    color: white;
+    font-size: 0.6rem;
+    font-weight: 800;
+    padding: 2px 6px;
+    border-radius: 4px;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+    z-index: 10;
+    letter-spacing: 0.5px;
+}
+
+/* Staggered entry animation for multiple new trades */
+.trade-item.new-trade:nth-child(2) { animation-delay: 0.1s; }
+.trade-item.new-trade:nth-child(3) { animation-delay: 0.2s; }
+.trade-item.new-trade:nth-child(4) { animation-delay: 0.3s; }
+.trade-item.new-trade:nth-child(5) { animation-delay: 0.4s; }
+
+/* Enhanced hover effects for trade items */
+.trade-item:not(.trade-header):hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15),
+                0 0 0 1px rgba(79, 172, 254, 0.2);
+    background: linear-gradient(135deg,
+        rgba(255, 255, 255, 0.08) 0%,
+        rgba(255, 255, 255, 0.04) 100%);
+}
+
+/* Success/failure result colors */
+.trade-result.win,
+.trade-result.profit {
+    color: #4caf50 !important;
+    text-shadow: 0 0 8px rgba(76, 175, 80, 0.5);
+}
+
+.trade-result.loss,
+.trade-result.lose {
+    color: #f44336 !important;
+    text-shadow: 0 0 8px rgba(244, 67, 54, 0.5);
+}
+
+.trade-result.refund,
+.trade-result.cancelled {
+    color: #ff9800 !important;
+    text-shadow: 0 0 8px rgba(255, 152, 0, 0.5);
+}
+
+/* Enhanced P&L colors */
+.trade-delta.positive {
+    color: #4caf50 !important;
+    font-weight: 700;
+}
+
+.trade-delta.negative {
+    color: #f44336 !important;
+    font-weight: 700;
+}
+
+.trade-delta.neutral {
+    color: #ff9800 !important;
+    font-weight: 600;
 }

@@ -599,20 +599,10 @@ class TradingDashboard {
     updateBalanceDisplay() {
         const balanceEl = document.getElementById('currentBalance');
         const changeEl = document.getElementById('balanceChange');
-        const statusElement = document.getElementById('balanceStatus');
-        const trendElement = document.getElementById('balanceTrend');
 
         if (this.balanceData.length === 0) {
             balanceEl.innerHTML = '-- <span class="balance-currency">VND</span>';
             changeEl.textContent = '--';
-            
-            if (statusElement) {
-                const statusDot = statusElement.querySelector('.status-dot');
-                const statusText = statusElement.querySelector('.status-text');
-                statusDot.style.background = '#f44336';
-                statusDot.style.boxShadow = '0 0 8px rgba(244, 67, 54, 0.6)';
-                statusText.textContent = 'Offline';
-            }
             return;
         }
 
@@ -630,55 +620,11 @@ class TradingDashboard {
 
             changeEl.textContent = `${change >= 0 ? '+' : ''}${this.formatNumber(change)} VND (${changePercent}%)`;
             changeEl.className = `balance-change ${change >= 0 ? 'positive' : 'negative'}`;
-            
-            // Update trend indicator
-            if (trendElement) {
-                const trendIcon = trendElement.querySelector('.trend-icon');
-                const trendText = trendElement.querySelector('.trend-text');
-                
-                if (change > 0) {
-                    trendIcon.textContent = '📈';
-                    trendText.textContent = 'Rising';
-                } else if (change < 0) {
-                    trendIcon.textContent = '📉';
-                    trendText.textContent = 'Falling';
-                } else {
-                    trendIcon.textContent = '➡️';
-                    trendText.textContent = 'Stable';
-                }
-            }
         } else {
             changeEl.textContent = 'No previous data';
             changeEl.className = 'balance-change';
-            
-            if (trendElement) {
-                const trendIcon = trendElement.querySelector('.trend-icon');
-                const trendText = trendElement.querySelector('.trend-text');
-                trendIcon.textContent = '➡️';
-                trendText.textContent = 'Stable';
-            }
         }
-        
-        // Update status indicator
-        if (statusElement) {
-            const statusDot = statusElement.querySelector('.status-dot');
-            const statusText = statusElement.querySelector('.status-text');
-            
-            // Check if data is recent (within last 5 minutes)
-            const now = new Date();
-            const dataAge = now - latest.timestamp;
-            const isRecent = dataAge < 5 * 60 * 1000; // 5 minutes
-            
-            if (isRecent) {
-                statusDot.style.background = '#4caf50';
-                statusDot.style.boxShadow = '0 0 8px rgba(76, 175, 80, 0.6)';
-                statusText.textContent = 'Live';
-            } else {
-                statusDot.style.background = '#ff9800';
-                statusDot.style.boxShadow = '0 0 8px rgba(255, 152, 0, 0.6)';
-                statusText.textContent = 'Delayed';
-            }
-        }
+
     }
 
     smartUpdateBalanceDisplay() {
@@ -1246,41 +1192,125 @@ class TradingDashboard {
     smartUpdateTradesDisplay() {
         const container = document.getElementById('tradesContainer');
 
-        // Only update if we have new trades
-        if (this.tradesData.length === 0) return;
+        // Handle empty state
+        if (this.tradesData.length === 0) {
+            container.innerHTML = `
+                <div class="empty-state">
+                    <p>No trades yet</p>
+                    <p class="text-muted">Trades will appear here when available</p>
+                </div>
+            `;
+            return;
+        }
 
         // Store current trade IDs to detect new ones
         const currentTradeIds = Array.from(container.children)
-            .filter(child => child.classList.contains('trade-item'))
+            .filter(child => child.classList.contains('trade-item') && !child.classList.contains('trade-header'))
             .map(child => child.dataset.tradeId)
             .filter(id => id);
 
-        // Update the display
-        this.updateTradesDisplay();
+        // Get new trade IDs
+        const newTradeIds = this.tradesData
+            .map(trade => trade.id)
+            .filter(id => !currentTradeIds.includes(id));
 
-        // Add smooth animation for new trades
-        const newTradeElements = Array.from(container.children)
-            .filter(child => child.classList.contains('trade-item'))
-            .filter(child => !currentTradeIds.includes(child.dataset.tradeId));
+        // If we have new trades, add them incrementally
+        if (newTradeIds.length > 0) {
+            this.addNewTradesIncrementally(container, newTradeIds);
+        }
 
-        newTradeElements.forEach((trade, index) => {
-            trade.classList.add('new-trade');
-            // Remove animation class after animation completes
-            setTimeout(() => {
-                trade.classList.remove('new-trade');
-            }, 400);
+        // Update existing trades that might have changed
+        this.updateExistingTrades(container, currentTradeIds);
+    }
+
+    addNewTradesIncrementally(container, newTradeIds) {
+        const isMobile = window.innerWidth <= 768;
+
+        // Find insert position (after header if exists)
+        let insertPosition = 0;
+        const header = container.querySelector('.trade-header');
+        if (header) {
+            insertPosition = Array.from(container.children).indexOf(header) + 1;
+        }
+
+        newTradeIds.forEach((tradeId, index) => {
+            const tradeData = this.tradesData.find(t => t.id === tradeId);
+            if (!tradeData) return;
+
+            const tradeElement = this.createTradeElement(tradeData, isMobile);
+            tradeElement.classList.add('new-trade');
+
+            // Insert at the correct position (newest first)
+            if (insertPosition < container.children.length) {
+                container.insertBefore(tradeElement, container.children[insertPosition]);
+            } else {
+                container.appendChild(tradeElement);
+            }
+
+            // Trigger animation after DOM insertion
+            requestAnimationFrame(() => {
+                tradeElement.classList.remove('new-trade');
+                tradeElement.classList.add('new-trade');
+
+                // Remove animation class after animation completes
+                setTimeout(() => {
+                    tradeElement.classList.remove('new-trade');
+                }, 1600); // Match CSS animation duration
+            });
         });
+    }
 
-        // Add subtle pulse to existing trades that might have updated
+    createTradeElement(trade, isMobile) {
+        const element = document.createElement('div');
+        element.classList.add('trade-item');
+        element.dataset.tradeId = trade.id;
+
+        if (isMobile) {
+            element.classList.add('mobile-trade');
+            element.innerHTML = `
+                <div class="trade-header">
+                    <span class="trade-time">${this.formatDateTime(trade.timestamp)}</span>
+                    <span class="trade-side ${this.convertSide(trade.bet_side)?.toLowerCase() || ''}">${this.convertSide(trade.bet_side) || '--'}</span>
+                    <span class="trade-result ${this._mapResultClass(trade.result_status) || ''}">${(trade.result_status || '--').toUpperCase()}</span>
+                </div>
+                <div class="trade-details">
+                    <div class="trade-balance-section">
+                        <span class="trade-balance-label">Balance After:</span>
+                        <span class="trade-balance">${this.formatNumber(trade.balance_after || 0)}</span>
+                    </div>
+                    <div class="trade-pnl-section">
+                        <span class="trade-pnl-label">P&L:</span>
+                        <span class="trade-delta ${this.getDeltaClass(trade.pnl)}">${this.formatDelta(trade.pnl)}</span>
+                    </div>
+                </div>
+            `;
+        } else {
+            element.innerHTML = `
+                <div class="trade-time">${this.formatDateTime(trade.timestamp)}</div>
+                <div class="trade-side ${this.convertSide(trade.bet_side)?.toLowerCase() || ''}">${this.convertSide(trade.bet_side) || '--'}</div>
+                <div class="trade-result ${this._mapResultClass(trade.result_status) || ''}">${(trade.result_status || '--').toUpperCase()}</div>
+                <div class="trade-balance">${this.formatNumber(trade.balance_after || 0)}</div>
+                <div class="trade-delta ${this.getDeltaClass(trade.pnl)}">${this.formatDelta(trade.pnl)}</div>
+            `;
+        }
+
+        return element;
+    }
+
+    updateExistingTrades(container, currentTradeIds) {
+        // Add subtle pulse to existing trades for visual feedback
         const existingTrades = Array.from(container.children)
-            .filter(child => child.classList.contains('trade-item'))
+            .filter(child => child.classList.contains('trade-item') && !child.classList.contains('trade-header'))
             .filter(child => currentTradeIds.includes(child.dataset.tradeId));
 
         existingTrades.forEach((trade, index) => {
-            trade.classList.add('trade-item-updated');
+            // Add staggered animation to avoid visual overload
             setTimeout(() => {
-                trade.classList.remove('trade-item-updated');
-            }, 300);
+                trade.classList.add('trade-item-updated');
+                setTimeout(() => {
+                    trade.classList.remove('trade-item-updated');
+                }, 300);
+            }, index * 50);
         });
     }
 
