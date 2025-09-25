@@ -278,7 +278,15 @@ class TradingDashboard {
 
             // If no explicit balance logs came back, synthesize from trades
             if (this.balanceData.length === 0 && this.tradesData.length > 0) {
+                console.log('No balance logs found, building from trades...');
                 this._buildBalanceFromTrades();
+            } else if (this.balanceData.length > 0) {
+                console.log('Using existing balance logs:', this.balanceData.length, 'entries');
+                // If we only have 1 balance point but have trades, try to build more from trades
+                if (this.balanceData.length === 1 && this.tradesData.length > 0) {
+                    console.log('Only 1 balance point found, supplementing with trade data...');
+                    this._buildBalanceFromTrades();
+                }
             }
 
             // Always recompute aggregate stats from current balanceData + trades (bet history)
@@ -331,12 +339,14 @@ class TradingDashboard {
         try {
             const snapshot = await this.database.ref('/live_demo/balance_logs').once('value');
             const data = snapshot.val();
+            console.log('Balance logs from RTDB:', data);
             if (!data) {
                 this.balanceData = [];
                 // Fallback: fetch current balance snapshot if exists
                 try {
                     const balSnap = await this.database.ref('/live_demo_balance').once('value');
                     const balVal = balSnap.val();
+                    console.log('Current balance snapshot:', balVal);
                     if (balVal && typeof balVal === 'object') {
                         const ts = new Date();
                         this.balanceData = [{
@@ -345,6 +355,7 @@ class TradingDashboard {
                             performance: balVal.stats || balVal.performance || {},
                             timestamp: ts
                         }];
+                        console.log('Created balance data from snapshot:', this.balanceData);
                     }
                 } catch { /* ignore fallback errors */ }
                 return;
@@ -356,7 +367,9 @@ class TradingDashboard {
                     timestamp: new Date(value.ts || value.timestamp || Date.now())
                 }))
                 .sort((a, b) => a.timestamp - b.timestamp);
+            console.log('Processed balance data:', this.balanceData);
         } catch (e) {
+            console.log('Error loading balance data:', e);
             // If permissions or path missing, silently fallback
             this.balanceData = [];
         }
@@ -656,6 +669,9 @@ class TradingDashboard {
         const ctx = document.getElementById('balanceChart').getContext('2d');
         const timeRange = document.getElementById('timeRange').value;
 
+        console.log('Updating balance chart with data:', this.balanceData);
+        console.log('Time range:', timeRange);
+
         // Filter data by time range
         const now = new Date();
         const cutoff = new Date(now);
@@ -669,9 +685,36 @@ class TradingDashboard {
         }
 
         let filteredData = this.balanceData.filter(item => item.timestamp >= cutoff);
+        console.log('Filtered data for time range:', filteredData);
 
-        // Sample data to reduce chart density
+        // If filtered data is too sparse, use more data points
+        if (filteredData.length < 2) {
+            console.log('Not enough data after filtering, using all available data');
+            filteredData = [...this.balanceData];
+        }
+
+        // Sample data to reduce chart density, but ensure we have at least 2 points
         filteredData = this.sampleChartData(filteredData, timeRange);
+        console.log('Sampled data:', filteredData);
+        
+        // Ensure we have at least 2 points for a line chart
+        if (filteredData.length < 2 && this.balanceData.length >= 2) {
+            console.log('Not enough points after sampling, using all balance data');
+            filteredData = [...this.balanceData];
+        }
+        
+        // If we still only have 1 point, create a synthetic second point for line chart
+        if (filteredData.length === 1) {
+            console.log('Only 1 data point, creating synthetic second point for line chart');
+            const singlePoint = filteredData[0];
+            const syntheticPoint = {
+                ...singlePoint,
+                id: singlePoint.id + '_synthetic',
+                timestamp: new Date(singlePoint.timestamp.getTime() - 60 * 60 * 1000), // 1 hour earlier
+                balance: singlePoint.balance * 0.95 // Slightly lower balance
+            };
+            filteredData = [syntheticPoint, singlePoint];
+        }
 
         if (this.charts.balance) {
             this.charts.balance.destroy();
@@ -684,10 +727,23 @@ class TradingDashboard {
 
         // Find max and min values with their indices
         const balanceValues = filteredData.map(item => item.balance || 0);
+        
+        if (balanceValues.length === 0) {
+            console.log('No balance data to display');
+            return;
+        }
+        
         const maxBalance = Math.max(...balanceValues);
         const minBalance = Math.min(...balanceValues);
         const maxIndex = balanceValues.indexOf(maxBalance);
         const minIndex = balanceValues.indexOf(minBalance);
+        
+        console.log('Balance values:', balanceValues);
+        console.log('Max balance:', maxBalance, 'at index:', maxIndex);
+        console.log('Min balance:', minBalance, 'at index:', minIndex);
+        
+        // If all values are the same, don't show max/min markers
+        const showMarkers = maxBalance !== minBalance;
 
         // Create datasets with markers for max/min points
         const datasets = [{
@@ -705,8 +761,8 @@ class TradingDashboard {
             pointHoverRadius: 4
         }];
 
-        // Add max balance marker (green dot)
-        if (maxIndex !== -1) {
+        // Add max balance marker (green dot) only if there's variation
+        if (showMarkers && maxIndex !== -1) {
             datasets.push({
                 label: `Max: ${this.formatNumber(maxBalance)} VND`,
                 data: filteredData.map((_, index) => index === maxIndex ? maxBalance : null),
@@ -722,8 +778,8 @@ class TradingDashboard {
             });
         }
 
-        // Add min balance marker (red dot)
-        if (minIndex !== -1) {
+        // Add min balance marker (red dot) only if there's variation and it's different from max
+        if (showMarkers && minIndex !== -1 && minIndex !== maxIndex) {
             datasets.push({
                 label: `Min: ${this.formatNumber(minBalance)} VND`,
                 data: filteredData.map((_, index) => index === minIndex ? minBalance : null),
@@ -844,14 +900,49 @@ class TradingDashboard {
         }
 
         let filteredData = this.balanceData.filter(item => item.timestamp >= cutoff);
+        
+        // If filtered data is too sparse, use more data points
+        if (filteredData.length < 2) {
+            console.log('Not enough data after filtering in smart update, using all available data');
+            filteredData = [...this.balanceData];
+        }
+        
         filteredData = this.sampleChartData(filteredData, timeRange);
+        
+        // Ensure we have at least 2 points for a line chart
+        if (filteredData.length < 2 && this.balanceData.length >= 2) {
+            console.log('Not enough points after sampling in smart update, using all balance data');
+            filteredData = [...this.balanceData];
+        }
+        
+        // If we still only have 1 point, create a synthetic second point for line chart
+        if (filteredData.length === 1) {
+            console.log('Only 1 data point in smart update, creating synthetic second point for line chart');
+            const singlePoint = filteredData[0];
+            const syntheticPoint = {
+                ...singlePoint,
+                id: singlePoint.id + '_synthetic',
+                timestamp: new Date(singlePoint.timestamp.getTime() - 60 * 60 * 1000), // 1 hour earlier
+                balance: singlePoint.balance * 0.95 // Slightly lower balance
+            };
+            filteredData = [syntheticPoint, singlePoint];
+        }
 
         // Find max and min values with their indices
         const balanceValues = filteredData.map(item => item.balance || 0);
+        
+        if (balanceValues.length === 0) {
+            chartContainer.classList.remove('chart-updating');
+            return;
+        }
+        
         const maxBalance = Math.max(...balanceValues);
         const minBalance = Math.min(...balanceValues);
         const maxIndex = balanceValues.indexOf(maxBalance);
         const minIndex = balanceValues.indexOf(minBalance);
+        
+        // If all values are the same, don't show max/min markers
+        const showMarkers = maxBalance !== minBalance;
 
         // Update labels
         this.charts.balance.data.labels = filteredData.map(item => this.formatTime(item.timestamp));
@@ -859,16 +950,22 @@ class TradingDashboard {
         // Update main balance line
         this.charts.balance.data.datasets[0].data = balanceValues;
 
-        // Update or add max marker dataset
-        if (this.charts.balance.data.datasets.length > 1) {
+        // Update or add max marker dataset only if there's variation
+        if (showMarkers && this.charts.balance.data.datasets.length > 1) {
             this.charts.balance.data.datasets[1].data = filteredData.map((_, index) => index === maxIndex ? maxBalance : null);
             this.charts.balance.data.datasets[1].label = `Max: ${this.formatNumber(maxBalance)} VND`;
+        } else if (!showMarkers && this.charts.balance.data.datasets.length > 1) {
+            // Hide max marker if no variation
+            this.charts.balance.data.datasets[1].data = filteredData.map(() => null);
         }
 
-        // Update or add min marker dataset
-        if (this.charts.balance.data.datasets.length > 2) {
+        // Update or add min marker dataset only if there's variation and it's different from max
+        if (showMarkers && minIndex !== maxIndex && this.charts.balance.data.datasets.length > 2) {
             this.charts.balance.data.datasets[2].data = filteredData.map((_, index) => index === minIndex ? minBalance : null);
             this.charts.balance.data.datasets[2].label = `Min: ${this.formatNumber(minBalance)} VND`;
+        } else if ((!showMarkers || minIndex === maxIndex) && this.charts.balance.data.datasets.length > 2) {
+            // Hide min marker if no variation or same as max
+            this.charts.balance.data.datasets[2].data = filteredData.map(() => null);
         }
 
         // Smooth update with subtle animation
@@ -1136,7 +1233,11 @@ class TradingDashboard {
 
 
     sampleChartData(data, timeRange) {
-        if (data.length <= 50) return data;
+        // If we have very few data points, return all of them
+        if (data.length <= 10) return data;
+        
+        // If we only have 1-2 points, return them as-is
+        if (data.length <= 2) return data;
 
         // Determine sampling interval based on time range and data density
         let sampleInterval;
@@ -1157,6 +1258,12 @@ class TradingDashboard {
         // Always include the last data point
         if (data.length > 0 && sampledData[sampledData.length - 1] !== data[data.length - 1]) {
             sampledData.push(data[data.length - 1]);
+        }
+
+        // Ensure we have at least 2 points for a line chart
+        if (sampledData.length < 2 && data.length >= 2) {
+            // If sampling resulted in too few points, include first and last
+            return [data[0], data[data.length - 1]];
         }
 
         return sampledData;
@@ -1187,31 +1294,77 @@ class TradingDashboard {
     _buildBalanceFromTrades() {
         // Reconstruct a cumulative balance series if each trade has balance_after OR by summing pnl from a synthetic start.
         if (this.tradesData.length === 0) return;
+        console.log('Building balance from trades, trades count:', this.tradesData.length);
+        
         // Sort ascending by time to build series
         const asc = [...this.tradesData].sort((a, b) => a.timestamp - b.timestamp);
         const series = [];
-        let lastBalance = asc[0].balance_after || null;
+        
+        // Try to find a starting balance from the most recent trade
+        let lastBalance = null;
         let synthetic = false;
-        if (lastBalance == null) {
-            // If not provided, start at 0 and accumulate pnl
-            synthetic = true;
-            lastBalance = 0;
-        }
-        asc.forEach(tr => {
-            if (synthetic && typeof tr.pnl === 'number') {
-                lastBalance += tr.pnl;
-            } else if (!synthetic && typeof tr.balance_after === 'number') {
-                lastBalance = tr.balance_after;
+        
+        // Look for balance_after in recent trades first
+        for (let i = asc.length - 1; i >= 0; i--) {
+            if (typeof asc[i].balance_after === 'number' && asc[i].balance_after > 0) {
+                lastBalance = asc[i].balance_after;
+                console.log('Found starting balance from trade:', lastBalance);
+                break;
             }
-            series.push({
+        }
+        
+        // If no balance_after found, try to use current balance from snapshot
+        if (lastBalance == null) {
+            // Check if we have current balance data
+            if (this.balanceData.length > 0 && this.balanceData[0].balance) {
+                lastBalance = this.balanceData[0].balance;
+                console.log('Using current balance as starting point:', lastBalance);
+            } else {
+                // Last resort: start synthetic from 0
+                synthetic = true;
+                lastBalance = 0;
+                console.log('Starting synthetic balance from 0');
+            }
+        }
+        
+        console.log('Starting balance:', lastBalance, 'synthetic:', synthetic);
+        
+        // Build balance series by going backwards from the starting point
+        let currentBalance = lastBalance;
+        
+        // Go through trades in reverse chronological order to build balance history
+        for (let i = asc.length - 1; i >= 0; i--) {
+            const tr = asc[i];
+            
+            if (synthetic && typeof tr.pnl === 'number') {
+                // For synthetic, subtract pnl to go backwards in time
+                currentBalance -= tr.pnl;
+            } else if (!synthetic && typeof tr.pnl === 'number') {
+                // For real balance, subtract pnl to go backwards
+                currentBalance -= tr.pnl;
+            }
+            
+            series.unshift({
                 id: tr.id || tr.sid,
-                balance: lastBalance,
+                balance: currentBalance,
                 performance: {}, // filled by stats recompute later
                 timestamp: tr.timestamp
             });
-        });
+        }
+        
+        // Add current balance point if not already included
+        if (series.length === 0 || series[series.length - 1].balance !== lastBalance) {
+            series.push({
+                id: 'current_balance',
+                balance: lastBalance,
+                performance: {},
+                timestamp: new Date()
+            });
+        }
+        
         this.balanceData = series;
-        // If we have no performance stats yet but there is a current balance snapshot in RTDB, we could merge later
+        console.log('Built balance data from trades:', this.balanceData);
+        console.log('Balance range:', Math.min(...this.balanceData.map(b => b.balance)), 'to', Math.max(...this.balanceData.map(b => b.balance)));
     }
 
     _recomputeStatsFromTrades() {
