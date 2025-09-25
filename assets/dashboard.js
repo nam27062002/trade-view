@@ -1169,20 +1169,16 @@ class TradingDashboard {
                     <div class="trade-result ${this._mapResultClass(trade.result_status) || ''}">${(trade.result_status || '--').toUpperCase()}</div>
                     <div class="trade-balance">${this.formatNumber(trade.balance_after || 0)}</div>
                     <div class="trade-delta ${this.getDeltaClass(trade.pnl)}">${this.formatDelta(trade.pnl)}</div>
-                    <div class="trade-session">${trade.sid || '--'}</div>
-                    <div class="trade-outcome">${this.convertSide(trade.outcome) || '--'}</div>
                 </div>
             `).join('');
 
             const headerHtml = `
-                <div class="trade-item trade-header" style="font-weight: 600; background: var(--glass-bg); border: 1px solid var(--glass-border); color: var(--text-primary);">
+                <div class="trade-item trade-header">
                     <div>Time</div>
                     <div>Side</div>
                     <div>Result</div>
                     <div>Balance After</div>
                     <div>P&L</div>
-                    <div>Session ID</div>
-                    <div>Outcome</div>
                 </div>
             `;
             container.innerHTML = headerHtml + tradesHtml;
@@ -1191,15 +1187,37 @@ class TradingDashboard {
 
     smartUpdateTradesDisplay() {
         const container = document.getElementById('tradesContainer');
+        const isMobile = window.innerWidth <= 768;
 
         // Handle empty state
         if (this.tradesData.length === 0) {
-            container.innerHTML = `
-                <div class="empty-state">
+            if (!isMobile) {
+                // For desktop, still show header even when no trades
+                let header = container.querySelector('.trade-item.trade-header');
+                if (!header) {
+                    this.createTradeHeader(container);
+                }
+                // Add empty state after header
+                const emptyState = document.createElement('div');
+                emptyState.className = 'empty-state';
+                emptyState.innerHTML = `
                     <p>No trades yet</p>
                     <p class="text-muted">Trades will appear here when available</p>
-                </div>
-            `;
+                `;
+                // Remove existing empty state if any
+                const existingEmpty = container.querySelector('.empty-state');
+                if (existingEmpty) {
+                    existingEmpty.remove();
+                }
+                container.appendChild(emptyState);
+            } else {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <p>No trades yet</p>
+                        <p class="text-muted">Trades will appear here when available</p>
+                    </div>
+                `;
+            }
             return;
         }
 
@@ -1226,9 +1244,18 @@ class TradingDashboard {
     addNewTradesIncrementally(container, newTradeIds) {
         const isMobile = window.innerWidth <= 768;
 
+        // Ensure header exists for desktop layout
+        if (!isMobile) {
+            let header = container.querySelector('.trade-item.trade-header');
+            if (!header) {
+                this.createTradeHeader(container);
+                header = container.querySelector('.trade-item.trade-header');
+            }
+        }
+
         // Find insert position (after header if exists)
         let insertPosition = 0;
-        const header = container.querySelector('.trade-header');
+        const header = container.querySelector('.trade-item.trade-header');
         if (header) {
             insertPosition = Array.from(container.children).indexOf(header) + 1;
         }
@@ -1258,6 +1285,34 @@ class TradingDashboard {
                 }, 1600); // Match CSS animation duration
             });
         });
+    }
+
+    createTradeHeader(container) {
+        const headerElement = document.createElement('div');
+        headerElement.classList.add('trade-item', 'trade-header');
+        headerElement.style.cssText = `
+            font-weight: 600;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            color: var(--text-primary);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        `;
+        headerElement.innerHTML = `
+            <div>Time</div>
+            <div>Side</div>
+            <div>Result</div>
+            <div>Balance After</div>
+            <div>P&L</div>
+        `;
+
+        // Insert at the beginning of container
+        if (container.firstChild) {
+            container.insertBefore(headerElement, container.firstChild);
+        } else {
+            container.appendChild(headerElement);
+        }
     }
 
     createTradeElement(trade, isMobile) {
