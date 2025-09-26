@@ -30,19 +30,13 @@ html {
         -webkit-text-fill-color: #58a6ff !important;
     }
 
-    /* Prevent any element from causing horizontal overflow */
-    * {
-        max-width: 100vw !important;
-        box-sizing: border-box !important;
+        /* Fix for horizontal overflow */
+    .dashboard {
+        overflow-x: hidden;
     }
 
-    /* Ensure all containers are responsive */
-    .dashboard, .dashboard-grid, .card, .balance-card,
-    .stats-card, .chart-card, .trades-card {
-        width: 100% !important;
-        max-width: 100% !important;
-        min-width: 0 !important;
-        overflow-x: hidden !important;
+    .balance-controls-row {
+        flex-wrap: wrap;
     }
 }
 
