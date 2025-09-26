@@ -21,7 +21,9 @@ html {
     }
 
     .balance-controls-row {
+        display: flex;
         flex-wrap: wrap;
+        gap: 10px; /* Add some gap for wrapped items */
     }
 }
 
