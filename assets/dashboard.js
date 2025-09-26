@@ -289,9 +289,9 @@ class TradingDashboard {
     }
 
     async testRTDBConnection() {
-        // Test connection by reading the root - use current balance mode
-        const prefix = this.balanceMode === 'real' ? 'live_real' : 'live_demo';
-        await this.database.ref(`/${prefix}`).once('value');
+        // Test connection by reading the balance - use current balance mode
+        const balanceKey = this.balanceMode === 'real' ? 'live_real_balance' : 'live_demo_balance';
+        await this.database.ref(`/${balanceKey}`).once('value');
     }
 
     async testFirestoreConnection() {
@@ -405,11 +405,25 @@ class TradingDashboard {
                     const balVal = balSnap.val();
                     console.log(`Current balance snapshot (${this.balanceMode}):`, balVal);
                     if (balVal && typeof balVal === 'object') {
-                        const ts = new Date();
+                        const ts = balVal.last_updated ? new Date(balVal.last_updated) : new Date();
+
+                        // Try to read stats separately if it exists as a separate node
+                        let performance = balVal.stats || balVal.performance || {};
+                        try {
+                            const statsSnap = await this.database.ref(`/${balanceKey}/stats`).once('value');
+                            const statsVal = statsSnap.val();
+                            if (statsVal && typeof statsVal === 'object') {
+                                performance = statsVal;
+                                console.log('Found separate stats node:', performance);
+                            }
+                        } catch (e) {
+                            console.log('No separate stats node, using embedded stats');
+                        }
+
                         this.balanceData = [{
                             id: 'current_balance',
                             balance: balVal.balance ?? balVal.current_balance ?? 0,
-                            performance: balVal.stats || balVal.performance || {},
+                            performance: performance,
                             timestamp: ts
                         }];
                         console.log('Created balance data from snapshot:', this.balanceData);
@@ -474,68 +488,22 @@ class TradingDashboard {
             const rootData = rootSnap.val();
             if (!rootData) { this.tradesData = []; return; }
             const flattened = [];
+
+            // Handle both nested and flat structures
             Object.entries(rootData).forEach(([dateKey, dateBucket]) => {
                 if (dateBucket && typeof dateBucket === 'object') {
-                    Object.entries(dateBucket).forEach(([sessionId, sessionRecords]) => {
-                        if (sessionRecords && typeof sessionRecords === 'object') {
-                            Object.entries(sessionRecords).forEach(([pushKey, rec]) => {
-                                if (rec && typeof rec === 'object') {
-                                    if (modeFilter !== 'all' && rec.mode && rec.mode !== modeFilter) return;
-                                    const decisionTime = rec.decision_time || rec.decisionTime;
-                                    const settlementTime = rec.settlement_time || rec.settlementTime;
-                                    const tsStr = settlementTime || decisionTime;
-                                    let tsDate; try { tsDate = tsStr ? new Date(tsStr) : new Date(); } catch { tsDate = new Date(); }
-                                    flattened.push({
-                                        id: pushKey,
-                                        sid: rec.session_id || sessionId,
-                                        bet_side: rec.bet_side,
-                                        result_status: rec.result_status,
-                                        pnl: rec.pnl,
-                                        balance_after: rec.balance_after_settlement,
-                                        outcome: rec.outcome,
-                                        stake: rec.stake,
-                                        bet_idx: rec.bet_idx,
-                                        bet_countdown: rec.bet_countdown,
-                                        final_tai_total: rec.final_tai_total,
-                                        final_xiu_total: rec.final_xiu_total,
-                                        refunded_amount: rec.refunded_amount,
-                                        effective_bet_amount: rec.effective_bet_amount,
-                                        strategy: rec.strategy,
-                                        timepoint: rec.timepoint,
-                                        mode: rec.mode,
-                                        timestamp: tsDate
-                                    });
-                                }
-                            });
-                        }
-                    });
-                }
-            });
-            this.tradesData = flattened.sort((a,b)=> b.timestamp - a.timestamp);
-            if (limit !== null) this.tradesData = this.tradesData.slice(0, limit);
-            return;
-        }
-
-        // Existing single-day logic
-        const historyDateEl = document.getElementById('historyDate');
-        const dateStr = historyDateEl && historyDateEl.value ? historyDateEl.value.replace(/-/g, '') : this._todayYMD();
-        const path = `/${prefix}_bet_history/${dateStr}`;
-        const snapshot = await this.database.ref(path).once('value');
-        const dateBucketData = snapshot.val();
-        if (!dateBucketData) { this.tradesData = []; return; }
-        const flattened = [];
-        Object.entries(dateBucketData).forEach(([sessionId, sessionRecords]) => {
-            if (sessionRecords && typeof sessionRecords === 'object') {
-                Object.entries(sessionRecords).forEach(([pushKey, rec]) => {
-                    if (rec && typeof rec === 'object') {
-                        if (modeFilter !== 'all' && rec.mode && rec.mode !== modeFilter) return;
+                    // Check if this is a direct trade record (has bet_side) or date bucket
+                    if (dateBucket.bet_side) {
+                        // This is a direct trade record
+                        const rec = dateBucket;
+                        if (modeFilter !== 'all' && rec.balance_type !== modeFilter) return;
                         const decisionTime = rec.decision_time || rec.decisionTime;
                         const settlementTime = rec.settlement_time || rec.settlementTime;
                         const tsStr = settlementTime || decisionTime;
                         let tsDate; try { tsDate = tsStr ? new Date(tsStr) : new Date(); } catch { tsDate = new Date(); }
                         flattened.push({
-                            id: pushKey,
-                            sid: rec.session_id || sessionId,
+                            id: dateKey,
+                            sid: rec.session_id,
                             bet_side: rec.bet_side,
                             result_status: rec.result_status,
                             pnl: rec.pnl,
@@ -550,11 +518,147 @@ class TradingDashboard {
                             effective_bet_amount: rec.effective_bet_amount,
                             strategy: rec.strategy,
                             timepoint: rec.timepoint,
-                            mode: rec.mode,
+                            mode: rec.balance_type,
+                            stats_after: rec.stats_after,
                             timestamp: tsDate
                         });
+                    } else {
+                        // This is a nested structure (original logic)
+                        Object.entries(dateBucket).forEach(([sessionId, sessionRecords]) => {
+                            if (sessionRecords && typeof sessionRecords === 'object') {
+                                Object.entries(sessionRecords).forEach(([pushKey, rec]) => {
+                                    if (rec && typeof rec === 'object') {
+                                        if (modeFilter !== 'all' && rec.balance_type !== modeFilter) return;
+                                        const decisionTime = rec.decision_time || rec.decisionTime;
+                                        const settlementTime = rec.settlement_time || rec.settlementTime;
+                                        const tsStr = settlementTime || decisionTime;
+                                        let tsDate; try { tsDate = tsStr ? new Date(tsStr) : new Date(); } catch { tsDate = new Date(); }
+                                        flattened.push({
+                                            id: pushKey,
+                                            sid: rec.session_id || sessionId,
+                                            bet_side: rec.bet_side,
+                                            result_status: rec.result_status,
+                                            pnl: rec.pnl,
+                                            balance_after: rec.balance_after_settlement,
+                                            outcome: rec.outcome,
+                                            stake: rec.stake,
+                                            bet_idx: rec.bet_idx,
+                                            bet_countdown: rec.bet_countdown,
+                                            final_tai_total: rec.final_tai_total,
+                                            final_xiu_total: rec.final_xiu_total,
+                                            refunded_amount: rec.refunded_amount,
+                                            effective_bet_amount: rec.effective_bet_amount,
+                                            strategy: rec.strategy,
+                                            timepoint: rec.timepoint,
+                                            mode: rec.balance_type,
+                                            stats_after: rec.stats_after,
+                                            timestamp: tsDate
+                                        });
+                                    }
+                                });
+                            }
+                        });
+                    }
+                }
+            });
+            this.tradesData = flattened.sort((a,b)=> b.timestamp - a.timestamp);
+            if (limit !== null) this.tradesData = this.tradesData.slice(0, limit);
+            return;
+        }
+
+        // Single-day logic - check if path exists first
+        const historyDateEl = document.getElementById('historyDate');
+        const dateStr = historyDateEl && historyDateEl.value ? historyDateEl.value.replace(/-/g, '') : this._todayYMD();
+
+        // Try specific date bucket first
+        let path = `/${prefix}_bet_history/${dateStr}`;
+        let snapshot = await this.database.ref(path).once('value');
+        let dateBucketData = snapshot.val();
+
+        // If specific date doesn't exist, try the root and filter by date
+        if (!dateBucketData) {
+            console.log(`No data found at ${path}, trying root path`);
+            path = `/${prefix}_bet_history`;
+            snapshot = await this.database.ref(path).once('value');
+            const rootData = snapshot.val();
+            if (rootData) {
+                // Filter trades by date from the flat structure
+                const targetDate = dateStr;
+                dateBucketData = {};
+                Object.entries(rootData).forEach(([key, value]) => {
+                    if (key.startsWith(targetDate)) {
+                        dateBucketData[key] = value;
                     }
                 });
+            }
+        }
+
+        if (!dateBucketData) { this.tradesData = []; return; }
+        const flattened = [];
+
+        Object.entries(dateBucketData).forEach(([tradeKey, rec]) => {
+            if (rec && typeof rec === 'object') {
+                // Handle direct trade record (flat structure)
+                if (rec.bet_side) {
+                    if (modeFilter !== 'all' && rec.balance_type !== modeFilter) return;
+                    const decisionTime = rec.decision_time || rec.decisionTime;
+                    const settlementTime = rec.settlement_time || rec.settlementTime;
+                    const tsStr = settlementTime || decisionTime;
+                    let tsDate; try { tsDate = tsStr ? new Date(tsStr) : new Date(); } catch { tsDate = new Date(); }
+                    flattened.push({
+                        id: tradeKey,
+                        sid: rec.session_id,
+                        bet_side: rec.bet_side,
+                        result_status: rec.result_status,
+                        pnl: rec.pnl,
+                        balance_after: rec.balance_after_settlement,
+                        outcome: rec.outcome,
+                        stake: rec.stake,
+                        bet_idx: rec.bet_idx,
+                        bet_countdown: rec.bet_countdown,
+                        final_tai_total: rec.final_tai_total,
+                        final_xiu_total: rec.final_xiu_total,
+                        refunded_amount: rec.refunded_amount,
+                        effective_bet_amount: rec.effective_bet_amount,
+                        strategy: rec.strategy,
+                        timepoint: rec.timepoint,
+                        mode: rec.balance_type,
+                        stats_after: rec.stats_after,
+                        timestamp: tsDate
+                    });
+                } else {
+                    // Handle nested structure (legacy)
+                    Object.entries(rec).forEach(([pushKey, subRec]) => {
+                        if (subRec && typeof subRec === 'object') {
+                            if (modeFilter !== 'all' && subRec.balance_type !== modeFilter) return;
+                            const decisionTime = subRec.decision_time || subRec.decisionTime;
+                            const settlementTime = subRec.settlement_time || subRec.settlementTime;
+                            const tsStr = settlementTime || decisionTime;
+                            let tsDate; try { tsDate = tsStr ? new Date(tsStr) : new Date(); } catch { tsDate = new Date(); }
+                            flattened.push({
+                                id: pushKey,
+                                sid: subRec.session_id || tradeKey,
+                                bet_side: subRec.bet_side,
+                                result_status: subRec.result_status,
+                                pnl: subRec.pnl,
+                                balance_after: subRec.balance_after_settlement,
+                                outcome: subRec.outcome,
+                                stake: subRec.stake,
+                                bet_idx: subRec.bet_idx,
+                                bet_countdown: subRec.bet_countdown,
+                                final_tai_total: subRec.final_tai_total,
+                                final_xiu_total: subRec.final_xiu_total,
+                                refunded_amount: subRec.refunded_amount,
+                                effective_bet_amount: subRec.effective_bet_amount,
+                                strategy: subRec.strategy,
+                                timepoint: subRec.timepoint,
+                                mode: subRec.balance_type,
+                                stats_after: subRec.stats_after,
+                                timestamp: tsDate
+                            });
+                        }
+                    });
+                }
             }
         });
         this.tradesData = flattened.sort((a,b)=> b.timestamp - a.timestamp);
@@ -1734,6 +1838,50 @@ class TradingDashboard {
             console.log('No trades data, setting default stats:', stats);
             return;
         }
+
+        // Try to use stats_after from latest trade first (most accurate)
+        const latest = this.tradesData[0]; // tradesData sorted desc
+        if (latest && latest.stats_after) {
+            console.log('Using stats_after from latest trade:', latest.stats_after);
+            const statsAfter = latest.stats_after;
+            this.derivedStats = {
+                wins: statsAfter.wins || 0,
+                losses: statsAfter.losses || 0,
+                refunds: statsAfter.refunds || 0,
+                last_result: statsAfter.last_result || null,
+                max_win_streak: 0, // Will calculate streaks below
+                max_loss_streak: 0
+            };
+
+            // Still calculate streaks from chronological data
+            let currentWinStreak = 0;
+            let currentLossStreak = 0;
+            let maxWinStreak = 0;
+            let maxLossStreak = 0;
+
+            const chronologicalTrades = [...this.tradesData].sort((a, b) => a.timestamp - b.timestamp);
+
+            chronologicalTrades.forEach(tr => {
+                const rs = (tr.result_status || '').toLowerCase();
+                if (rs.includes('win')) {
+                    currentWinStreak += 1;
+                    currentLossStreak = 0;
+                    maxWinStreak = Math.max(maxWinStreak, currentWinStreak);
+                } else if (rs.includes('lose')) {
+                    currentLossStreak += 1;
+                    currentWinStreak = 0;
+                    maxLossStreak = Math.max(maxLossStreak, currentLossStreak);
+                } else if (rs.includes('refund')) {
+                    // Refunds don't break streaks
+                }
+            });
+
+            this.derivedStats.max_win_streak = maxWinStreak;
+            this.derivedStats.max_loss_streak = maxLossStreak;
+
+            console.log('Final stats with streak calculation:', this.derivedStats);
+            return;
+        }
         
         // Most recent trade decides last_result and calculate streaks
         let currentWinStreak = 0;
@@ -1766,8 +1914,8 @@ class TradingDashboard {
         
         stats.max_win_streak = maxWinStreak;
         stats.max_loss_streak = maxLossStreak;
-        
-        const latest = this.tradesData[0]; // tradesData sorted desc
+
+        // Use the already declared 'latest' variable from above
         const rsLatest = (latest?.result_status || '').toLowerCase();
         if (rsLatest.includes('win')) stats.last_result = 'win';
         else if (rsLatest.includes('lose')) stats.last_result = 'lose';
