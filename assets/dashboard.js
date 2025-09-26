@@ -143,11 +143,19 @@ class TradingDashboard {
     setupThemeToggle() {
         const themeToggle = document.getElementById('themeToggle');
         const themeIcon = document.getElementById('themeIcon');
-        
-        // Load saved theme or default to dark
-        const savedTheme = localStorage.getItem('theme') || 'dark';
-        this.setTheme(savedTheme);
-        
+
+        // Force dark theme as default, ignore any saved light theme for better mobile experience
+        const savedTheme = localStorage.getItem('theme');
+        const defaultTheme = 'dark'; // Always default to dark for better contrast
+
+        // On mobile, clear light mode preference for better experience
+        if (window.innerWidth <= 768 && savedTheme === 'light') {
+            localStorage.setItem('theme', 'dark');
+            this.setTheme('dark');
+        } else {
+            this.setTheme(savedTheme === 'light' ? 'light' : defaultTheme);
+        }
+
         themeToggle.addEventListener('click', () => {
             const currentTheme = document.body.classList.contains('light-mode') ? 'light' : 'dark';
             const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
