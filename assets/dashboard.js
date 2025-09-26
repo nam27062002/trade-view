@@ -1656,7 +1656,8 @@ class TradingDashboard {
     // Utility functions
     formatNumber(num) {
         if (typeof num !== 'number') return '0';
-        return new Intl.NumberFormat('vi-VN').format(num);
+        // Force comma separator for better readability
+        return new Intl.NumberFormat('en-US').format(num);
     }
 
     formatDelta(delta) {

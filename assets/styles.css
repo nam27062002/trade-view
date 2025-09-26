@@ -669,29 +669,37 @@ body::after {
 .stats-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
+    gap: 16px;
 }
 
 @media (min-width: 768px) {
     .stats-grid {
-        gap: 15px;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 18px;
     }
 }
 
 .stat {
     text-align: center;
-    padding: 15px 12px;
+    padding: 18px 16px;
     border-radius: var(--border-radius-small);
     background: var(--glass-bg);
-    backdrop-filter: blur(15px);
+    backdrop-filter: blur(20px);
     border: 1px solid var(--glass-border);
-    min-height: 80px;
+    min-height: 95px;
     display: flex;
     flex-direction: column;
     justify-content: center;
     transition: var(--transition);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
     position: relative;
     overflow: hidden;
+}
+
+.stat:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+    border-color: rgba(255, 255, 255, 0.3);
 }
 
 /* Hover effects removed */
@@ -722,19 +730,22 @@ body::after {
 }
 
 .stat-label {
-    font-size: 0.8rem;
-    color: rgba(255, 255, 255, 0.7);
-    margin-bottom: 4px;
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.85);
+    margin-bottom: 6px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
     position: relative;
     z-index: 1;
 }
 
 .stat-value {
-    font-size: 1.2rem;
-    font-weight: 700;
+    font-size: 1.35rem;
+    font-weight: 800;
+    color: rgba(255, 255, 255, 0.95);
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
     line-height: 1.2;
-    color: rgba(255, 255, 255, 0.9);
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
     position: relative;
     z-index: 1;
 }
@@ -2208,7 +2219,7 @@ html body select#tradeLimit option:checked:hover {
 
     .stats-grid {
         grid-template-columns: repeat(2, 1fr);
-        gap: 10px;
+        gap: 12px;
     }
 
     .card {
