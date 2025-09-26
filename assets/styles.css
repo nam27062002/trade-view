@@ -2788,6 +2788,17 @@ body.light-mode .form-group button {
     font-weight: 500;
     margin-top: 2px;
     display: block;
+    transition: var(--transition);
+}
+
+.balance-subtitle.real-mode {
+    color: #4caf50;
+    font-weight: 600;
+}
+
+.balance-subtitle.demo-mode {
+    color: #ff9800;
+    font-weight: 600;
 }
 
 .balance-controls {

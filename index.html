@@ -71,10 +71,17 @@
                 <div class="balance-controls-header">
                     <div class="balance-controls-row">
                         <div class="control-item">
-                            <label class="control-label">Mode</label>
+                            <label class="control-label">Balance Mode</label>
+                            <select id="balanceMode" class="control-select">
+                                <option value="real" selected>💰 Real</option>
+                                <option value="simulation">🎮 Demo</option>
+                            </select>
+                        </div>
+                        <div class="control-item">
+                            <label class="control-label">Trades Mode</label>
                             <select id="viewMode" class="control-select">
-                                <option value="simulation" selected>Demo</option>
-                                <option value="real">Real</option>
+                                <option value="real" selected>Real</option>
+                                <option value="simulation">Demo</option>
                                 <option value="all">All</option>
                             </select>
                         </div>
@@ -97,7 +104,7 @@
                         <div class="balance-icon">💰</div>
                         <div class="balance-title">
                             <h3>Current Balance</h3>
-                            <span class="balance-subtitle">Live Trading Account</span>
+                            <span class="balance-subtitle" id="balanceSubtitle">💰 Real Trading Account</span>
                         </div>
                     </div>
                     <div class="balance-display-container">

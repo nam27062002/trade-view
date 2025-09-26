@@ -17,6 +17,9 @@ class TradingDashboard {
         this.previousStats = {};
         this.lastDataTimestamp = 0;
         this.isUpdating = false;
+        
+        // Balance mode tracking (real or simulation)
+        this.balanceMode = 'real'; // Default to real mode
 
         // Chart colors
         this.colors = {
@@ -41,10 +44,24 @@ class TradingDashboard {
         // Always ensure trades are sorted newest first (descending timestamp)
         this.tradesData.sort((a, b) => b.timestamp - a.timestamp);
     }
+    
+    updateBalanceSubtitle() {
+        const subtitleEl = document.getElementById('balanceSubtitle');
+        if (subtitleEl) {
+            if (this.balanceMode === 'real') {
+                subtitleEl.textContent = '💰 Real Trading Account';
+                subtitleEl.className = 'balance-subtitle real-mode';
+            } else {
+                subtitleEl.textContent = '🎮 Demo Trading Account';
+                subtitleEl.className = 'balance-subtitle demo-mode';
+            }
+        }
+    }
 
     init() {
         this.setupEventListeners();
         this.setupThemeToggle();
+        this.updateBalanceSubtitle(); // Set initial balance subtitle
         // Nếu All Dates đang bật, disable date input ngay từ đầu
         const historyDateEl = document.getElementById('historyDate');
         const allDatesEl = document.getElementById('allDates');
@@ -74,6 +91,18 @@ class TradingDashboard {
         document.getElementById('timeRange').onchange = () => this.updateBalanceChart();
         document.getElementById('refreshTrades').onclick = () => this.loadTradesData();
         document.getElementById('tradeLimit').onchange = () => this.loadTradesData();
+        
+        // Balance mode selector
+        const balanceModeEl = document.getElementById('balanceMode');
+        if (balanceModeEl) {
+            balanceModeEl.onchange = () => {
+                this.balanceMode = balanceModeEl.value;
+                this.updateBalanceSubtitle();
+                this.loadAllData(); // Reload data with new balance mode
+            };
+        }
+        
+        // Trades view mode selector
         const viewModeEl = document.getElementById('viewMode');
         if (viewModeEl) {
             viewModeEl.onchange = () => this.loadTradesData();
@@ -260,13 +289,15 @@ class TradingDashboard {
     }
 
     async testRTDBConnection() {
-        // Test connection by reading the root
-        await this.database.ref('/live_demo').once('value');
+        // Test connection by reading the root - use current balance mode
+        const prefix = this.balanceMode === 'real' ? 'live_real' : 'live_demo';
+        await this.database.ref(`/${prefix}`).once('value');
     }
 
     async testFirestoreConnection() {
-        // Test connection by reading collections
-        await this.firestore.collection('live_demo_balance_logs').limit(1).get();
+        // Test connection by reading collections - use current balance mode
+        const collection = this.balanceMode === 'real' ? 'live_real_balance_logs' : 'live_demo_balance_logs';
+        await this.firestore.collection(collection).limit(1).get();
     }
 
     updateStatus(status, text) {
@@ -360,16 +391,19 @@ class TradingDashboard {
 
     async loadBalanceDataRTDB() {
         try {
-            const snapshot = await this.database.ref('/live_demo/balance_logs').once('value');
+            const prefix = this.balanceMode === 'real' ? 'live_real' : 'live_demo';
+            const balanceKey = this.balanceMode === 'real' ? 'live_real_balance' : 'live_demo_balance';
+            
+            const snapshot = await this.database.ref(`/${prefix}/balance_logs`).once('value');
             const data = snapshot.val();
-            console.log('Balance logs from RTDB:', data);
+            console.log(`Balance logs from RTDB (${this.balanceMode}):`, data);
             if (!data) {
                 this.balanceData = [];
                 // Fallback: fetch current balance snapshot if exists
                 try {
-                    const balSnap = await this.database.ref('/live_demo_balance').once('value');
+                    const balSnap = await this.database.ref(`/${balanceKey}`).once('value');
                     const balVal = balSnap.val();
-                    console.log('Current balance snapshot:', balVal);
+                    console.log(`Current balance snapshot (${this.balanceMode}):`, balVal);
                     if (balVal && typeof balVal === 'object') {
                         const ts = new Date();
                         this.balanceData = [{
@@ -399,8 +433,9 @@ class TradingDashboard {
     }
 
     async loadBalanceDataFirestore() {
+        const collection = this.balanceMode === 'real' ? 'live_real_balance_logs' : 'live_demo_balance_logs';
         const snapshot = await this.firestore
-            .collection('live_demo_balance_logs')
+            .collection(collection)
             .orderBy('ts', 'desc')
             .limit(1000)
             .get();
@@ -426,13 +461,16 @@ class TradingDashboard {
     }
 
     async loadTradesDataRTDB(limit) {
-        // Support: if #allDates checked -> load ALL date buckets under /live_demo_bet_history
+        // Support: if #allDates checked -> load ALL date buckets under bet_history
         const allDatesEl = document.getElementById('allDates');
         const viewModeEl = document.getElementById('viewMode');
-        const modeFilter = viewModeEl ? viewModeEl.value : 'simulation';
+        const modeFilter = viewModeEl ? viewModeEl.value : 'real';
+        
+        // Use dynamic path based on balance mode for trades
+        const prefix = this.balanceMode === 'real' ? 'live_real' : 'live_demo';
 
         if (allDatesEl && allDatesEl.checked) {
-            const rootSnap = await this.database.ref('/live_demo_bet_history').once('value');
+            const rootSnap = await this.database.ref(`/${prefix}_bet_history`).once('value');
             const rootData = rootSnap.val();
             if (!rootData) { this.tradesData = []; return; }
             const flattened = [];
@@ -481,7 +519,7 @@ class TradingDashboard {
         // Existing single-day logic
         const historyDateEl = document.getElementById('historyDate');
         const dateStr = historyDateEl && historyDateEl.value ? historyDateEl.value.replace(/-/g, '') : this._todayYMD();
-        const path = `/live_demo_bet_history/${dateStr}`;
+        const path = `/${prefix}_bet_history/${dateStr}`;
         const snapshot = await this.database.ref(path).once('value');
         const dateBucketData = snapshot.val();
         if (!dateBucketData) { this.tradesData = []; return; }
@@ -527,8 +565,9 @@ class TradingDashboard {
     }
 
     async loadTradesDataFirestore(limit) {
+        const collection = this.balanceMode === 'real' ? 'live_real_trades' : 'live_demo_trades';
         let query = this.firestore
-            .collection('live_demo_trades')
+            .collection(collection)
             .orderBy('ts', 'desc');
         
         // Only apply limit if it's not null (i.e., not "all")
