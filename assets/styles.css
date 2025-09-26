@@ -13,22 +13,7 @@ html {
 
 /* Force dark theme on mobile by default - override system preferences */
 @media (max-width: 768px) {
-    body:not(.light-mode) {
-        background: linear-gradient(135deg, #0c0c0c 0%, #1a1a2e 25%, #16213e 50%, #0f3460 75%, #533483 100%) !important;
-        color: #ffffff !important;
-    }
-
-    body:not(.light-mode) .card {
-        background: rgba(255, 255, 255, 0.1) !important;
-        border: 1px solid rgba(255, 255, 255, 0.2) !important;
-        color: #ffffff !important;
-    }
-
-    body:not(.light-mode) .balance-display {
-        color: #58a6ff !important;
-        background: transparent !important;
-        -webkit-text-fill-color: #58a6ff !important;
-    }
+    
 
         /* Fix for horizontal overflow */
     .dashboard {
