@@ -786,6 +786,28 @@ body::after {
     text-shadow: 0 0 10px rgba(79, 172, 254, 0.4);
 }
 
+.stat-value.roi-positive {
+    color: #4ade80;
+    text-shadow: 0 0 12px rgba(74, 222, 128, 0.5);
+}
+
+.stat-value.roi-negative {
+    color: #f87171;
+    text-shadow: 0 0 12px rgba(248, 113, 113, 0.5);
+}
+
+.stat-value.pnl-positive {
+    color: #10b981;
+    text-shadow: 0 0 12px rgba(16, 185, 129, 0.5);
+    font-weight: 900;
+}
+
+.stat-value.pnl-negative {
+    color: #ef4444;
+    text-shadow: 0 0 12px rgba(239, 68, 68, 0.5);
+    font-weight: 900;
+}
+
 .stat-value.win {
     background: var(--success-gradient);
     -webkit-background-clip: text;

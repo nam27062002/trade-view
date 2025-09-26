@@ -820,6 +820,25 @@ class TradingDashboard {
         const totalTrades = wins + losses + refunds;
         const winRate = totalTrades > 0 ? ((wins / totalTrades) * 100).toFixed(1) : 0;
 
+        // Calculate ROI and P&L based on first vs current balance
+        let roi = 0;
+        let pnlAmount = 0;
+        if (this.tradesData.length > 0) {
+            // Get the earliest trade (sorted chronologically)
+            const sortedTrades = [...this.tradesData].sort((a, b) => a.timestamp - b.timestamp);
+            const firstTrade = sortedTrades[0];
+            const currentBalance = latest ? latest.balance : 0;
+
+            if (firstTrade && firstTrade.balance_after && currentBalance) {
+                // Calculate initial balance = balance_after - pnl from first trade
+                const initialBalance = firstTrade.balance_after - (firstTrade.pnl || 0);
+                if (initialBalance > 0) {
+                    roi = ((currentBalance - initialBalance) / initialBalance * 100).toFixed(1);
+                    pnlAmount = currentBalance - initialBalance; // Raw P&L amount
+                }
+            }
+        }
+
         // Debug logging
         console.log('Stats Update:', {
             derivedStats: this.derivedStats,
@@ -829,12 +848,31 @@ class TradingDashboard {
             refunds,
             totalTrades,
             winRate,
+            roi,
+            pnlAmount,
             tradesDataLength: this.tradesData.length
         });
 
         // Update display with fallback values
         document.getElementById('winRate').textContent = totalTrades > 0 ? winRate + '%' : '0%';
         document.getElementById('totalTrades').textContent = totalTrades || 0;
+
+        // Update ROI with color coding
+        const roiElement = document.getElementById('roi');
+        roiElement.textContent = roi !== 0 ? roi + '%' : '0%';
+        roiElement.className = `stat-value ${roi > 0 ? 'roi-positive' : roi < 0 ? 'roi-negative' : ''}`;
+
+        // Update P&L with color coding and VND formatting
+        const pnlElement = document.getElementById('pnl');
+        if (pnlAmount !== 0) {
+            const formattedPnl = (pnlAmount > 0 ? '+' : '') + this.formatNumber(pnlAmount);
+            pnlElement.textContent = formattedPnl + ' VND';
+            pnlElement.className = `stat-value ${pnlAmount > 0 ? 'pnl-positive' : pnlAmount < 0 ? 'pnl-negative' : ''}`;
+        } else {
+            pnlElement.textContent = '0 VND';
+            pnlElement.className = 'stat-value';
+        }
+
         document.getElementById('wins').textContent = wins || 0;
         document.getElementById('losses').textContent = losses || 0;
         document.getElementById('refunds').textContent = refunds || 0;
@@ -842,7 +880,7 @@ class TradingDashboard {
         document.getElementById('maxWinStreak').textContent = performance.max_win_streak || 0;
         document.getElementById('maxLossStreak').textContent = performance.max_loss_streak || 0;
 
-        this.currentStats = { wins, losses, refunds, totalTrades, winRate, max_win_streak: performance.max_win_streak || 0, max_loss_streak: performance.max_loss_streak || 0 };
+        this.currentStats = { wins, losses, refunds, totalTrades, winRate, roi: parseFloat(roi), pnlAmount, max_win_streak: performance.max_win_streak || 0, max_loss_streak: performance.max_loss_streak || 0 };
     }
 
     smartUpdateStatsDisplay() {
