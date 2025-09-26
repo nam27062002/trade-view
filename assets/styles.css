@@ -29,6 +29,21 @@ html {
         background: transparent !important;
         -webkit-text-fill-color: #58a6ff !important;
     }
+
+    /* Prevent any element from causing horizontal overflow */
+    * {
+        max-width: 100vw !important;
+        box-sizing: border-box !important;
+    }
+
+    /* Ensure all containers are responsive */
+    .dashboard, .dashboard-grid, .card, .balance-card,
+    .stats-card, .chart-card, .trades-card {
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+        overflow-x: hidden !important;
+    }
 }
 
 :root {
@@ -454,6 +469,13 @@ body::after {
 .balance-card {
     grid-column: span 1;
     min-width: 280px;
+}
+
+@media (max-width: 768px) {
+    .balance-card {
+        min-width: 0;
+        width: 100%;
+    }
 }
 
 .balance-card .card-header {
@@ -3840,6 +3862,18 @@ body.light-mode .form-group button {
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     min-width: 200px;
+}
+
+@media (max-width: 768px) {
+    .balance-display {
+        min-width: 0;
+        max-width: 100%;
+        white-space: normal;
+        word-break: break-word;
+        padding: 15px 20px;
+        font-size: 1.8rem;
+    }
+}
     -moz-osx-font-smoothing: grayscale;
     max-width: none;
     word-spacing: 0.05em;
