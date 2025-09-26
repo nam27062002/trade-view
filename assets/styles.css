@@ -4268,7 +4268,7 @@ body.light-mode .theme-toggle svg {
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.7) !important;
     position: sticky !important;
     top: 0 !important;
-    z-index: 100 !important;
+    z-index: 200 !important;
     backdrop-filter: blur(15px) !important;
     box-shadow: 0 4px 20px rgba(79, 172, 254, 0.2),
                 inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
