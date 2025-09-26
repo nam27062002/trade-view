@@ -20,10 +20,16 @@ html {
         overflow-x: hidden;
     }
 
+    .balance-controls-header,
     .balance-controls-row {
         display: flex;
         flex-wrap: wrap;
-        gap: 10px; /* Add some gap for wrapped items */
+        gap: 10px;
+    }
+
+    .balance-controls-row .control-item {
+        flex-grow: 1;
+        flex-basis: 150px; /* Allow items to wrap when space is tight */
     }
 }
 
