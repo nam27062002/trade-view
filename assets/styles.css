@@ -5,34 +5,6 @@
     box-sizing: border-box;
 }
 
-/* Prevent horizontal overflow globally */
-html {
-    max-width: 100vw;
-    overflow-x: hidden;
-}
-
-/* Force dark theme on mobile by default - override system preferences */
-@media (max-width: 768px) {
-    
-
-        /* Fix for horizontal overflow */
-    .dashboard {
-        overflow-x: hidden;
-    }
-
-    .balance-controls-header,
-    .balance-controls-row {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 10px;
-    }
-
-    .balance-controls-row .control-item {
-        flex-grow: 1;
-        flex-basis: 150px; /* Allow items to wrap when space is tight */
-    }
-}
-
 :root {
     --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
@@ -98,7 +70,7 @@ body::after {
     left: 0;
     width: 100%;
     height: 100%;
-    background: 
+    background:
         radial-gradient(circle at 10% 20%, rgba(255, 255, 255, 0.05) 0%, transparent 20%),
         radial-gradient(circle at 90% 80%, rgba(255, 255, 255, 0.05) 0%, transparent 20%),
         radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.03) 0%, transparent 30%);
@@ -108,15 +80,15 @@ body::after {
 }
 
 @keyframes particleFloat {
-    0%, 100% { 
+    0%, 100% {
         transform: translateY(0px) rotate(0deg);
         opacity: 0.7;
     }
-    33% { 
+    33% {
         transform: translateY(-20px) rotate(120deg);
         opacity: 1;
     }
-    66% { 
+    66% {
         transform: translateY(10px) rotate(240deg);
         opacity: 0.8;
     }
@@ -125,11 +97,9 @@ body::after {
 /* Dashboard Layout - Mobile First */
 .dashboard {
     max-width: 100%;
-    width: 100%;
     margin: 0;
     padding: 12px;
     min-height: 100vh;
-    overflow-x: hidden;
 }
 
 @media (min-width: 768px) {
@@ -245,25 +215,19 @@ body::after {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
-    font-weight: 700;
-    font-size: 0.85rem;
-    color: #ffffff;
-    padding: 10px 16px;
-    border-radius: 20px;
-    background: linear-gradient(135deg,
-        rgba(255, 255, 255, 0.15) 0%,
-        rgba(255, 255, 255, 0.08) 100%);
+    gap: 10px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    padding: 12px 20px;
+    border-radius: 25px;
+    background: var(--glass-bg);
     backdrop-filter: blur(15px);
-    border: 2px solid rgba(255, 255, 255, 0.2);
+    border: 1px solid var(--glass-border);
     position: relative;
     z-index: 1;
-    box-shadow:
-        0 0 0 1px rgba(255, 255, 255, 0.1),
-        0 6px 20px rgba(0, 0, 0, 0.12),
-        inset 0 1px 0 rgba(255, 255, 255, 0.2);
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: var(--shadow-primary);
+    transition: var(--transition);
 }
 
 /* Hover effects removed */
@@ -310,11 +274,11 @@ body::after {
 }
 
 @keyframes pulse {
-    0%, 100% { 
+    0%, 100% {
         opacity: 1;
         transform: scale(1);
     }
-    50% { 
+    50% {
         opacity: 0.7;
         transform: scale(1.1);
     }
@@ -336,21 +300,12 @@ body::after {
     display: grid;
     grid-template-columns: 1fr;
     gap: 15px;
-    max-width: 100%;
-    width: 100%;
 }
 
 @media (min-width: 768px) {
     .dashboard-grid {
-        grid-template-columns: 1fr 1fr;
-        gap: 25px;
-    }
-}
-
-@media (min-width: 1200px) {
-    .dashboard-grid {
-        grid-template-columns: 1fr 1fr;
-        gap: 30px;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 20px;
     }
 }
 
@@ -370,11 +325,6 @@ body::after {
     overflow: visible;
     animation: slideInUp 0.6s cubic-bezier(0.4, 0, 0.2, 1);
     margin-bottom: 20px;
-    min-height: 400px;
-    display: flex;
-    flex-direction: column;
-    max-width: 100%;
-    width: 100%;
 }
 
 .card::before {
@@ -411,7 +361,9 @@ body::after {
 /* Hover effects removed */
 
 @media (min-width: 768px) {
-    /* Hover effects removed */
+    .card:hover {
+        transform: translateY(-8px) scale(1.03);
+    }
 }
 
 .card-header {
@@ -458,13 +410,6 @@ body::after {
     min-width: 280px;
 }
 
-@media (max-width: 768px) {
-    .balance-card {
-        min-width: 0;
-        width: 100%;
-    }
-}
-
 .balance-card .card-header {
     backdrop-filter: none;
     overflow: visible;
@@ -483,220 +428,85 @@ body::after {
 }
 
 .balance-display {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.2rem;
-    font-weight: 700;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
-    color: #ffffff;
-    text-shadow: 0 0 15px rgba(79, 172, 254, 0.6),
-                 0 0 30px rgba(79, 172, 254, 0.3);
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: #4facfe;
     text-align: center;
-    margin: 12px 0;
+    margin: 20px 0;
     white-space: nowrap;
     overflow: hidden;
+    text-overflow: ellipsis;
     position: relative;
     z-index: 10;
+    filter: none;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    will-change: transform;
+    transform: translateZ(0);
+    min-width: auto;
+    max-width: 100%;
     width: 100%;
-    height: auto;
-    min-height: 50px;
+    word-spacing: 0.05em;
     letter-spacing: -0.01em;
-    padding: 12px 16px;
-    border-radius: 16px;
-    background: linear-gradient(145deg,
-        rgba(79, 172, 254, 0.15) 0%,
-        rgba(0, 242, 254, 0.10) 50%,
-        rgba(79, 172, 254, 0.15) 100%);
-    border: 2px solid rgba(79, 172, 254, 0.3);
+    padding: 10px 15px;
+    border-radius: var(--border-radius-small);
+    background-color: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
     box-sizing: border-box;
-    backdrop-filter: blur(15px);
-    box-shadow:
-        0 0 0 1px rgba(79, 172, 254, 0.2),
-        0 6px 24px rgba(79, 172, 254, 0.2),
-        inset 0 1px 0 rgba(255, 255, 255, 0.2);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 @media (max-width: 480px) {
     .balance-display {
         font-size: 1.2rem;
-        padding: 14px 10px;
+        padding: 8px 10px;
         min-width: auto;
         max-width: 100%;
-        width: 100%;
-        margin: 14px 0;
-        min-height: 50px;
-        word-break: keep-all;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-
-    .balance-display .balance-currency {
-        font-size: 1.2rem !important;
-        font-weight: 800;
-        margin-left: 0.2em;
-    }
-
-    .balance-controls {
-        flex-direction: column;
-        gap: 16px;
-        padding: 18px 16px;
-        margin-bottom: 20px;
-    }
-
-    .control-group {
-        width: 100%;
-        max-width: none;
-        min-width: auto;
-        padding: 18px 16px;
-    }
-
-    .control-label {
-        font-size: 0.9rem;
-        margin-bottom: 8px;
-    }
-
-    .control-select,
-    .control-input {
-        font-size: 0.9rem;
-        padding: 12px 14px;
-    }
-
-    .balance-main {
-        padding: 18px 14px;
-    }
-
-    .balance-change {
-        font-size: 0.9rem;
-        padding: 10px 12px;
-        min-height: 40px;
-        width: 100%;
-        overflow: hidden;
-        text-overflow: ellipsis;
     }
 }
 
 @media (min-width: 481px) and (max-width: 767px) {
     .balance-display {
         font-size: 1.3rem;
-        padding: 15px 12px;
         min-width: auto;
         max-width: 100%;
-        width: 100%;
-        min-height: 55px;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-
-    .balance-display .balance-currency {
-        font-size: 1.3rem !important;
-        font-weight: 800;
-        margin-left: 0.2em;
-    }
-
-    .balance-controls {
-        gap: 18px;
-        padding: 18px 20px;
-    }
-
-    .control-group {
-        padding: 16px 18px;
-    }
-
-    .control-label {
-        font-size: 0.85rem;
-    }
-
-    .control-select,
-    .control-input {
-        font-size: 0.9rem;
-        padding: 11px 15px;
-    }
-
-    .balance-change {
-        font-size: 0.95rem;
-        padding: 11px 14px;
-        min-height: 42px;
-        overflow: hidden;
-        text-overflow: ellipsis;
     }
 }
 
 @media (min-width: 768px) {
     .balance-display {
         font-size: 1.4rem;
-        padding: 16px 14px;
-        margin: 16px 0;
+        margin: 20px 0;
         max-width: 100%;
-        min-height: 60px;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-
-    .balance-display .balance-currency {
-        font-size: 1.4rem !important;
-        font-weight: 800;
-        margin-left: 0.2em;
-    }
-
-    .balance-change {
-        font-size: 1.0rem;
-        padding: 12px 16px;
-        min-height: 44px;
-        overflow: hidden;
-        text-overflow: ellipsis;
     }
 }
 
 @media (min-width: 1200px) {
     .balance-display {
         font-size: 1.5rem;
-        padding: 18px 16px;
         max-width: 100%;
-        min-height: 65px;
-    }
-
-    .balance-display .balance-currency {
-        font-size: 1.5rem !important;
-        font-weight: 800;
-        margin-left: 0.2em;
     }
 }
 
 .balance-change {
-    display: flex;
-    align-items: center;
-    justify-content: center;
     text-align: center;
     font-weight: 700;
-    font-size: 1.0rem;
-    padding: 12px 16px;
-    border-radius: 16px;
-    background: linear-gradient(135deg,
-        rgba(255, 255, 255, 0.15) 0%,
-        rgba(255, 255, 255, 0.08) 100%);
+    padding: 15px;
+    border-radius: var(--border-radius-small);
+    background: var(--glass-bg);
     backdrop-filter: blur(15px);
-    border: 2px solid rgba(255, 255, 255, 0.2);
-    color: #ffffff;
+    border: 1px solid var(--glass-border);
+    color: var(--text-secondary);
     position: relative;
     z-index: 1;
-    width: 100%;
-    min-height: 44px;
-    box-sizing: border-box;
-    overflow: hidden;
-    white-space: nowrap;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow:
-        0 0 0 1px rgba(255, 255, 255, 0.1),
-        0 8px 24px rgba(0, 0, 0, 0.15),
-        inset 0 1px 0 rgba(255, 255, 255, 0.2);
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+    transition: var(--transition);
 }
 
-/* Hover effects removed */
+.balance-change:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-primary);
+}
 
 .balance-change.positive {
     background: linear-gradient(135deg, rgba(79, 172, 254, 0.2), rgba(0, 242, 254, 0.1));
@@ -720,50 +530,43 @@ body::after {
 .stats-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 16px;
+    gap: 12px;
 }
 
 @media (min-width: 768px) {
     .stats-grid {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 20px;
-    }
-}
-
-@media (min-width: 1024px) {
-    .stats-grid {
-        grid-template-columns: repeat(4, 1fr);
-        gap: 18px;
+        gap: 15px;
     }
 }
 
 .stat {
     text-align: center;
-    padding: 24px 18px;
+    padding: 15px 12px;
     border-radius: var(--border-radius-small);
     background: var(--glass-bg);
-    backdrop-filter: blur(20px);
+    backdrop-filter: blur(15px);
     border: 1px solid var(--glass-border);
-    min-height: 110px;
+    min-height: 80px;
     display: flex;
     flex-direction: column;
     justify-content: center;
     transition: var(--transition);
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
     position: relative;
     overflow: hidden;
 }
 
-.stat:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+.stat:hover,
+.stat:active {
+    transform: scale(1.05) translateY(-2px);
+    background: rgba(255, 255, 255, 0.15);
     border-color: rgba(255, 255, 255, 0.3);
+    box-shadow: var(--shadow-primary);
 }
 
-/* Hover effects removed */
-
 @media (min-width: 768px) {
-    /* Hover effects removed */
+    .stat:hover {
+        transform: scale(1.05);
+    }
 }
 
 .stat::before {
@@ -777,7 +580,9 @@ body::after {
     transition: left 0.6s ease;
 }
 
-/* Hover effects removed */
+.stat:hover::before {
+    left: 100%;
+}
 
 @media (min-width: 768px) {
     .stat {
@@ -788,34 +593,31 @@ body::after {
 }
 
 .stat-label {
-    font-size: 0.75rem;
-    color: rgba(255, 255, 255, 0.9);
-    margin-bottom: 8px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.8px;
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.7);
+    margin-bottom: 4px;
     position: relative;
     z-index: 1;
 }
 
 .stat-value {
-    font-size: 1.6rem;
-    font-weight: 900;
-    color: rgba(255, 255, 255, 0.98);
-    text-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
-    line-height: 1.1;
+    font-size: 1.2rem;
+    font-weight: 700;
+    line-height: 1.2;
+    color: rgba(255, 255, 255, 0.9);
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
     position: relative;
     z-index: 1;
 }
 
 @media (min-width: 768px) {
     .stat-label {
-        font-size: 0.8rem;
-        margin-bottom: 6px;
+        font-size: 0.9rem;
+        margin-bottom: 5px;
     }
 
     .stat-value {
-        font-size: 1.8rem;
+        font-size: 1.5rem;
     }
 }
 
@@ -825,28 +627,6 @@ body::after {
     -webkit-text-fill-color: transparent;
     background-clip: text;
     text-shadow: 0 0 10px rgba(79, 172, 254, 0.4);
-}
-
-.stat-value.roi-positive {
-    color: #4ade80;
-    text-shadow: 0 0 12px rgba(74, 222, 128, 0.5);
-}
-
-.stat-value.roi-negative {
-    color: #f87171;
-    text-shadow: 0 0 12px rgba(248, 113, 113, 0.5);
-}
-
-.stat-value.pnl-positive {
-    color: #10b981;
-    text-shadow: 0 0 12px rgba(16, 185, 129, 0.5);
-    font-weight: 900;
-}
-
-.stat-value.pnl-negative {
-    color: #ef4444;
-    text-shadow: 0 0 12px rgba(239, 68, 68, 0.5);
-    font-weight: 900;
 }
 
 .stat-value.win {
@@ -884,513 +664,11 @@ body::after {
     }
 }
 
-/* === ENHANCED RESULTS CHART STYLING === */
-.results-chart-card {
-    background: linear-gradient(135deg,
-        rgba(79, 172, 254, 0.1) 0%,
-        rgba(240, 147, 251, 0.08) 30%,
-        rgba(255, 215, 0, 0.06) 60%,
-        rgba(255, 255, 255, 0.08) 100%
-    );
-    border: 2px solid rgba(79, 172, 254, 0.2);
-    box-shadow:
-        0 20px 60px rgba(79, 172, 254, 0.1),
-        inset 0 1px 0 rgba(255, 255, 255, 0.1);
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    position: relative;
-    overflow: visible;
-}
-
-.results-chart-card::before {
-    content: '';
-    position: absolute;
-    top: -2px;
-    left: -2px;
-    right: -2px;
-    bottom: -2px;
-    background: linear-gradient(135deg,
-        rgba(79, 172, 254, 0.3) 0%,
-        rgba(240, 147, 251, 0.2) 30%,
-        rgba(255, 215, 0, 0.15) 60%,
-        rgba(255, 255, 255, 0.1) 100%
-    );
-    border-radius: inherit;
-    z-index: -1;
-    opacity: 0;
-    transition: opacity 0.4s ease;
-}
-
-.results-chart-card:hover {
-    transform: translateY(-3px);
-    box-shadow:
-        0 25px 80px rgba(79, 172, 254, 0.2),
-        inset 0 1px 0 rgba(255, 255, 255, 0.15);
-    border-color: rgba(79, 172, 254, 0.3);
-}
-
-.results-chart-card:hover::before {
-    opacity: 1;
-}
-
-.results-chart-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 20px;
-    flex-wrap: wrap;
-    gap: 15px;
-    position: relative;
-    z-index: 100;
-    overflow: visible;
-}
-
-.chart-controls {
-    position: relative;
-    z-index: 160;
-}
-
-.chart-title-section h3 {
-    margin: 0 0 5px 0;
-    font-size: 1.1rem;
-    font-weight: 700;
-    background: linear-gradient(135deg, #4facfe 0%, #f093fb 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    text-shadow: none;
-}
-
-.chart-subtitle {
-    font-size: 0.75rem;
-    color: rgba(255, 255, 255, 0.6);
-    margin: 0;
-    font-weight: 400;
-    letter-spacing: 0.3px;
-}
-
-.chart-control-select {
-    background: linear-gradient(135deg,
-        rgba(255, 255, 255, 0.12) 0%,
-        rgba(79, 172, 254, 0.08) 100%
-    );
-    color: var(--text-primary);
-    border: 1px solid rgba(79, 172, 254, 0.3);
-    border-radius: 10px;
-    padding: 8px 12px;
-    font-size: 0.8rem;
-    font-weight: 600;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    min-width: 130px;
-    backdrop-filter: blur(15px);
-    cursor: pointer;
-    position: relative;
-    z-index: 150;
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    appearance: none;
-    /* Dropdown arrow removed */
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1),
-                inset 0 1px 0 rgba(255, 255, 255, 0.1);
-}
-
-.chart-control-select:focus {
-    outline: none;
-    border-color: #58a6ff;
-    box-shadow:
-        0 0 0 3px rgba(88, 166, 255, 0.3),
-        0 8px 25px rgba(88, 166, 255, 0.2),
-        inset 0 1px 0 rgba(255, 255, 255, 0.15);
-    background: linear-gradient(135deg,
-        rgba(88, 166, 255, 0.15) 0%,
-        rgba(79, 172, 254, 0.1) 100%
-    );
-    transform: translateY(-1px);
-}
-
-.chart-control-select:hover {
-    border-color: rgba(88, 166, 255, 0.5);
-    background: linear-gradient(135deg,
-        rgba(88, 166, 255, 0.12) 0%,
-        rgba(79, 172, 254, 0.08) 100%
-    );
-    box-shadow:
-        0 6px 20px rgba(0, 0, 0, 0.15),
-        inset 0 1px 0 rgba(255, 255, 255, 0.12);
-    transform: translateY(-1px) scale(1.02);
-}
-
-/* Custom dropdown options styling - Enhanced specificity */
-.chart-control-select option {
-    background: rgba(20, 25, 40, 0.95) !important;
-    color: #ffffff !important;
-    padding: 8px 12px;
-    border: none;
-    font-weight: 500;
-    backdrop-filter: blur(10px);
-}
-
-.chart-control-select option[selected],
-.chart-control-select option:checked {
-    background: linear-gradient(135deg,
-        rgba(88, 166, 255, 0.5) 0%,
-        rgba(79, 172, 254, 0.4) 100%
-    ) !important;
-    color: #ffffff !important;
-    font-weight: 600 !important;
-}
-
-.chart-control-select option:hover {
-    background: linear-gradient(135deg,
-        rgba(88, 166, 255, 0.2) 0%,
-        rgba(79, 172, 254, 0.1) 100%
-    ) !important;
-    color: #ffffff !important;
-}
-
-/* Override hover for selected option */
-.chart-control-select option[selected]:hover,
-.chart-control-select option:checked:hover {
-    background: linear-gradient(135deg,
-        rgba(88, 166, 255, 0.6) 0%,
-        rgba(79, 172, 254, 0.5) 100%
-    ) !important;
-    color: #ffffff !important;
-    font-weight: 600 !important;
-}
-
-.chart-control-select option:focus {
-    background: linear-gradient(135deg,
-        rgba(88, 166, 255, 0.25) 0%,
-        rgba(79, 172, 254, 0.15) 100%
-    ) !important;
-    color: #ffffff !important;
-}
-
-/* Firefox specific styling */
-@-moz-document url-prefix() {
-    .chart-control-select {
-        /* Background image already removed globally */
-    }
-}
-
-/* Safari specific styling */
-@supports (-webkit-appearance: none) {
-    .chart-control-select::-webkit-scrollbar {
-        width: 8px;
-    }
-
-    .chart-control-select::-webkit-scrollbar-track {
-        background: rgba(255, 255, 255, 0.1);
-        border-radius: 4px;
-    }
-
-    .chart-control-select::-webkit-scrollbar-thumb {
-        background: linear-gradient(135deg, #58a6ff 0%, #4facfe 100%);
-        border-radius: 4px;
-    }
-}
-
-/* Active/Selected state styling */
-.chart-control-select:active {
-    transform: translateY(0) scale(0.98);
-    box-shadow:
-        0 2px 8px rgba(0, 0, 0, 0.2),
-        inset 0 1px 0 rgba(255, 255, 255, 0.1);
-}
-
-/* High contrast accessibility */
-@media (prefers-contrast: high) {
-    .chart-control-select {
-        border-color: #ffffff;
-        background: rgba(0, 0, 0, 0.8);
-    }
-
-    .chart-control-select option {
-        background: #000000;
-        color: #ffffff;
-    }
-}
-
-/* Reduced motion accessibility */
-@media (prefers-reduced-motion: reduce) {
-    .chart-control-select {
-        transition: none;
-    }
-
-    .chart-control-select:hover,
-    .chart-control-select:focus {
-        transform: none;
-    }
-}
-
-/* ULTIMATE FIX: Browser-agnostic option styling with highest specificity */
-select.chart-control-select option[value]:not([value=""]):not(:disabled) {
-    background-color: rgba(20, 25, 40, 0.95) !important;
-    color: #ffffff !important;
-}
-
-select.chart-control-select option[selected]:not(:disabled),
-select.chart-control-select option:checked:not(:disabled) {
-    background-color: rgba(88, 166, 255, 0.5) !important;
-    background-image: linear-gradient(135deg, rgba(88, 166, 255, 0.5), rgba(79, 172, 254, 0.4)) !important;
-    color: #ffffff !important;
-    font-weight: 600 !important;
-}
-
-/* Force selected state even on hover */
-select.chart-control-select option[selected]:hover:not(:disabled),
-select.chart-control-select option:checked:hover:not(:disabled) {
-    background-color: rgba(88, 166, 255, 0.6) !important;
-    background-image: linear-gradient(135deg, rgba(88, 166, 255, 0.6), rgba(79, 172, 254, 0.5)) !important;
-    color: #ffffff !important;
-    font-weight: 600 !important;
-}
-
-/* Apply same logic to other selects */
-select option[selected]:not(:disabled),
-select option:checked:not(:disabled) {
-    background-color: rgba(88, 166, 255, 0.5) !important;
-    background-image: linear-gradient(135deg, rgba(88, 166, 255, 0.5), rgba(79, 172, 254, 0.4)) !important;
-    color: #ffffff !important;
-    font-weight: 600 !important;
-}
-
-select option[selected]:hover:not(:disabled),
-select option:checked:hover:not(:disabled) {
-    background-color: rgba(88, 166, 255, 0.6) !important;
-    background-image: linear-gradient(135deg, rgba(88, 166, 255, 0.6), rgba(79, 172, 254, 0.5)) !important;
-    color: #ffffff !important;
-    font-weight: 600 !important;
-}
-
-/* SPECIFIC FIX for timeRange and tradeLimit - Maximum specificity */
-.chart-controls select#timeRange option[selected]:not(:disabled),
-.chart-controls select#timeRange option:checked:not(:disabled),
-.trade-controls select#tradeLimit option[selected]:not(:disabled),
-.trade-controls select#tradeLimit option:checked:not(:disabled),
-select#timeRange option[selected]:not(:disabled),
-select#timeRange option:checked:not(:disabled),
-select#tradeLimit option[selected]:not(:disabled),
-select#tradeLimit option:checked:not(:disabled) {
-    background: rgba(88, 166, 255, 0.5) !important;
-    background-color: rgba(88, 166, 255, 0.5) !important;
-    background-image: linear-gradient(135deg, rgba(88, 166, 255, 0.5), rgba(79, 172, 254, 0.4)) !important;
-    color: #ffffff !important;
-    font-weight: 600 !important;
-}
-
-/* Force selected state even on hover - timeRange and tradeLimit specific */
-.chart-controls select#timeRange option[selected]:hover:not(:disabled),
-.chart-controls select#timeRange option:checked:hover:not(:disabled),
-.trade-controls select#tradeLimit option[selected]:hover:not(:disabled),
-.trade-controls select#tradeLimit option:checked:hover:not(:disabled),
-select#timeRange option[selected]:hover:not(:disabled),
-select#timeRange option:checked:hover:not(:disabled),
-select#tradeLimit option[selected]:hover:not(:disabled),
-select#tradeLimit option:checked:hover:not(:disabled) {
-    background: rgba(88, 166, 255, 0.6) !important;
-    background-color: rgba(88, 166, 255, 0.6) !important;
-    background-image: linear-gradient(135deg, rgba(88, 166, 255, 0.6), rgba(79, 172, 254, 0.5)) !important;
-    color: #ffffff !important;
-    font-weight: 600 !important;
-}
-
-/* NUCLEAR OPTION: Override any possible browser default or other CSS */
-html body div .chart-controls select#timeRange option[selected],
-html body div .chart-controls select#timeRange option:checked,
-html body div .trade-controls select#tradeLimit option[selected],
-html body div .trade-controls select#tradeLimit option:checked,
-html body select#timeRange option[selected],
-html body select#timeRange option:checked,
-html body select#tradeLimit option[selected],
-html body select#tradeLimit option:checked {
-    background: rgba(88, 166, 255, 0.5) !important;
-    background-color: rgba(88, 166, 255, 0.5) !important;
-    color: #ffffff !important;
-    font-weight: 600 !important;
-}
-
-html body div .chart-controls select#timeRange option[selected]:hover,
-html body div .chart-controls select#timeRange option:checked:hover,
-html body div .trade-controls select#tradeLimit option[selected]:hover,
-html body div .trade-controls select#tradeLimit option:checked:hover,
-html body select#timeRange option[selected]:hover,
-html body select#timeRange option:checked:hover,
-html body select#tradeLimit option[selected]:hover,
-html body select#tradeLimit option:checked:hover {
-    background: rgba(88, 166, 255, 0.6) !important;
-    background-color: rgba(88, 166, 255, 0.6) !important;
-    color: #ffffff !important;
-    font-weight: 600 !important;
-}
-
-.results-chart-container {
-    position: relative;
-    height: 350px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow: visible;
-}
-
-.chart-stats-overlay {
-    position: absolute;
-    bottom: 15px;
-    left: 50%;
-    transform: translateX(-50%);
-    display: flex;
-    gap: 15px;
-    background: linear-gradient(135deg,
-        rgba(0, 0, 0, 0.4) 0%,
-        rgba(0, 0, 0, 0.6) 100%
-    );
-    backdrop-filter: blur(15px);
-    border-radius: 15px;
-    padding: 8px 16px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
-    z-index: 10;
-}
-
-.chart-stat-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 2px;
-    min-width: 45px;
-    text-align: center;
-}
-
-.stat-icon {
-    font-size: 1rem;
-    margin-bottom: 2px;
-}
-
-.win-icon {
-    color: #4ade80;
-    text-shadow: 0 0 8px rgba(74, 222, 128, 0.6);
-}
-
-.loss-icon {
-    color: #f87171;
-    text-shadow: 0 0 8px rgba(248, 113, 113, 0.6);
-}
-
-.refund-icon {
-    color: #fbbf24;
-    text-shadow: 0 0 8px rgba(251, 191, 36, 0.6);
-}
-
-.stat-label {
-    font-size: 0.6rem;
-    color: rgba(255, 255, 255, 0.7);
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-.stat-value {
-    font-size: 0.75rem;
-    font-weight: 700;
-    color: var(--text-primary);
-}
-
-.stat-percentage {
-    font-size: 0.65rem;
-    color: rgba(255, 255, 255, 0.8);
-    font-weight: 500;
-}
-
-/* Responsive adjustments for results chart */
-@media (max-width: 768px) {
-    .results-chart-header {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 10px;
-    }
-
-    .chart-control-select {
-        width: 100%;
-        max-width: 160px;
-        font-size: 0.75rem;
-        padding: 6px 10px;
-        min-width: 110px;
-    }
-
-    .chart-controls {
-        width: 100%;
-        display: flex;
-        justify-content: flex-start;
-    }
-
-    .results-chart-container {
-        height: 300px;
-    }
-
-    .chart-stats-overlay {
-        position: static;
-        transform: none;
-        margin-top: 15px;
-        justify-content: center;
-        flex-wrap: wrap;
-    }
-
-    .chart-stat-item {
-        min-width: 40px;
-    }
-
-    .stat-icon {
-        font-size: 0.9rem;
-    }
-
-    .stat-label {
-        font-size: 0.55rem;
-    }
-
-    .stat-value {
-        font-size: 0.7rem;
-    }
-
-    .stat-percentage {
-        font-size: 0.6rem;
-    }
-}
-
-@media (max-width: 480px) {
-    .results-chart-container {
-        height: 250px;
-    }
-
-    .chart-stats-overlay {
-        gap: 10px;
-        padding: 6px 12px;
-    }
-
-    .chart-stat-item {
-        min-width: 35px;
-    }
-
-    .chart-control-select {
-        font-size: 0.7rem;
-        padding: 5px 8px;
-        min-width: 100px;
-        max-width: 140px;
-    }
-
-    .results-chart-header {
-        margin-bottom: 15px;
-        gap: 10px;
-    }
-}
-
 .chart-controls {
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
-    align-items: center;
 }
-
-/* Removed duplicate styling - now handled by .chart-controls select, .trade-controls select */
 
 @media (min-width: 768px) {
     .chart-controls {
@@ -1401,199 +679,86 @@ html body select#tradeLimit option:checked:hover {
 
 .chart-controls select,
 .trade-controls select {
-    background: linear-gradient(135deg,
-        rgba(255, 255, 255, 0.12) 0%,
-        rgba(79, 172, 254, 0.08) 100%
-    );
-    color: var(--text-primary);
-    border: 1px solid rgba(79, 172, 254, 0.3);
-    border-radius: 10px;
-    padding: 8px 12px;
-    font-size: 0.8rem;
-    font-weight: 600;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    min-width: 130px;
+    padding: 14px 18px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: var(--border-radius-small);
+    background: rgba(255, 255, 255, 0.1);
     backdrop-filter: blur(15px);
-    cursor: pointer;
-    position: relative;
-    z-index: 150;
+    color: #ffffff;
+    font-size: 0.9rem;
+    font-weight: 600;
     -webkit-appearance: none;
     -moz-appearance: none;
     appearance: none;
-    /* Dropdown arrow removed */
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1),
-                inset 0 1px 0 rgba(255, 255, 255, 0.1);
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    letter-spacing: 0.5px;
-    text-transform: capitalize;
-    flex: 1;
-    min-height: 44px;
+    cursor: pointer;
+    min-height: 48px;
     touch-action: manipulation;
+    transition: var(--transition);
+    position: relative;
+    z-index: 1;
+    flex: 1;
+    min-width: 130px;
 }
-
-/* Dropdown arrow is now handled by background-image */
 
 @media (min-width: 768px) {
     .chart-controls select,
     .trade-controls select,
     .trade-controls button {
         font-size: 0.9rem;
-        padding: 12px 18px;
+        padding: 10px 16px;
         flex: none;
         min-width: auto;
     }
-    
-    .trade-controls button {
-        min-width: 120px;
-    }
 }
 
-@media (max-width: 767px) {
-    .trade-controls {
-        flex-direction: column;
-        gap: 8px;
-        align-items: stretch;
-    }
-    
-    .chart-controls {
-        flex-direction: column;
-        gap: 8px;
-        align-items: stretch;
-    }
-    
-    .chart-controls select,
-    .trade-controls select,
-    .trade-controls button {
-        width: 100%;
-        min-width: auto;
-        font-size: 0.75rem;
-        padding: 6px 10px;
-    }
+.chart-controls select:hover,
+.trade-controls select:hover,
+.trade-controls button {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    color: #ffffff;
+    font-weight: 700;
+    box-shadow: 0 4px 15px rgba(79, 172, 254, 0.3);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
-/* Hover effects removed */
+.trade-controls button:hover {
+    background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%);
+    border-color: rgba(255, 255, 255, 0.5);
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: 0 6px 20px rgba(79, 172, 254, 0.4);
+}
 
-/* Hover effects removed */
-
-/* Hover effects removed */
+.chart-controls select:hover,
+.trade-controls select:hover {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.4);
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
 
 .chart-controls select:active,
-.trade-controls select:active {
-    transform: translateY(0) scale(0.98);
-    box-shadow:
-        0 2px 8px rgba(0, 0, 0, 0.2),
-        inset 0 1px 0 rgba(255, 255, 255, 0.1);
-}
-
+.trade-controls select:active,
 .trade-controls button:active {
     transform: translateY(0);
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
 }
 
 @media (min-width: 768px) {
-    /* Hover effects removed */
+    .chart-controls select:hover,
+    .trade-controls select:hover,
+    .trade-controls button:hover {
+        transform: translateY(-2px) scale(1.02);
+    }
 }
 
 .chart-controls select:focus,
 .trade-controls select:focus,
 .trade-controls button:focus {
     outline: none;
-    border-color: #58a6ff;
+    border-color: rgba(255, 255, 255, 0.6);
     box-shadow:
-        0 0 0 3px rgba(88, 166, 255, 0.3),
-        0 8px 25px rgba(88, 166, 255, 0.2),
-        inset 0 1px 0 rgba(255, 255, 255, 0.15);
-    background: linear-gradient(135deg,
-        rgba(88, 166, 255, 0.15) 0%,
-        rgba(79, 172, 254, 0.1) 100%
-    );
-    transform: translateY(-1px);
-}
-
-.chart-controls select:hover,
-.trade-controls select:hover {
-    border-color: rgba(88, 166, 255, 0.5);
-    background: linear-gradient(135deg,
-        rgba(88, 166, 255, 0.12) 0%,
-        rgba(79, 172, 254, 0.08) 100%
-    );
-    box-shadow:
-        0 6px 20px rgba(0, 0, 0, 0.15),
-        inset 0 1px 0 rgba(255, 255, 255, 0.12);
-    transform: translateY(-1px) scale(1.02);
-}
-
-.trade-controls button:hover {
-    background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%);
-    box-shadow: 0 6px 20px rgba(79, 172, 254, 0.4);
-    transform: translateY(-1px);
-}
-
-/* Custom dropdown options styling for chart and trade controls - Enhanced specificity */
-.chart-controls select option,
-.trade-controls select option {
-    background: rgba(20, 25, 40, 0.95) !important;
-    color: #ffffff !important;
-    padding: 8px 12px;
-    border: none;
-    font-weight: 500;
-    backdrop-filter: blur(10px);
-}
-
-.chart-controls select option[selected],
-.chart-controls select option:checked,
-.trade-controls select option[selected],
-.trade-controls select option:checked {
-    background: linear-gradient(135deg,
-        rgba(88, 166, 255, 0.5) 0%,
-        rgba(79, 172, 254, 0.4) 100%
-    ) !important;
-    color: #ffffff !important;
-    font-weight: 600 !important;
-}
-
-.chart-controls select option:hover,
-.trade-controls select option:hover {
-    background: linear-gradient(135deg,
-        rgba(88, 166, 255, 0.2) 0%,
-        rgba(79, 172, 254, 0.1) 100%
-    ) !important;
-    color: #ffffff !important;
-}
-
-/* Override hover for selected options */
-.chart-controls select option[selected]:hover,
-.chart-controls select option:checked:hover,
-.trade-controls select option[selected]:hover,
-.trade-controls select option:checked:hover {
-    background: linear-gradient(135deg,
-        rgba(88, 166, 255, 0.6) 0%,
-        rgba(79, 172, 254, 0.5) 100%
-    ) !important;
-    color: #ffffff !important;
-    font-weight: 600 !important;
-}
-
-.chart-controls select option:focus,
-.trade-controls select option:focus {
-    background: linear-gradient(135deg,
-        rgba(88, 166, 255, 0.25) 0%,
-        rgba(79, 172, 254, 0.15) 100%
-    ) !important;
-    color: #ffffff !important;
-}
-
-/* Firefox specific styling for chart and trade controls */
-@-moz-document url-prefix() {
-    .chart-controls select,
-    .trade-controls select {
-        /* Background image already removed globally */
-    }
-}
-
-.trade-controls button:active {
-    transform: translateY(0);
-    box-shadow: 0 2px 8px rgba(79, 172, 254, 0.3);
+        0 0 0 3px rgba(255, 255, 255, 0.2),
+        var(--shadow-primary);
 }
 
 .chart-container {
@@ -1612,19 +777,6 @@ html body select#tradeLimit option:checked:hover {
 /* Trades Card */
 .trades-card {
     grid-column: span 1;
-    position: relative;
-    overflow: hidden;
-}
-
-.trades-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(79, 172, 254, 0.5), transparent);
-    opacity: 0.6;
 }
 
 @media (min-width: 1024px) {
@@ -1639,83 +791,11 @@ html body select#tradeLimit option:checked:hover {
     align-items: center;
 }
 
-.trade-controls button {
-    padding: 12px 18px;
-    border: 1px solid rgba(79, 172, 254, 0.3);
-    border-radius: 8px;
-    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-    color: #ffffff;
-    font-size: 0.85rem;
-    font-weight: 600;
-    cursor: pointer;
-    min-height: 44px;
-    touch-action: manipulation;
-    transition: all 0.2s ease;
-    position: relative;
-    z-index: 1;
-    flex: 1;
-    min-width: 100px;
-    box-shadow: 0 4px 15px rgba(79, 172, 254, 0.3);
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
-}
-
-.trade-controls button::before {
-    content: '🔄';
-    margin-right: 6px;
-    font-size: 0.9rem;
-}
-
 .trades-container {
     max-height: 400px;
     overflow-y: auto;
     margin-top: 15px;
     -webkit-overflow-scrolling: touch;
-    padding-right: 8px;
-    margin-right: -8px;
-}
-
-/* Custom Scrollbar for Trades Container */
-.trades-container::-webkit-scrollbar {
-    width: 12px;
-}
-
-.trades-container::-webkit-scrollbar-track {
-    background: rgba(255, 255, 255, 0.03);
-    border-radius: 15px;
-    margin: 10px 0;
-    border: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-.trades-container::-webkit-scrollbar-thumb {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    border-radius: 15px;
-    border: 2px solid rgba(0, 0, 0, 0.1);
-    box-shadow: 
-        0 4px 15px rgba(102, 126, 234, 0.4),
-        inset 0 1px 0 rgba(255, 255, 255, 0.1);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.trades-container::-webkit-scrollbar-thumb:hover {
-    background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
-    box-shadow: 
-        0 6px 20px rgba(102, 126, 234, 0.6),
-        inset 0 1px 0 rgba(255, 255, 255, 0.2);
-    transform: scale(1.05);
-}
-
-.trades-container::-webkit-scrollbar-thumb:active {
-    background: linear-gradient(135deg, #5a67d8 0%, #667eea 100%);
-    box-shadow: 
-        0 2px 10px rgba(102, 126, 234, 0.8),
-        inset 0 1px 0 rgba(255, 255, 255, 0.3);
-    transform: scale(0.95);
-}
-
-/* Firefox scrollbar */
-.trades-container {
-    scrollbar-width: thin;
-    scrollbar-color: #667eea rgba(255, 255, 255, 0.03);
 }
 
 @media (min-width: 768px) {
@@ -1738,40 +818,26 @@ html body select#tradeLimit option:checked:hover {
     transition: var(--transition);
     position: relative;
     overflow: hidden;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-.trade-item::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 2px;
-    background: linear-gradient(90deg, transparent, rgba(79, 172, 254, 0.3), transparent);
-    border-radius: var(--border-radius-small) var(--border-radius-small) 0 0;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-}
-
-.trade-item:hover::after {
-    opacity: 1;
 }
 
 @media (min-width: 768px) {
     .trade-item {
         display: grid;
-        grid-template-columns: minmax(80px, 1fr) minmax(60px, 80px) minmax(80px, 100px) minmax(100px, 1fr) minmax(100px, 1fr) 2fr auto;
+        grid-template-columns: 120px 80px 100px 120px 120px 1fr auto;
         gap: 15px;
         align-items: center;
         padding: 15px;
         font-size: 0.9rem;
-        max-width: 100%;
-        overflow-x: auto;
     }
 }
 
-/* Hover effects removed */
+.trade-item:hover,
+.trade-item:active {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.3);
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-primary);
+}
 
 .trade-item::before {
     content: '';
@@ -1784,17 +850,20 @@ html body select#tradeLimit option:checked:hover {
     transition: left 0.6s ease;
 }
 
-/* Hover effects removed */
+.trade-item:hover::before {
+    left: 100%;
+}
 
 @media (min-width: 768px) {
-    /* Hover effects removed */
+    .trade-item:hover {
+        transform: translateY(-2px);
+    }
 }
 
 .trade-time {
-    color: rgba(230, 237, 243, 0.9);
-    font-size: 0.8rem;
+    color: rgba(230, 237, 243, 0.6);
+    font-size: 0.75rem;
     margin-bottom: 4px;
-    font-weight: 500;
 }
 
 @media (min-width: 768px) {
@@ -1878,25 +947,30 @@ html body select#tradeLimit option:checked:hover {
 
 .trade-delta {
     font-weight: 600;
-    font-size: 0.85rem;
 }
 
 .trade-delta.positive {
-    color: #00ff88;
-    text-shadow: 0 0 8px rgba(0, 255, 136, 0.5);
-    font-weight: 700;
+    background: var(--success-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-shadow: 0 0 8px rgba(79, 172, 254, 0.4);
 }
 
 .trade-delta.negative {
-    color: #ff4757;
-    text-shadow: 0 0 8px rgba(255, 71, 87, 0.5);
-    font-weight: 700;
+    background: var(--danger-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-shadow: 0 0 8px rgba(250, 112, 154, 0.4);
 }
 
 .trade-delta.neutral {
-    color: #ffa502;
-    text-shadow: 0 0 8px rgba(255, 165, 2, 0.5);
-    font-weight: 700;
+    background: var(--warning-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-shadow: 0 0 8px rgba(255, 236, 210, 0.4);
 }
 
 /* Mobile Trade Styles - Dark Theme */
@@ -1910,7 +984,11 @@ html body select#tradeLimit option:checked:hover {
     transition: var(--transition);
 }
 
-/* Hover effects removed */
+.mobile-trade:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-primary);
+    background: rgba(255, 255, 255, 0.15);
+}
 
 .trade-header {
     display: flex;
@@ -1932,13 +1010,12 @@ html body select#tradeLimit option:checked:hover {
     display: flex;
     align-items: center;
     gap: 6px;
-    font-size: 0.85rem;
-    color: rgba(255, 255, 255, 0.95);
-    font-weight: 500;
+    font-size: 0.8rem;
+    color: rgba(230, 237, 243, 0.9);
 }
 
 .detail-label {
-    color: rgba(230, 237, 243, 0.8);
+    color: rgba(230, 237, 243, 0.6);
     font-weight: 600;
     min-width: 35px;
 }
@@ -2109,10 +1186,17 @@ html body select#tradeLimit option:checked:hover {
     }
 }
 
-/* Hover effects removed */
+.close:hover,
+.close:active {
+    color: rgba(230, 237, 243, 0.95);
+    background: rgba(88, 166, 255, 0.2);
+    transform: scale(1.05);
+}
 
 @media (min-width: 768px) {
-    /* Hover effects removed */
+    .close:hover {
+        transform: scale(1.1);
+    }
 }
 
 .form-group {
@@ -2153,7 +1237,7 @@ html body select#tradeLimit option:checked:hover {
     outline: none;
     border-color: rgba(255, 255, 255, 0.6);
     background: rgba(255, 255, 255, 0.15);
-    box-shadow: 
+    box-shadow:
         0 0 0 3px rgba(255, 255, 255, 0.2),
         var(--shadow-primary);
 }
@@ -2187,13 +1271,24 @@ html body select#tradeLimit option:checked:hover {
     transition: left 0.6s ease;
 }
 
-/* Hover effects removed */
-
-@media (min-width: 768px) {
-    /* Hover effects removed */
+.form-group button:hover,
+.form-group button:active {
+    background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%);
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 6px 20px rgba(79, 172, 254, 0.4);
+    border-color: rgba(255, 255, 255, 0.5);
 }
 
-/* Hover effects removed */
+@media (min-width: 768px) {
+    .form-group button:hover {
+        transform: translateY(-2px) scale(1.02);
+        padding: 16px 30px;
+    }
+}
+
+.form-group button:hover::before {
+    left: 100%;
+}
 
 /* Loading */
 .loading {
@@ -2301,7 +1396,7 @@ html body select#tradeLimit option:checked:hover {
 
     .stats-grid {
         grid-template-columns: repeat(2, 1fr);
-        gap: 12px;
+        gap: 10px;
     }
 
     .card {
@@ -2378,338 +1473,11 @@ html body select#tradeLimit option:checked:hover {
 .loading {
     opacity: 0;
     animation: fadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1) 0.2s forwards;
-    text-align: center;
-    padding: 40px 20px;
-    color: rgba(255, 255, 255, 0.7);
-    font-size: 0.9rem;
-    background: linear-gradient(135deg, rgba(79, 172, 254, 0.05), rgba(0, 242, 254, 0.02));
-    border-radius: var(--border-radius-small);
-    border: 1px solid rgba(79, 172, 254, 0.1);
-    margin: 20px 0;
-}
-
-.loading::before {
-    content: '⏳';
-    display: block;
-    font-size: 2rem;
-    margin-bottom: 10px;
-    opacity: 0.8;
-}
-
-/* Empty state styling */
-.trades-container .empty-state {
-    text-align: center;
-    padding: 60px 20px;
-    color: rgba(255, 255, 255, 0.6);
-    font-size: 0.9rem;
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.02), rgba(79, 172, 254, 0.02));
-    border-radius: var(--border-radius-small);
-    border: 1px dashed rgba(255, 255, 255, 0.1);
-    margin: 20px 0;
-}
-
-.empty-state::before {
-    content: '📊';
-    display: block;
-    font-size: 3rem;
-    margin-bottom: 15px;
-    opacity: 0.5;
-}
-
-.empty-state h4 {
-    margin: 0 0 10px 0;
-    color: rgba(255, 255, 255, 0.8);
-    font-size: 1.1rem;
-}
-
-.empty-state p {
-    margin: 0;
-    font-size: 0.85rem;
-    line-height: 1.4;
 }
 
 /* Animation keyframes for smooth updates */
 @keyframes fadeIn {
     to { opacity: 1; }
-}
-
-@keyframes slideInUp {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-@keyframes pulse {
-    0%, 100% {
-        opacity: 1;
-    }
-    50% {
-        opacity: 0.7;
-    }
-}
-
-/* Smooth scroll behavior */
-.trades-container {
-    scroll-behavior: smooth;
-}
-
-/* Global Custom Scrollbar */
-::-webkit-scrollbar {
-    width: 14px;
-}
-
-::-webkit-scrollbar-track {
-    background: rgba(255, 255, 255, 0.02);
-    border-radius: 20px;
-    margin: 5px;
-}
-
-::-webkit-scrollbar-thumb {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    border-radius: 20px;
-    border: 3px solid rgba(0, 0, 0, 0.1);
-    box-shadow: 
-        0 4px 20px rgba(102, 126, 234, 0.3),
-        inset 0 1px 0 rgba(255, 255, 255, 0.1);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-::-webkit-scrollbar-thumb:hover {
-    background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
-    box-shadow: 
-        0 6px 25px rgba(102, 126, 234, 0.5),
-        inset 0 1px 0 rgba(255, 255, 255, 0.2);
-    transform: scale(1.02);
-}
-
-::-webkit-scrollbar-thumb:active {
-    background: linear-gradient(135deg, #5a67d8 0%, #667eea 100%);
-    box-shadow: 
-        0 2px 15px rgba(102, 126, 234, 0.7),
-        inset 0 1px 0 rgba(255, 255, 255, 0.3);
-    transform: scale(0.98);
-}
-
-/* Firefox global scrollbar */
-* {
-    scrollbar-width: thin;
-    scrollbar-color: #667eea rgba(255, 255, 255, 0.02);
-}
-
-/* Special scrollbar for chart containers */
-.chart-container::-webkit-scrollbar {
-    width: 10px;
-}
-
-.chart-container::-webkit-scrollbar-track {
-    background: rgba(255, 255, 255, 0.05);
-    border-radius: 12px;
-    margin: 8px 0;
-}
-
-.chart-container::-webkit-scrollbar-thumb {
-    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-    border-radius: 12px;
-    border: 2px solid rgba(0, 0, 0, 0.1);
-    box-shadow: 0 3px 12px rgba(79, 172, 254, 0.4);
-    transition: all 0.3s ease;
-}
-
-.chart-container::-webkit-scrollbar-thumb:hover {
-    background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%);
-    box-shadow: 0 4px 16px rgba(79, 172, 254, 0.6);
-    transform: scale(1.05);
-}
-
-/* Scrollbar animation on scroll */
-@keyframes scrollbarGlow {
-    0% { box-shadow: 0 4px 20px rgba(102, 126, 234, 0.3); }
-    50% { box-shadow: 0 6px 25px rgba(102, 126, 234, 0.6); }
-    100% { box-shadow: 0 4px 20px rgba(102, 126, 234, 0.3); }
-}
-
-.trades-container::-webkit-scrollbar-thumb {
-    animation: scrollbarGlow 3s ease-in-out infinite;
-}
-
-/* Mobile scrollbar optimization */
-@media (max-width: 768px) {
-    ::-webkit-scrollbar {
-        width: 8px;
-    }
-    
-    .trades-container::-webkit-scrollbar {
-        width: 6px;
-    }
-    
-    .chart-container::-webkit-scrollbar {
-        width: 6px;
-    }
-}
-
-/* Scrollbar corner styling */
-::-webkit-scrollbar-corner {
-    background: rgba(255, 255, 255, 0.02);
-}
-
-/* Smooth scroll behavior for all elements */
-* {
-    scroll-behavior: smooth;
-}
-
-/* Custom scrollbar for specific containers */
-.card::-webkit-scrollbar {
-    width: 8px;
-}
-
-.card::-webkit-scrollbar-track {
-    background: rgba(255, 255, 255, 0.03);
-    border-radius: 10px;
-    margin: 5px 0;
-}
-
-.card::-webkit-scrollbar-thumb {
-    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-    border-radius: 10px;
-    border: 2px solid rgba(0, 0, 0, 0.1);
-    box-shadow: 0 2px 8px rgba(240, 147, 251, 0.3);
-    transition: all 0.3s ease;
-}
-
-.card::-webkit-scrollbar-thumb:hover {
-    background: linear-gradient(135deg, #f5576c 0%, #f093fb 100%);
-    box-shadow: 0 4px 12px rgba(240, 147, 251, 0.5);
-    transform: scale(1.05);
-}
-
-/* Special scrollbar for balance and stats cards */
-.balance-card::-webkit-scrollbar-thumb,
-.stats-card::-webkit-scrollbar-thumb {
-    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-    box-shadow: 0 2px 8px rgba(79, 172, 254, 0.3);
-}
-
-.balance-card::-webkit-scrollbar-thumb:hover,
-.stats-card::-webkit-scrollbar-thumb:hover {
-    background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%);
-    box-shadow: 0 4px 12px rgba(79, 172, 254, 0.5);
-}
-
-/* Scrollbar for chart cards */
-.chart-card::-webkit-scrollbar-thumb {
-    background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
-    box-shadow: 0 2px 8px rgba(250, 112, 154, 0.3);
-}
-
-.chart-card::-webkit-scrollbar-thumb:hover {
-    background: linear-gradient(135deg, #fee140 0%, #fa709a 100%);
-    box-shadow: 0 4px 12px rgba(250, 112, 154, 0.5);
-}
-
-/* Scrollbar for trades card */
-.trades-card::-webkit-scrollbar-thumb {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
-}
-
-.trades-card::-webkit-scrollbar-thumb:hover {
-    background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
-    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.5);
-}
-
-/* Scrollbar for performance stats */
-.performance-stats::-webkit-scrollbar-thumb {
-    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-    box-shadow: 0 2px 8px rgba(79, 172, 254, 0.3);
-}
-
-.performance-stats::-webkit-scrollbar-thumb:hover {
-    background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%);
-    box-shadow: 0 4px 12px rgba(79, 172, 254, 0.5);
-}
-
-/* Scrollbar for balance controls */
-.balance-controls::-webkit-scrollbar-thumb {
-    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-    box-shadow: 0 2px 8px rgba(240, 147, 251, 0.3);
-}
-
-.balance-controls::-webkit-scrollbar-thumb:hover {
-    background: linear-gradient(135deg, #f5576c 0%, #f093fb 100%);
-    box-shadow: 0 4px 12px rgba(240, 147, 251, 0.5);
-}
-
-/* Scrollbar for dashboard grid */
-.dashboard-grid::-webkit-scrollbar-thumb {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
-}
-
-.dashboard-grid::-webkit-scrollbar-thumb:hover {
-    background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
-    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.5);
-}
-
-/* Scrollbar for main dashboard */
-.dashboard::-webkit-scrollbar-thumb {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
-}
-
-.dashboard::-webkit-scrollbar-thumb:hover {
-    background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
-    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.5);
-}
-
-/* Scrollbar for body */
-body::-webkit-scrollbar-thumb {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
-}
-
-body::-webkit-scrollbar-thumb:hover {
-    background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
-    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.5);
-}
-
-/* Scrollbar for html */
-html::-webkit-scrollbar-thumb {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
-}
-
-html::-webkit-scrollbar-thumb:hover {
-    background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
-    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.5);
-}
-
-/* Scrollbar for main content */
-.main-content::-webkit-scrollbar-thumb {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
-}
-
-.main-content::-webkit-scrollbar-thumb:hover {
-    background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
-    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.5);
-}
-
-/* Trade item animations */
-.trade-item {
-    animation: slideInUp 0.3s ease-out;
-}
-
-.trade-item:nth-child(even) {
-    animation-delay: 0.1s;
-}
-
-.trade-item:nth-child(odd) {
-    animation-delay: 0.05s;
 }
 
 @keyframes statUpdate {
@@ -2773,7 +1541,10 @@ html::-webkit-scrollbar-thumb:hover {
     box-shadow: var(--shadow-primary);
 }
 
-/* Hover effects removed */
+.theme-toggle:hover {
+    transform: scale(1.1);
+    box-shadow: var(--shadow-hover);
+}
 
 .theme-toggle svg {
     width: 24px;
@@ -2835,1265 +1606,6 @@ body.light-mode .form-group button {
     color: white;
 }
 
-/* New Balance Card Design */
-.balance-card {
-    position: relative;
-    overflow: visible;
-}
-
-.balance-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 20px;
-    padding-bottom: 15px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    position: relative;
-    z-index: 1;
-}
-
-.balance-title-section {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
-
-.balance-icon {
-    font-size: 2rem;
-    background: linear-gradient(135deg, #ffd700, #ffed4e);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    filter: drop-shadow(0 2px 4px rgba(255, 215, 0, 0.3));
-}
-
-.balance-title h3 {
-    margin: 0;
-    font-size: 1.2rem;
-    font-weight: 700;
-    color: var(--text-primary);
-    line-height: 1.2;
-}
-
-.balance-subtitle {
-    font-size: 0.75rem;
-    color: rgba(255, 255, 255, 0.6);
-    font-weight: 500;
-    margin-top: 2px;
-    display: block;
-    transition: var(--transition);
-}
-
-.balance-subtitle.real-mode {
-    color: #4caf50;
-    font-weight: 600;
-}
-
-.balance-subtitle.demo-mode {
-    color: #ff9800;
-    font-weight: 600;
-}
-
-.balance-controls {
-    display: flex;
-    flex-direction: row;
-    gap: 20px;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-    z-index: 100;
-    margin-bottom: 24px;
-    padding: 20px 24px;
-    overflow: visible;
-    min-width: 0;
-    background: linear-gradient(145deg,
-        rgba(255, 255, 255, 0.12) 0%,
-        rgba(255, 255, 255, 0.06) 100%);
-    border-radius: 20px;
-    backdrop-filter: blur(20px);
-    border: 2px solid rgba(255, 255, 255, 0.2);
-    box-shadow:
-        0 0 0 1px rgba(255, 255, 255, 0.1),
-        0 12px 40px rgba(0, 0, 0, 0.25),
-        inset 0 1px 0 rgba(255, 255, 255, 0.2);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.control-group {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 10px;
-    background: linear-gradient(145deg,
-        rgba(255, 255, 255, 0.15) 0%,
-        rgba(255, 255, 255, 0.08) 100%);
-    border: 2px solid rgba(255, 255, 255, 0.25);
-    border-radius: 16px;
-    padding: 18px 20px;
-    backdrop-filter: blur(15px);
-    box-shadow:
-        0 0 0 1px rgba(255, 255, 255, 0.1),
-        0 8px 32px rgba(0, 0, 0, 0.2),
-        inset 0 1px 0 rgba(255, 255, 255, 0.3);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    min-width: 130px;
-    flex: 1;
-    max-width: 180px;
-    position: relative;
-    z-index: 101;
-    overflow: visible;
-}
-
-.control-group:hover {
-    background: linear-gradient(145deg, rgba(255, 255, 255, 0.12) 0%, rgba(79, 172, 254, 0.08) 100%);
-    border-color: rgba(79, 172, 254, 0.3);
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.18),
-                0 0 0 1px rgba(79, 172, 254, 0.15),
-                inset 0 1px 0 rgba(255, 255, 255, 0.2);
-    transform: translateY(-3px) scale(1.02);
-}
-
-.control-label {
-    font-size: 0.8rem;
-    color: #ffffff;
-    font-weight: 800;
-    white-space: nowrap;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    margin-bottom: 4px;
-    text-align: center;
-    text-shadow:
-        0 0 10px rgba(255, 255, 255, 0.5),
-        0 2px 4px rgba(0, 0, 0, 0.8);
-}
-
-.control-select,
-.control-input {
-    background: linear-gradient(135deg,
-        rgba(255, 255, 255, 0.2) 0%,
-        rgba(255, 255, 255, 0.1) 100%);
-    color: #ffffff;
-    border: 2px solid rgba(255, 255, 255, 0.3);
-    border-radius: 12px;
-    padding: 10px 14px;
-    font-size: 0.85rem;
-    font-weight: 700;
-    width: 100%;
-    backdrop-filter: blur(10px);
-    position: relative;
-    z-index: 102;
-    pointer-events: auto;
-    cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow:
-        0 0 0 1px rgba(255, 255, 255, 0.1),
-        0 4px 20px rgba(0, 0, 0, 0.15),
-        inset 0 1px 0 rgba(255, 255, 255, 0.2);
-    text-align: center;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
-    overflow: visible;
-    white-space: nowrap;
-    text-overflow: unset;
-    min-width: 0;
-}
-
-.control-select:focus,
-.control-input:focus {
-    outline: none;
-    border-color: #4facfe;
-    box-shadow: 
-        0 0 0 3px rgba(79, 172, 254, 0.2),
-        0 4px 15px rgba(79, 172, 254, 0.3);
-    background: linear-gradient(135deg, rgba(79, 172, 254, 0.1) 0%, rgba(79, 172, 254, 0.05) 100%);
-    transform: translateY(-1px);
-}
-
-.control-select:hover,
-.control-input:hover {
-    border-color: rgba(79, 172, 254, 0.4);
-    background: linear-gradient(135deg, rgba(79, 172, 254, 0.15) 0%, rgba(255, 255, 255, 0.1) 100%);
-    box-shadow: 0 6px 24px rgba(79, 172, 254, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.2);
-    transform: translateY(-1px) scale(1.02);
-}
-
-.control-select:active,
-.control-input:active {
-    transform: scale(0.98) translateY(0);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-}
-
-/* Custom checkbox styling */
-.inline-option {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-top: 10px;
-    padding: 8px 12px;
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 10px;
-    backdrop-filter: blur(10px);
-    transition: all 0.3s ease;
-    width: 100%;
-    justify-content: center;
-    position: relative;
-    z-index: 103;
-}
-
-.inline-option:hover {
-    background: rgba(255, 255, 255, 0.06);
-    border-color: rgba(255, 255, 255, 0.2);
-}
-
-.inline-option input[type="checkbox"] {
-    width: 18px;
-    height: 18px;
-    cursor: pointer;
-    appearance: none;
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
-    border: 2px solid rgba(255, 255, 255, 0.3);
-    border-radius: 6px;
-    position: relative;
-    z-index: 104;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-.inline-option input[type="checkbox"]:hover {
-    border-color: rgba(79, 172, 254, 0.5);
-    background: linear-gradient(135deg, rgba(79, 172, 254, 0.1) 0%, rgba(79, 172, 254, 0.05) 100%);
-    box-shadow: 0 4px 12px rgba(79, 172, 254, 0.2);
-}
-
-.inline-option input[type="checkbox"]:checked {
-    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-    border-color: #4facfe;
-    box-shadow: 0 4px 15px rgba(79, 172, 254, 0.4);
-}
-
-.inline-option input[type="checkbox"]:checked::after {
-    content: '✓';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    color: white;
-    font-size: 12px;
-    font-weight: bold;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
-}
-
-.inline-option label {
-    font-size: 0.7rem;
-    cursor: pointer;
-    opacity: 0.9;
-    color: rgba(255, 255, 255, 0.8);
-    font-weight: 500;
-    transition: all 0.3s ease;
-}
-
-.inline-option:hover label {
-    opacity: 1;
-    color: rgba(255, 255, 255, 0.95);
-}
-
-/* Special effects for controls */
-.control-group::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(135deg, rgba(79, 172, 254, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
-    border-radius: 12px;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-    z-index: -1;
-}
-
-.control-group:hover::before {
-    opacity: 1;
-}
-
-/* Animation for control groups */
-@keyframes controlGroupGlow {
-    0% { box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); }
-    50% { box-shadow: 0 6px 25px rgba(79, 172, 254, 0.2); }
-    100% { box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); }
-}
-
-.control-group {
-    animation: controlGroupGlow 4s ease-in-out infinite;
-}
-
-/* Special styling for mode selector */
-#viewMode {
-    background: linear-gradient(135deg, rgba(79, 172, 254, 0.1) 0%, rgba(0, 242, 254, 0.1) 100%);
-    border-color: rgba(79, 172, 254, 0.3);
-}
-
-#viewMode:hover {
-    background: linear-gradient(135deg, rgba(79, 172, 254, 0.2) 0%, rgba(0, 242, 254, 0.2) 100%);
-    border-color: rgba(79, 172, 254, 0.5);
-}
-
-#viewMode:focus {
-    background: linear-gradient(135deg, rgba(79, 172, 254, 0.15) 0%, rgba(0, 242, 254, 0.15) 100%);
-    border-color: #4facfe;
-}
-
-/* Special styling for date input */
-#historyDate {
-    background: linear-gradient(135deg, rgba(240, 147, 251, 0.1) 0%, rgba(245, 87, 108, 0.1) 100%);
-    border-color: rgba(240, 147, 251, 0.3);
-}
-
-#historyDate:hover {
-    background: linear-gradient(135deg, rgba(240, 147, 251, 0.2) 0%, rgba(245, 87, 108, 0.2) 100%);
-    border-color: rgba(240, 147, 251, 0.5);
-}
-
-#historyDate:focus {
-    background: linear-gradient(135deg, rgba(240, 147, 251, 0.15) 0%, rgba(245, 87, 108, 0.15) 100%);
-    border-color: #f093fb;
-}
-
-/* Special styling for checkbox container */
-.inline-option {
-    background: linear-gradient(135deg, rgba(79, 172, 254, 0.05) 0%, rgba(0, 242, 254, 0.05) 100%);
-    border-color: rgba(79, 172, 254, 0.2);
-}
-
-.inline-option:hover {
-    background: linear-gradient(135deg, rgba(79, 172, 254, 0.1) 0%, rgba(0, 242, 254, 0.1) 100%);
-    border-color: rgba(79, 172, 254, 0.3);
-}
-
-/* Icon styling for controls */
-.control-group::after {
-    content: '';
-    position: absolute;
-    top: 8px;
-    right: 8px;
-    width: 6px;
-    height: 6px;
-    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-    border-radius: 50%;
-    opacity: 0.6;
-    transition: all 0.3s ease;
-}
-
-.control-group:hover::after {
-    opacity: 1;
-    transform: scale(1.2);
-    box-shadow: 0 0 10px rgba(79, 172, 254, 0.5);
-}
-
-/* Special animation for mode selector */
-/* Removed duplicate z-index rule - using unified system instead */
-
-#viewMode option {
-    background: rgba(0, 0, 0, 0.95);
-    color: white;
-    padding: 8px 12px;
-    border: none;
-    font-size: 0.85rem;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-#viewMode option:hover,
-#viewMode option:focus {
-    background: rgba(79, 172, 254, 0.8);
-    color: white;
-}
-
-#viewMode option:checked,
-#viewMode option:selected {
-    background: rgba(79, 172, 254, 0.9);
-    color: white;
-}
-
-/* Ensure dropdown container doesn't clip - Updated for new structure */
-.control-item {
-    position: relative;
-    z-index: 102;
-    overflow: visible !important;
-}
-
-.control-select,
-.control-input {
-    position: relative;
-    z-index: 103;
-    overflow: visible !important;
-}
-
-/* Special animation for date input */
-#historyDate::-webkit-calendar-picker-indicator {
-    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-    border-radius: 4px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-#historyDate::-webkit-calendar-picker-indicator:hover {
-    background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%);
-    transform: scale(1.1);
-}
-
-/* Special styling for Firefox */
-@-moz-document url-prefix() {
-    .control-select,
-    .control-input {
-        background: rgba(255, 255, 255, 0.1);
-        border: 2px solid rgba(255, 255, 255, 0.2);
-    }
-    
-    .control-select:focus,
-    .control-input:focus {
-        border-color: #4facfe;
-        box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.2);
-    }
-}
-
-/* Special styling for Safari */
-@supports (-webkit-appearance: none) {
-    .control-select,
-    .control-input {
-        -webkit-appearance: none;
-        appearance: none;
-    }
-}
-
-/* Special styling for Edge */
-@supports (-ms-ime-align: auto) {
-    .control-select,
-    .control-input {
-        background: rgba(255, 255, 255, 0.1);
-        border: 2px solid rgba(255, 255, 255, 0.2);
-    }
-}
-
-/* Special styling for Chrome */
-@supports (-webkit-appearance: none) and (not (-ms-ime-align: auto)) {
-    .control-select,
-    .control-input {
-        -webkit-appearance: none;
-        appearance: none;
-        background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
-        border: 2px solid rgba(255, 255, 255, 0.2);
-        border-radius: 10px;
-        padding: 8px 12px;
-        font-size: 0.75rem;
-        min-width: 100px;
-        backdrop-filter: blur(20px);
-        position: relative;
-        z-index: 10;
-        pointer-events: auto;
-        cursor: pointer;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    }
-}
-
-/* Special styling for Opera */
-@supports (-o-appearance: none) {
-    .control-select,
-    .control-input {
-        background: rgba(255, 255, 255, 0.1);
-        border: 2px solid rgba(255, 255, 255, 0.2);
-    }
-}
-
-/* Special styling for Internet Explorer */
-@media screen and (-ms-high-contrast: active), (-ms-high-contrast: none) {
-    .control-select,
-    .control-input {
-        background: rgba(255, 255, 255, 0.1);
-        border: 2px solid rgba(255, 255, 255, 0.2);
-    }
-}
-
-/* Special styling for mobile browsers */
-@media (max-width: 768px) {
-    .control-select,
-    .control-input {
-        -webkit-appearance: none;
-        appearance: none;
-        background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
-        border: 2px solid rgba(255, 255, 255, 0.2);
-        border-radius: 8px;
-        padding: 6px 8px;
-        font-size: 0.7rem;
-        min-width: 80px;
-        backdrop-filter: blur(15px);
-        position: relative;
-        z-index: 10;
-        pointer-events: auto;
-        cursor: pointer;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    }
-}
-
-.balance-main {
-    text-align: center;
-    margin: 0;
-    padding: 30px 20px;
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 20px;
-    overflow: visible;
-    min-width: 0;
-}
-
-.balance-main::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 60px;
-    height: 2px;
-    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-    border-radius: 1px;
-    opacity: 0.6;
-    animation: balanceLineGlow 3s ease-in-out infinite;
-}
-
-@keyframes balanceLineGlow {
-    0% { opacity: 0.6; width: 60px; }
-    50% { opacity: 1; width: 80px; }
-    100% { opacity: 0.6; width: 60px; }
-}
-
-/* Special styling for balance card */
-.balance-card {
-    position: relative;
-    overflow: visible;
-}
-
-.balance-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(135deg, rgba(79, 172, 254, 0.05) 0%, rgba(0, 242, 254, 0.05) 100%);
-    opacity: 0;
-    transition: opacity 0.3s ease;
-    z-index: -1;
-}
-
-.balance-card:hover::before {
-    opacity: 1;
-}
-
-/* Special alignment for balance card */
-.balance-card {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-}
-
-.balance-card > * {
-    width: 100%;
-    max-width: 100%;
-}
-
-/* Special centering for balance elements */
-.balance-controls,
-.balance-main,
-.balance-footer {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.balance-controls {
-    flex-direction: row;
-    gap: 20px;
-}
-
-.balance-main {
-    flex-direction: column;
-    gap: 12px;
-    overflow: visible;
-    min-width: 0;
-    padding: 24px;
-    background: linear-gradient(145deg,
-        rgba(255, 255, 255, 0.08) 0%,
-        rgba(255, 255, 255, 0.02) 100%);
-    border-radius: 24px;
-    backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    box-shadow:
-        0 20px 60px rgba(0, 0, 0, 0.3),
-        inset 0 1px 0 rgba(255, 255, 255, 0.1);
-    position: relative;
-}
-
-.balance-footer {
-    flex-direction: row;
-    gap: 12px;
-    margin-top: 8px;
-}
-
-/* Special responsive adjustments */
-@media (max-width: 768px) {
-    .balance-controls {
-        flex-direction: column;
-        gap: 15px;
-    }
-    
-    .balance-footer {
-        flex-direction: column;
-        gap: 15px;
-    }
-}
-
-/* Special alignment for balance elements */
-.balance-controls .control-group {
-    flex: 1;
-    max-width: 200px;
-}
-
-.balance-footer .balance-status,
-.balance-footer .balance-trend {
-    flex: 1;
-    max-width: 160px;
-    padding: 12px 16px;
-    background: linear-gradient(135deg,
-        rgba(255, 255, 255, 0.12) 0%,
-        rgba(255, 255, 255, 0.06) 100%);
-    border-radius: 14px;
-    backdrop-filter: blur(15px);
-    border: 2px solid rgba(255, 255, 255, 0.15);
-    box-shadow:
-        0 0 0 1px rgba(255, 255, 255, 0.1),
-        0 6px 20px rgba(0, 0, 0, 0.12),
-        inset 0 1px 0 rgba(255, 255, 255, 0.2);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    text-align: center;
-}
-
-/* Special mobile adjustments */
-@media (max-width: 768px) {
-    .balance-controls .control-group {
-        max-width: none;
-        width: 100%;
-    }
-    
-    .balance-footer .balance-status,
-    .balance-footer .balance-trend {
-        max-width: none;
-        width: 100%;
-    }
-}
-
-/* Special desktop adjustments */
-@media (min-width: 769px) {
-    .balance-controls {
-        justify-content: center;
-        align-items: center;
-    }
-    
-    .balance-main {
-        justify-content: center;
-        align-items: center;
-        overflow: visible;
-        min-width: 0;
-    }
-    
-    .balance-footer {
-        justify-content: center;
-        align-items: center;
-    }
-}
-
-/* Special alignment for balance card */
-.balance-card {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    justify-content: center;
-    overflow: visible;
-    min-width: 0;
-}
-
-.balance-card > * {
-    width: 100%;
-    max-width: none;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    overflow: visible;
-    min-width: 0;
-}
-
-/* Ensure controls are always clickable */
-.balance-controls-header,
-.balance-controls-row,
-.control-item,
-.control-select,
-.control-input,
-.checkbox-wrapper,
-.control-checkbox {
-    pointer-events: auto !important;
-    position: relative !important;
-}
-
-/* Clean z-index hierarchy for new structure */
-.balance-controls-header {
-    z-index: 100 !important;
-}
-
-.balance-controls-row {
-    z-index: 101 !important;
-}
-
-.control-item {
-    z-index: 102 !important;
-}
-
-.control-select,
-.control-input {
-    z-index: 103 !important;
-}
-
-.checkbox-wrapper {
-    z-index: 104 !important;
-}
-
-.control-checkbox {
-    z-index: 105 !important;
-}
-
-/* Ensure all content is fully visible - Updated for new structure */
-.balance-card,
-.balance-controls-header,
-.balance-controls-row,
-.balance-main,
-.balance-display-container,
-.balance-display,
-.control-item,
-.control-select,
-.control-input,
-.checkbox-wrapper {
-    overflow: visible !important;
-    text-overflow: unset !important;
-    max-width: none !important;
-    min-width: 0 !important;
-}
-
-/* Special responsive adjustments for content visibility */
-@media (max-width: 768px) {
-    .balance-card,
-    .balance-controls,
-    .balance-main,
-    .balance-display-container,
-    .balance-display,
-    .control-group,
-    .control-select,
-    .control-input,
-    .inline-option {
-        overflow: visible !important;
-        text-overflow: unset !important;
-        max-width: none !important;
-        min-width: 0 !important;
-    }
-}
-
-@media (min-width: 769px) {
-    .balance-card,
-    .balance-controls,
-    .balance-main,
-    .balance-display-container,
-    .balance-display,
-    .control-group,
-    .control-select,
-    .control-input,
-    .inline-option {
-        overflow: visible !important;
-        text-overflow: unset !important;
-        max-width: none !important;
-        min-width: 0 !important;
-    }
-}
-
-/* Special adjustments for very small screens */
-@media (max-width: 480px) {
-    .balance-card,
-    .balance-controls,
-    .balance-main,
-    .balance-display-container,
-    .balance-display,
-    .control-group,
-    .control-select,
-    .control-input,
-    .inline-option {
-        overflow: visible !important;
-        text-overflow: unset !important;
-        max-width: none !important;
-        min-width: 0 !important;
-    }
-}
-
-/* Special adjustments for extra large screens */
-@media (min-width: 1200px) {
-    .balance-card,
-    .balance-controls,
-    .balance-main,
-    .balance-display-container,
-    .balance-display,
-    .control-group,
-    .control-select,
-    .control-input,
-    .inline-option {
-        overflow: visible !important;
-        text-overflow: unset !important;
-        max-width: none !important;
-        min-width: 0 !important;
-    }
-}
-
-/* Special adjustments for all screen sizes */
-@media (min-width: 1px) {
-    .balance-card,
-    .balance-controls,
-    .balance-main,
-    .balance-display-container,
-    .balance-display,
-    .control-group,
-    .control-select,
-    .control-input,
-    .inline-option {
-        overflow: visible !important;
-        text-overflow: unset !important;
-        max-width: none !important;
-        min-width: 0 !important;
-    }
-}
-
-/* Responsive z-index adjustments for new structure */
-@media (max-width: 768px) {
-    .balance-controls-header,
-    .balance-controls-row,
-    .control-item,
-    .control-select,
-    .control-input,
-    .checkbox-wrapper,
-    .control-checkbox {
-        z-index: auto !important;
-        position: relative !important;
-    }
-}
-
-/* Special styling for balance display */
-.balance-display {
-    position: relative;
-    z-index: 2;
-}
-
-.balance-display::after {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(135deg, rgba(79, 172, 254, 0.1) 0%, rgba(0, 242, 254, 0.1) 100%);
-    border-radius: 20px;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-    z-index: -1;
-}
-
-.balance-display:hover::after {
-    opacity: 1;
-}
-
-/* Special styling for balance status */
-.balance-status {
-    position: relative;
-    z-index: 2;
-}
-
-.balance-status::before {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(135deg, rgba(79, 172, 254, 0.05) 0%, rgba(0, 242, 254, 0.05) 100%);
-    border-radius: 15px;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-    z-index: -1;
-}
-
-.balance-status:hover::before {
-    opacity: 1;
-}
-
-/* Special styling for balance change */
-.balance-change {
-    position: relative;
-    z-index: 2;
-}
-
-.balance-change::before {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(135deg, rgba(79, 172, 254, 0.05) 0%, rgba(0, 242, 254, 0.05) 100%);
-    border-radius: 15px;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-    z-index: -1;
-}
-
-.balance-change:hover::before {
-    opacity: 1;
-}
-
-/* Special styling for balance trend */
-.balance-trend {
-    position: relative;
-    z-index: 2;
-}
-
-.balance-trend::before {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(135deg, rgba(79, 172, 254, 0.05) 0%, rgba(0, 242, 254, 0.05) 100%);
-    border-radius: 15px;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-    z-index: -1;
-}
-
-.balance-trend:hover::before {
-    opacity: 1;
-}
-
-/* Special styling for balance card header */
-.balance-card-header {
-    position: relative;
-    z-index: 2;
-}
-
-.balance-card-header::before {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(135deg, rgba(79, 172, 254, 0.05) 0%, rgba(0, 242, 254, 0.05) 100%);
-    border-radius: 15px;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-    z-index: -1;
-}
-
-.balance-card-header:hover::before {
-    opacity: 1;
-}
-
-.balance-display-container {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 15px;
-    width: 100%;
-    overflow: visible;
-    min-width: 0;
-}
-
-.balance-display {
-    font-size: 2.2rem;
-    font-weight: 800;
-    color: #4facfe;
-    text-align: center;
-    white-space: nowrap;
-    overflow: visible;
-    text-overflow: unset;
-    position: relative;
-    z-index: 1;
-    -webkit-font-smoothing: antialiased;
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
-    border: 2px solid rgba(79, 172, 254, 0.3);
-    border-radius: 25px;
-    padding: 25px 40px;
-    backdrop-filter: blur(20px);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    min-width: 200px;
-}
-
-@media (max-width: 768px) {
-    .balance-display {
-        min-width: 0;
-        max-width: 100%;
-        white-space: normal;
-        word-break: break-word;
-        padding: 15px 20px;
-        font-size: 1.8rem;
-    }
-}
-    -moz-osx-font-smoothing: grayscale;
-    max-width: none;
-    word-spacing: 0.05em;
-    letter-spacing: -0.02em;
-    border-radius: 12px;
-    background: linear-gradient(135deg, rgba(79, 172, 254, 0.1), rgba(0, 242, 254, 0.05));
-    border: 1px solid rgba(79, 172, 254, 0.2);
-    box-sizing: border-box;
-    backdrop-filter: blur(15px);
-    box-shadow: 0 8px 32px rgba(79, 172, 254, 0.15);
-}
-
-.balance-currency {
-    font-size: 1.4rem;
-    font-weight: 600;
-    color: rgba(79, 172, 254, 0.8);
-    margin-left: 8px;
-    vertical-align: baseline;
-    display: inline;
-}
-
-.balance-footer {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-top: 20px;
-    padding-top: 15px;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
-    width: 100%;
-    max-width: 400px;
-    gap: 20px;
-}
-
-.balance-status {
-    display: flex;
-    align-items: center;
-    flex: 1;
-    justify-content: center;
-}
-
-.status-indicator {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 6px 12px;
-    background: rgba(255, 255, 255, 0.05);
-    border-radius: 20px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(10px);
-}
-
-.status-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: #4caf50;
-    box-shadow: 0 0 8px rgba(76, 175, 80, 0.6);
-}
-
-.status-text {
-    font-size: 0.75rem;
-    font-weight: 600;
-    color: var(--text-primary);
-}
-
-.balance-trend {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    padding: 6px 12px;
-    background: rgba(255, 255, 255, 0.05);
-    border-radius: 20px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(10px);
-    flex: 1;
-    justify-content: center;
-}
-
-.trend-icon {
-    font-size: 0.9rem;
-}
-
-.trend-text {
-    font-size: 0.75rem;
-    font-weight: 600;
-    color: var(--text-primary);
-}
-
-/* Desktop specific fixes for controls */
-@media (min-width: 769px) {
-    .control-select,
-    .control-input {
-        min-width: 120px;
-        padding: 10px 14px;
-        font-size: 0.8rem;
-    }
-    
-    .balance-controls {
-        z-index: 100;
-        gap: 20px;
-        padding: 0 30px;
-        margin-bottom: 25px;
-    }
-    
-    .control-group {
-        z-index: 101;
-        position: relative;
-        padding: 16px;
-        min-width: 150px;
-    }
-    
-    .control-label {
-        font-size: 0.8rem;
-        margin-bottom: 6px;
-    }
-    
-    .inline-option {
-        padding: 8px 12px;
-        margin-top: 10px;
-    }
-    
-    .inline-option input[type="checkbox"] {
-        width: 20px;
-        height: 20px;
-    }
-    
-    .inline-option label {
-        font-size: 0.75rem;
-    }
-}
-
-/* Responsive adjustments for new balance design */
-@media (max-width: 768px) {
-    .balance-header {
-        flex-direction: column;
-        gap: 15px;
-        align-items: stretch;
-    }
-    
-    .balance-controls {
-        flex-direction: column;
-        align-items: center;
-        gap: 15px;
-        padding: 0 20px;
-        margin-bottom: 20px;
-        overflow: visible;
-        min-width: 0;
-    }
-    
-    .control-group {
-        width: 100%;
-        padding: 12px;
-        min-width: auto;
-        max-width: none;
-        overflow: visible;
-    }
-    
-    .control-select,
-    .control-input {
-        min-width: 80px;
-        padding: 8px 12px;
-        font-size: 0.75rem;
-        width: 100%;
-        overflow: visible;
-        text-overflow: unset;
-        max-width: none;
-    }
-    
-    .control-label {
-        font-size: 0.7rem;
-        margin-bottom: 4px;
-    }
-    
-    .inline-option {
-        padding: 4px 6px;
-        margin-top: 6px;
-    }
-    
-    .inline-option input[type="checkbox"] {
-        width: 16px;
-        height: 16px;
-    }
-    
-    .inline-option label {
-        font-size: 0.65rem;
-    }
-    
-    .balance-display {
-        font-size: 2.0rem;
-        padding: 15px 20px;
-        min-width: 150px;
-        overflow: visible;
-        text-overflow: unset;
-        max-width: none;
-    }
-    
-    .balance-currency {
-        font-size: 1.2rem;
-        margin-left: 6px;
-    }
-    
-    .balance-footer {
-        flex-direction: column;
-        gap: 15px;
-        align-items: center;
-        max-width: none;
-    }
-}
-
-@media (max-width: 480px) {
-    .balance-display {
-        font-size: 1.8rem;
-        padding: 12px 16px;
-        min-width: 120px;
-        overflow: visible;
-        text-overflow: unset;
-        max-width: none;
-    }
-    
-    .balance-currency {
-        font-size: 1.0rem;
-        margin-left: 4px;
-    }
-    
-    .balance-title h3 {
-        font-size: 1.1rem;
-    }
-    
-    .balance-icon {
-        font-size: 1.8rem;
-    }
-}
-
 body.light-mode .theme-toggle {
     background: rgba(255, 255, 255, 0.8);
     border-color: rgba(0, 0, 0, 0.1);
@@ -4101,544 +1613,4 @@ body.light-mode .theme-toggle {
 
 body.light-mode .theme-toggle svg {
     color: #2c3e50;
-}
-
-/* Enhanced Animations */
-@keyframes subtle-glow {
-    0%, 100% {
-        box-shadow: 0 8px 32px rgba(79, 172, 254, 0.1),
-                    inset 0 1px 0 rgba(255, 255, 255, 0.1);
-    }
-    50% {
-        box-shadow: 0 12px 40px rgba(79, 172, 254, 0.15),
-                    inset 0 1px 0 rgba(255, 255, 255, 0.15);
-    }
-}
-
-/* Balance currency styling */
-.balance-currency {
-    font-size: inherit;
-    font-weight: inherit;
-    font-family: inherit;
-    color: inherit;
-    text-shadow: inherit;
-    margin-left: 0.3em;
-    display: inline;
-    -webkit-font-smoothing: inherit;
-    -moz-osx-font-smoothing: inherit;
-}
-
-.balance-display .balance-currency {
-    font-size: 1.4rem !important;
-    font-weight: 800 !important;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif !important;
-    color: #ffffff !important;
-    text-shadow: 0 0 20px rgba(79, 172, 254, 0.8),
-                 0 0 40px rgba(79, 172, 254, 0.4) !important;
-    margin-left: 0.2em;
-    letter-spacing: -0.01em !important;
-    -webkit-font-smoothing: antialiased !important;
-    -moz-osx-font-smoothing: grayscale !important;
-    display: inline !important;
-}
-
-/* Perfect centering and overflow protection */
-.balance-display,
-.balance-change {
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    text-align: center !important;
-    overflow: hidden !important;
-    word-wrap: break-word;
-    hyphens: none;
-}
-
-.balance-display {
-    flex-wrap: nowrap !important;
-    white-space: nowrap !important;
-}
-
-.balance-change {
-    flex-wrap: nowrap !important;
-    white-space: nowrap !important;
-}
-
-/* Ensure container constraints are respected */
-.balance-main .balance-display-container {
-    width: 100%;
-    overflow: hidden;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.balance-main {
-    overflow: hidden;
-    width: 100%;
-    box-sizing: border-box;
-}
-
-@keyframes balance-shimmer {
-    0% { background-position: 200% 0; }
-    100% { background-position: -200% 0; }
-}
-
-.balance-display:hover {
-    animation: balance-shimmer 2s linear infinite, subtle-glow 4s ease-in-out infinite;
-    transform: translateY(-1px) scale(1.02);
-}
-
-.balance-controls:hover {
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15),
-                inset 0 1px 0 rgba(255, 255, 255, 0.15);
-    transform: translateY(-1px);
-}
-
-.balance-footer .balance-status:hover,
-.balance-footer .balance-trend:hover {
-    transform: translateY(-1px) scale(1.02);
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.04) 100%);
-}
-
-/* Trade List Animations */
-@keyframes slideInFromTop {
-    0% {
-        opacity: 0;
-        transform: translateY(-20px) scale(0.95);
-    }
-    50% {
-        opacity: 0.8;
-        transform: translateY(-5px) scale(1.02);
-    }
-    100% {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-    }
-}
-
-@keyframes newTradeGlow {
-    0% {
-        box-shadow: 0 0 0 rgba(79, 172, 254, 0);
-        background: inherit;
-    }
-    50% {
-        box-shadow: 0 0 20px rgba(79, 172, 254, 0.4),
-                    inset 0 1px 0 rgba(79, 172, 254, 0.2);
-        background: linear-gradient(135deg,
-            rgba(79, 172, 254, 0.1) 0%,
-            rgba(0, 242, 254, 0.05) 100%);
-    }
-    100% {
-        box-shadow: 0 0 0 rgba(79, 172, 254, 0);
-        background: inherit;
-    }
-}
-
-@keyframes subtlePulse {
-    0%, 100% {
-        transform: scale(1);
-        background: inherit;
-    }
-    50% {
-        transform: scale(1.01);
-        background: linear-gradient(135deg,
-            rgba(255, 255, 255, 0.08) 0%,
-            rgba(255, 255, 255, 0.04) 100%);
-    }
-}
-
-/* New Trade Animation */
-.trade-item.new-trade {
-    animation: slideInFromTop 0.4s cubic-bezier(0.4, 0, 0.2, 1),
-               newTradeGlow 1.2s cubic-bezier(0.4, 0, 0.2, 1);
-    animation-fill-mode: both;
-    border: 1px solid rgba(79, 172, 254, 0.3) !important;
-}
-
-/* Updated Trade Animation */
-.trade-item.trade-item-updated {
-    animation: subtlePulse 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    border-color: rgba(255, 255, 255, 0.3) !important;
-}
-
-/* Base trade item styling for smooth transitions */
-.trade-item {
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    transform-origin: center top;
-}
-
-/* Mobile trade specific animations */
-.mobile-trade.new-trade {
-    animation: slideInFromTop 0.5s cubic-bezier(0.4, 0, 0.2, 1),
-               newTradeGlow 1.5s cubic-bezier(0.4, 0, 0.2, 1);
-    animation-fill-mode: both;
-}
-
-.mobile-trade.trade-item-updated {
-    animation: subtlePulse 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-/* Enhanced Visual Feedback */
-@keyframes fadeInScale {
-    0% {
-        opacity: 0;
-        transform: translateY(-10px) scale(0.98);
-    }
-    100% {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-    }
-}
-
-/* Newest trade item special highlight */
-.trade-item:first-of-type:not(.trade-header) {
-    position: relative;
-    border-left: 3px solid rgba(79, 172, 254, 0.6) !important;
-}
-
-.trade-item:first-of-type:not(.trade-header)::before {
-    content: 'LATEST';
-    position: absolute;
-    top: -8px;
-    left: -1px;
-    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-    color: white;
-    font-size: 0.6rem;
-    font-weight: 800;
-    padding: 2px 6px;
-    border-radius: 4px;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
-    z-index: 10;
-    letter-spacing: 0.5px;
-}
-
-/* Staggered entry animation for multiple new trades */
-.trade-item.new-trade:nth-child(2) { animation-delay: 0.1s; }
-.trade-item.new-trade:nth-child(3) { animation-delay: 0.2s; }
-.trade-item.new-trade:nth-child(4) { animation-delay: 0.3s; }
-.trade-item.new-trade:nth-child(5) { animation-delay: 0.4s; }
-
-/* Enhanced hover effects for trade items */
-.trade-item:not(.trade-header):hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15),
-                0 0 0 1px rgba(79, 172, 254, 0.2);
-    background: linear-gradient(135deg,
-        rgba(255, 255, 255, 0.08) 0%,
-        rgba(255, 255, 255, 0.04) 100%);
-}
-
-/* Success/failure result colors */
-.trade-result.win,
-.trade-result.profit {
-    color: #4caf50 !important;
-    text-shadow: 0 0 8px rgba(76, 175, 80, 0.5);
-}
-
-.trade-result.loss,
-.trade-result.lose {
-    color: #f44336 !important;
-    text-shadow: 0 0 8px rgba(244, 67, 54, 0.5);
-}
-
-.trade-result.refund,
-.trade-result.cancelled {
-    color: #ff9800 !important;
-    text-shadow: 0 0 8px rgba(255, 152, 0, 0.5);
-}
-
-/* Enhanced P&L colors */
-.trade-delta.positive {
-    color: #4caf50 !important;
-    font-weight: 700;
-}
-
-.trade-delta.negative {
-    color: #f44336 !important;
-    font-weight: 700;
-}
-
-.trade-delta.neutral {
-    color: #ff9800 !important;
-    font-weight: 600;
-}
-
-/* Desktop table header styling */
-.trade-item.trade-header {
-    display: grid !important;
-    grid-template-columns: 1fr 1fr 1fr 1.2fr 1fr !important;
-    gap: 12px !important;
-    padding: 12px 16px !important;
-    background: linear-gradient(135deg,
-        rgba(79, 172, 254, 0.15) 0%,
-        rgba(0, 242, 254, 0.10) 100%) !important;
-    border: 2px solid rgba(79, 172, 254, 0.3) !important;
-    border-radius: 12px !important;
-    font-weight: 700 !important;
-    font-size: 0.85rem !important;
-    text-transform: uppercase !important;
-    letter-spacing: 0.5px !important;
-    color: #ffffff !important;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.7) !important;
-    position: sticky !important;
-    top: 0 !important;
-    z-index: 200 !important;
-    backdrop-filter: blur(15px) !important;
-    box-shadow: 0 4px 20px rgba(79, 172, 254, 0.2),
-                inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
-    margin-bottom: 8px !important;
-}
-
-.trade-item.trade-header > div {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    white-space: nowrap;
-}
-
-/* Ensure regular trade items also use grid layout on desktop */
-@media (min-width: 768px) {
-    .trade-item:not(.trade-header):not(.mobile-trade) {
-        display: grid;
-        grid-template-columns: 1fr 1fr 1fr 1.2fr 1fr;
-        gap: 12px;
-        padding: 12px 16px;
-        align-items: center;
-    }
-
-    .trade-item:not(.trade-header):not(.mobile-trade) > div {
-        text-align: center;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: rgba(255, 255, 255, 0.95);
-        font-weight: 500;
-    }
-
-    .trade-item:not(.trade-header):not(.mobile-trade) .trade-balance {
-        color: #ffffff;
-        font-weight: 600;
-        font-size: 0.9rem;
-    }
-}
-}
-
-/* === IMPROVED BALANCE CONTROLS LAYOUT === */
-.balance-controls-header {
-    margin-bottom: 20px;
-    padding-bottom: 15px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    position: relative;
-    z-index: 100;
-    overflow: visible;
-}
-
-.balance-main {
-    text-align: center;
-    margin: 0;
-}
-
-.balance-title-section {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 12px;
-    margin-bottom: 15px;
-}
-
-.balance-icon {
-    font-size: 1.5rem;
-    filter: drop-shadow(0 2px 8px rgba(255, 193, 7, 0.3));
-}
-
-.balance-title h3 {
-    margin: 0;
-    font-size: 1.1rem;
-    font-weight: 600;
-    color: var(--text-primary);
-    line-height: 1.2;
-}
-
-.balance-subtitle {
-    font-size: 0.65rem;
-    color: var(--text-secondary);
-    font-weight: 500;
-    margin-top: 2px;
-    display: block;
-}
-
-.balance-controls-row {
-    display: flex;
-    gap: 20px;
-    align-items: end;
-    flex-wrap: wrap;
-    position: relative;
-    z-index: 100;
-    overflow: visible;
-    max-width: 100%;
-}
-
-.control-item {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    min-width: 80px;
-    max-width: 100%;
-    position: relative;
-    z-index: 100;
-    overflow: visible;
-    flex-shrink: 1;
-}
-
-.control-label {
-    font-size: 0.75rem;
-    color: var(--text-secondary);
-    font-weight: 600;
-    letter-spacing: 0.5px;
-    text-transform: uppercase;
-}
-
-.control-select,
-.control-input {
-    background: rgba(255, 255, 255, 0.08);
-    color: var(--text-primary);
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    border-radius: 8px;
-    padding: 8px 12px;
-    font-size: 0.8rem;
-    font-weight: 500;
-    backdrop-filter: blur(10px);
-    transition: all 0.3s ease;
-    min-height: 36px;
-    box-sizing: border-box;
-}
-
-.control-select:focus,
-.control-input:focus {
-    outline: none;
-    border-color: #58a6ff;
-    box-shadow: 0 0 0 2px rgba(88, 166, 255, 0.2);
-    background: rgba(255, 255, 255, 0.12);
-}
-
-.control-select:hover,
-.control-input:hover {
-    border-color: rgba(88, 166, 255, 0.4);
-    background: rgba(255, 255, 255, 0.12);
-}
-
-.checkbox-wrapper {
-    position: relative;
-    display: inline-block;
-    min-height: 36px;
-    display: flex;
-    align-items: center;
-}
-
-.control-checkbox {
-    opacity: 0;
-    position: absolute;
-    width: 24px;
-    height: 24px;
-    margin: 0;
-}
-
-.checkbox-label {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 36px;
-    height: 36px;
-    background: rgba(255, 255, 255, 0.08);
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    border-radius: 8px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    font-size: 1rem;
-    color: transparent;
-    backdrop-filter: blur(10px);
-    user-select: none;
-}
-
-.control-checkbox:checked + .checkbox-label {
-    background: linear-gradient(135deg, #58a6ff, #7ee787);
-    border-color: #58a6ff;
-    color: white;
-    box-shadow: 0 2px 8px rgba(88, 166, 255, 0.3);
-}
-
-.control-checkbox:focus + .checkbox-label {
-    outline: 2px solid rgba(88, 166, 255, 0.4);
-    outline-offset: 2px;
-}
-
-.checkbox-label:hover {
-    border-color: rgba(88, 166, 255, 0.4);
-    background: rgba(255, 255, 255, 0.12);
-}
-
-.control-checkbox:checked + .checkbox-label:hover {
-    background: linear-gradient(135deg, #7eb8ff, #8ef797);
-}
-
-/* Responsive adjustments */
-@media (max-width: 768px) {
-    .balance-header {
-        gap: 15px;
-    }
-    
-    .balance-controls-row {
-        gap: 15px;
-        justify-content: space-between;
-    }
-    
-    .control-item {
-        min-width: auto;
-        flex: 1;
-    }
-    
-    .balance-title h3 {
-        font-size: 1.0rem;
-    }
-    
-    .balance-display {
-        font-size: 1.0rem;
-        min-height: 45px;
-        padding: 10px 14px;
-        margin: 8px 0;
-    }
-    
-    .balance-icon {
-        font-size: 1.7rem;
-    }
-}
-
-@media (max-width: 480px) {
-    .balance-controls-row {
-        flex-direction: column;
-        gap: 12px;
-        align-items: stretch;
-    }
-    
-    .control-item {
-        min-width: 100%;
-    }
-    
-    .balance-header {
-        gap: 12px;
-    }
-    
-    .balance-display {
-        font-size: 0.9rem;
-        min-height: 40px;
-        padding: 8px 12px;
-        margin: 6px 0;
-    }
-    
-    .balance-title h3 {
-        font-size: 0.95rem;
-    }
 }
